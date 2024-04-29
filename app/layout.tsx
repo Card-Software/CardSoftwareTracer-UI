@@ -1,13 +1,13 @@
 // layouts/RootLayout.tsx
-import React from "react";
-import { Metadata } from "next";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/sidebar";
+import React from 'react';
+import { Metadata } from 'next';
+import './globals.css';
+import Navbar from '@/components/Navbar';
+import Sidebar from '@/components/sidebar';
 
 export const metadata: Metadata = {
-  title: "Tracer",
-  description: "App for tracing documents",
+  title: 'Tracer',
+  description: 'App for tracing documents',
 };
 
 export default function RootLayout({
@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="flex flex-col h-screen">
+      <body className="flex h-screen flex-col">
         <Navbar />
         <div className="flex flex-grow">
           <Sidebar />

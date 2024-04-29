@@ -1,14 +1,14 @@
 // components/ProcessEditorPage.js
-import React from "react";
+import React from 'react';
 
 const ProcessEditorPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between mb-4">
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+      <div className="mb-4 flex justify-between">
+        <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
           Add New Section
         </button>
-        <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
           Add Built Section
         </button>
       </div>

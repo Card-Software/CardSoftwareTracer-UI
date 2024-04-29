@@ -1,19 +1,30 @@
 // components/Sidebar.tsx
-import React from "react";
+import Link from 'next/link';
+import React from 'react';
 
-const menuItems = [
-  { id: 1, label: "Home", link: "/" },
-  { id: 2, label: "Process Editor", link: "/process-editor" },
-  { id: 3, label: "Dashboard", link: "/dashboard" },
+interface MenuItem {
+  id: number;
+  label: string;
+  link: string;
+}
+
+const menuItems: MenuItem[] = [
+  { id: 1, label: 'Home', link: '/' },
+  { id: 2, label: 'Process Editor', link: '/process-editor' },
+  { id: 3, label: 'Dashboard', link: '/dashboard' },
 ];
 
 const Sidebar: React.FC = () => {
   return (
-    <aside className="bg-blue-900 text-white h-full w-32">
-      <div className="flex flex-col items-start mt-24">
-        {menuItems.map(({ ...menu }) => {
-          return <div>{menu.label}</div>;
-        })}
+    <aside className="inline-block h-full bg-blue-900 text-white">
+      <div className="flex flex-col items-end">
+        {menuItems.map((menu) => (
+          <Link key={menu.id} href={menu.link} style={{ width: '100%' }}>
+            <div className="px-4 py-2 text-right hover:bg-blue-700">
+              {menu.label}
+            </div>
+          </Link>
+        ))}
       </div>
     </aside>
   );
