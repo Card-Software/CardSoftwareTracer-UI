@@ -3,6 +3,7 @@ import React from 'react';
 
 const ProcessEditorPage = () => {
   return (
+    <Layout>
     <div className="container mx-auto px-4 py-8">
       <div className="mb-4 flex justify-between">
         <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-600">
@@ -20,6 +21,7 @@ const ProcessEditorPage = () => {
       </div>
       {/* Other content of your process editor page */}
     </div>
+     </Layout>
   );
 };
 

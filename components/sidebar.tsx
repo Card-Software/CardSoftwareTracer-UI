@@ -10,8 +10,8 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { id: 1, label: 'Home', link: '/' },
-  { id: 2, label: 'Process Editor', link: '/process-editor' },
-  { id: 3, label: 'Dashboard', link: '/dashboard' },
+  { id: 2, label: 'Process Editor', link: '/ProcessEditorPage' },
+  { id: 3, label: 'Dashboard', link: 'DashboardPage' },
 ];
 
 const Sidebar: React.FC = () => {

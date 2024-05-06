@@ -155,3 +155,8 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+.sidebar {
+  height: calc(100vh - 4rem); /* Subtract navbar height */
+  overflow-y: auto; /* Enable scrollbar for sidebar content */
+}
