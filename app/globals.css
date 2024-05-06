@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -19,7 +19,7 @@ body {
     @apply border-white bg-white px-8 py-3 text-green-50;
   }
   .btn_white_text {
-    @apply border-white bg-white px-8 py-3 text-gray-90;
+    @apply text-gray-90 border-white bg-white px-8 py-3;
   }
   .btn_green {
     @apply border-green-50 bg-green-50 px-8 py-5 text-white;
@@ -36,7 +36,7 @@ body {
   }
 
   .padding-container {
-    @apply px-6 lg:px-20 3xl:px-0;
+    @apply 3xl:px-0 px-6 lg:px-20;
   }
 
   .flexCenter {
@@ -126,22 +126,22 @@ body {
 
   /* Hero */
   .hero-map {
-    @apply absolute right-0 top-0 h-screen w-screen bg-pattern-2 bg-cover bg-center md:-right-28 xl:-top-60;
+    @apply bg-pattern-2 absolute right-0 top-0 h-screen w-screen bg-cover bg-center md:-right-28 xl:-top-60;
   }
 
   /* Camp */
   .camp-quote {
-    @apply absolute -right-6 bottom-4 w-[140px] lg:bottom-10 xl:-right-8 xl:w-[186px] 3xl:right-0;
+    @apply 3xl:right-0 absolute -right-6 bottom-4 w-[140px] lg:bottom-10 xl:-right-8 xl:w-[186px];
   }
 
   /* Feature */
   .feature-phone {
-    @apply absolute top-[13%] z-10 hidden max-w-[1500px] rotate-[15deg] md:-left-16 lg:flex  3xl:left-20;
+    @apply 3xl:left-20 absolute top-[13%] z-10 hidden max-w-[1500px] rotate-[15deg] md:-left-16  lg:flex;
   }
 
   /* Get App */
   .get-app {
-    @apply max-container relative flex w-full  flex-col justify-between gap-32 overflow-hidden bg-green-90 bg-pattern bg-cover bg-center bg-no-repeat px-6 py-12 text-white sm:flex-row sm:gap-12 sm:py-24 lg:px-20 xl:max-h-[598px] 2xl:rounded-5xl;
+    @apply max-container bg-green-90 bg-pattern 2xl:rounded-5xl  relative flex w-full flex-col justify-between gap-32 overflow-hidden bg-cover bg-center bg-no-repeat px-6 py-12 text-white sm:flex-row sm:gap-12 sm:py-24 lg:px-20 xl:max-h-[598px];
   }
 }
 
