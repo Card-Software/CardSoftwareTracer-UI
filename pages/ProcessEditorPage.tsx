@@ -1,4 +1,5 @@
 // components/ProcessEditorPage.js
+import Layout from '@/app/layout';
 import React from 'react';
 
 const ProcessEditorPage = () => {

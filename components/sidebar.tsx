@@ -16,7 +16,7 @@ const menuItems: MenuItem[] = [
 
 const Sidebar: React.FC = () => {
   return (
-    <aside className="inline-block h-full bg-blue-900 text-white">
+    <aside className="inline-block h-full bg-blue-900 text-white sidebar">
       <div className="flex flex-col items-end">
         {menuItems.map((menu) => (
           <Link key={menu.id} href={menu.link} style={{ width: '100%' }}>
