@@ -11,12 +11,12 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { id: 1, label: 'Home', link: '/' },
   { id: 2, label: 'Process Editor', link: '/ProcessEditorPage' },
-  { id: 3, label: 'Dashboard', link: 'DashboardPage' },
+  { id: 3, label: 'Dashboard', link: '/DashboardPage' },
 ];
 
 const Sidebar: React.FC = () => {
   return (
-    <aside className="inline-block h-full bg-blue-900 text-white sidebar">
+    <aside className="sidebar inline-block h-full bg-blue-900 text-white">
       <div className="flex flex-col items-end">
         {menuItems.map((menu) => (
           <Link key={menu.id} href={menu.link} style={{ width: '100%' }}>
