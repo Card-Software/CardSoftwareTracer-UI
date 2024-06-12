@@ -1,6 +1,8 @@
 {
   "/_app": "pages/_app.js",
+  "/ProcessEditorPage": "pages/ProcessEditorPage.js",
+  "/po/[poNumber]": "pages/po/[poNumber].js",
+  "/DashboardPage": "pages/DashboardPage.js",
   "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/ProcessEditorPage": "pages/ProcessEditorPage.js"
+  "/_document": "pages/_document.js"
 }
