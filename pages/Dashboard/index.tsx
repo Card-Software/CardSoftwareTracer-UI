@@ -54,14 +54,14 @@ const Dashboard: React.FC = () => {
           progress={3}
           assignedTo={'Collin Shields'}
           dueDate={'05/13/2024'}
-          href={`/po/${poNumber}`}
+          href={`/Dashboard/po/${poNumber}`}
         />
         <WholeSaleItem
           woNumber={woNumber}
           progress={2}
           assignedTo={'Collin Shields'}
           dueDate={'05/13/2024'}
-          href={`/wo/${woNumber}`}
+          href={`/Dashboard/wo/${woNumber}`}
         />
       </div>
 

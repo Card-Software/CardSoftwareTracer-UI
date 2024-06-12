@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import Layout from '../../app/layout';
+import Layout from '../../../app/layout';
 import styled from 'styled-components';
 import { FaExclamationCircle } from 'react-icons/fa';
 

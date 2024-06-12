@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router';
-import Layout from '../../app/layout';
+import Layout from '../../../app/layout';
 import styled from 'styled-components';
-import { FaExclamationCircle } from 'react-icons/fa';
+import { FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
+import React from 'react';
+import { HiPlus } from 'react-icons/hi';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -62,28 +64,47 @@ const PurchaseOrderPage: React.FC = () => {
   return (
     <Layout>
       <Container>
-        <Title>Purchase Order: {poNumber}</Title>
+        <span className="me-8">
+          <a
+            href="/Dashboard"
+            className="text-blue-500 underline hover:text-blue-700"
+          >
+            Dashboard
+          </a>{' '}
+          -> PO details
+        </span>
         <Section>
           <SectionTitle className="flex justify-center">
-            Traceability Stream
+            Purchase Order: {poNumber}
           </SectionTitle>
           <CardContainer>
-            {streams.map((stream) => (
-              <Card key={stream.id} completed={stream.completed}>
-                <CardTitle>
-                  {stream.name}
-                  {!stream.completed && (
-                    <FaExclamationCircle
-                      color="red"
-                      style={{ marginLeft: '10px' }}
-                    />
-                  )}
-                </CardTitle>
-                <CardDetails>{stream.details}</CardDetails>
-              </Card>
+            {streams.map((stream, index) => (
+              <React.Fragment key={stream.id}>
+                <Card completed={stream.completed}>
+                  <CardTitle>
+                    {stream.name}
+                    {!stream.completed && (
+                      <FaExclamationCircle
+                        color="red"
+                        style={{ marginLeft: '10px' }}
+                      />
+                    )}
+                  </CardTitle>
+                  <CardDetails>{stream.details}</CardDetails>
+                </Card>
+                <ArrowIcon>
+                  <FaArrowRight size={24} />
+                </ArrowIcon>
+              </React.Fragment>
             ))}
+            <React.Fragment>
+              <AddNewCard>
+                <AddNewButton>
+                  Add New
+                </AddNewButton>
+              </AddNewCard>
+            </React.Fragment>
           </CardContainer>
-          <button>add new</button>
         </Section>
       </Container>
     </Layout>
@@ -96,11 +117,6 @@ const Container = styled.div`
   padding: 60px;
 `;
 
-const Title = styled.h1`
-  text-align: center;
-  margin-bottom: 40px;
-`;
-
 const Section = styled.section`
   margin-bottom: 40px;
 `;
@@ -109,12 +125,14 @@ const SectionTitle = styled.h2`
   border-bottom: 2px solid #ccc;
   padding-bottom: 10px;
   margin-bottom: 20px;
+  text-align: center;
 `;
 
 const CardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+  position: relative;
 `;
 
 const Card = styled.div<{ completed: boolean }>`
@@ -135,4 +153,37 @@ const CardTitle = styled.h3`
 
 const CardDetails = styled.p`
   margin-bottom: 0;
+`;
+
+const ArrowIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 30px;
+  margin: 0 10px;
+`;
+
+const AddNewCard = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #d7f8ff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  max-width: 300px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const AddNewButton = styled.button`
+  background-color: #d7f8ff;
+  border: none;
+  color: #000;
+  font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
