@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import Layout from '../../app/layout';
 import styled from 'styled-components';
+import { FaExclamationCircle } from 'react-icons/fa';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -8,40 +9,81 @@ const PurchaseOrderPage: React.FC = () => {
 
   // Dummy data for demonstration purposes
   const completedStreams = [
-    { id: 1, name: 'Stream A', details: 'Completed details A' },
-    { id: 2, name: 'Stream B', details: 'Completed details B' },
+    {
+      id: 1,
+      name: 'Stream A',
+      details: 'Completed details A',
+      completed: true,
+    },
+    {
+      id: 2,
+      name: 'Stream B',
+      details: 'Completed details B',
+      completed: true,
+    },
+    {
+      id: 3,
+      name: 'Stream C',
+      details: 'Completed details C',
+      completed: true,
+    },
   ];
 
   const incompleteStreams = [
-    { id: 3, name: 'Stream C', details: 'Incomplete details C' },
-    { id: 4, name: 'Stream D', details: 'Incomplete details D' },
+    {
+      id: 4,
+      name: 'Stream D',
+      details: 'Incomplete details D',
+      completed: false,
+    },
+    {
+      id: 5,
+      name: 'Stream E',
+      details: 'Incomplete details E',
+      completed: false,
+    },
+    {
+      id: 6,
+      name: 'Stream F',
+      details: 'Incomplete details F',
+      completed: false,
+    },
+    {
+      id: 7,
+      name: 'Stream G',
+      details: 'Incomplete details G',
+      completed: false,
+    },
   ];
+
+  // Combine streams
+  const streams = [...completedStreams, ...incompleteStreams];
 
   return (
     <Layout>
       <Container>
         <Title>Purchase Order: {poNumber}</Title>
         <Section>
-          <SectionTitle>Completed Streams</SectionTitle>
+          <SectionTitle className="flex justify-center">
+            Traceability Stream
+          </SectionTitle>
           <CardContainer>
-            {completedStreams.map((stream) => (
-              <Card key={stream.id}>
-                <CardTitle>{stream.name}</CardTitle>
+            {streams.map((stream) => (
+              <Card key={stream.id} completed={stream.completed}>
+                <CardTitle>
+                  {stream.name}
+                  {!stream.completed && (
+                    <FaExclamationCircle
+                      color="red"
+                      style={{ marginLeft: '10px' }}
+                    />
+                  )}
+                </CardTitle>
                 <CardDetails>{stream.details}</CardDetails>
               </Card>
             ))}
           </CardContainer>
-        </Section>
-        <Section>
-          <SectionTitle>Incomplete Streams</SectionTitle>
-          <CardContainer>
-            {incompleteStreams.map((stream) => (
-              <Card key={stream.id}>
-                <CardTitle>{stream.name}</CardTitle>
-                <CardDetails>{stream.details}</CardDetails>
-              </Card>
-            ))}
-          </CardContainer>
+          <button>add new</button>
         </Section>
       </Container>
     </Layout>
@@ -51,7 +93,7 @@ const PurchaseOrderPage: React.FC = () => {
 export default PurchaseOrderPage;
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 60px;
 `;
 
 const Title = styled.h1`
@@ -75,8 +117,8 @@ const CardContainer = styled.div`
   gap: 20px;
 `;
 
-const Card = styled.div`
-  background-color: #fff;
+const Card = styled.div<{ completed: boolean }>`
+  background-color: ${({ completed }) => (completed ? '#e0ffe0' : '#fff')};
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
@@ -86,6 +128,8 @@ const Card = styled.div`
 `;
 
 const CardTitle = styled.h3`
+  display: flex;
+  align-items: center;
   margin-top: 0;
 `;
 
