@@ -3,7 +3,7 @@ import { HiUser } from 'react-icons/hi';
 import ProgressBar from './ProgressBar';
 import Link from 'next/link';
 
-interface DashboardItemProps {
+interface ProdcutOrderProps {
   poNumber: string;
   progress: number;
   assignedTo: string;
@@ -11,7 +11,7 @@ interface DashboardItemProps {
   href: string;
 }
 
-const DashboardItem: React.FC<DashboardItemProps> = ({
+const ProdcutOrder: React.FC<ProdcutOrderProps> = ({
   poNumber,
   progress,
   assignedTo,
@@ -33,4 +33,4 @@ const DashboardItem: React.FC<DashboardItemProps> = ({
   );
 };
 
-export default DashboardItem;
+export default ProdcutOrder;
