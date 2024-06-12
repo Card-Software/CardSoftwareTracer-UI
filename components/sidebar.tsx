@@ -11,7 +11,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { id: 1, label: 'Home', link: '/' },
   { id: 2, label: 'Trac. Stream', link: '/TraceabilityStream' },
-  { id: 3, label: 'Dashboard', link: '/DashboardPage' },
+  { id: 3, label: 'Dashboard', link: '/Dashboard' },
 ];
 
 const Sidebar: React.FC = () => {

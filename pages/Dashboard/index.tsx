@@ -1,20 +1,30 @@
 // components/DashboardPage.tsx
 import React, { useState } from 'react';
 import Layout from '@/app/layout';
-import '../styles/dashboard.css';
+import '../../styles/dashboard.css';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
 import ProductOrderItem from '@/components/ProductOrderItem';
 import Modal from '@/components/CardSoftwareModal';
+import { useRouter } from 'next/router';
 import WholeSaleItem from '@/components/WholeSaleItem';
 
-const DashboardPage: React.FC = () => {
+const Dashboard: React.FC = () => {
+  const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const poNumber = '123-456-789';
   const woNumber = '123-333-777';
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
+
+  const handleNewProductOrder = () => {
+    router.push('/Dashboard/NewProductOrder');
+  };
+
+  const handleNewWholeSaleOrder = () => {
+    router.push('/Dashboard/NewWholeSaleOrder');
+  };
 
   return (
     <Layout>
@@ -26,14 +36,14 @@ const DashboardPage: React.FC = () => {
           <TracerButton
             name="Add New PO"
             icon={<HiPlus />}
-            onClick={openModal}
+            onClick={handleNewProductOrder}
           />
         </div>
         <div className="ps-6">
           <TracerButton
             name="Add Wholesale Order"
             icon={<HiPlus />}
-            onClick={openModal}
+            onClick={handleNewWholeSaleOrder}
           />
         </div>
       </div>
@@ -71,4 +81,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage;
+export default Dashboard;
