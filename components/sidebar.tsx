@@ -10,7 +10,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { id: 1, label: 'Home', link: '/' },
-  { id: 2, label: 'Process Editor', link: '/ProcessEditorPage' },
+  { id: 2, label: 'Trac. Stream', link: '/TraceabilityStream' },
   { id: 3, label: 'Dashboard', link: '/DashboardPage' },
 ];
 
