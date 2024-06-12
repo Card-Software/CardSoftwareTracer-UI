@@ -1,0 +1,25 @@
+.wholesale-item {
+  background-color: #ffffff; /* Very light red background */
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
+}
+
+.wholesale-item::before,
+.wholesale-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ffffff; /* Match the card background color */
+  border: 1px solid #000; /* Match the card border color */
+  z-index: -1;
+}
+
+.wholesale-item::before {
+  transform: translate(6px, 6px);
+}
+
+.wholesale-item::after {
+  transform: translate(12px, 12px);
+}

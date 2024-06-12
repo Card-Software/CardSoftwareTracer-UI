@@ -4,12 +4,14 @@ import Layout from '@/app/layout';
 import '../styles/dashboard.css';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
-import DashboardItem from '@/components/DashboardItem';
+import ProductOrderItem from '@/components/ProductOrderItem';
 import Modal from '@/components/CardSoftwareModal';
+import WholeSaleItem from '@/components/WholeSaleItem';
 
 const DashboardPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const poNumber = '123-456-789';
+  const woNumber = '123-333-777';
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -37,12 +39,19 @@ const DashboardPage: React.FC = () => {
       </div>
       <div className="w-100 my-8 bg-gray-500">Filter</div>
       <div>
-        <DashboardItem
+        <ProductOrderItem
           poNumber={poNumber}
           progress={3}
           assignedTo={'Collin Shields'}
           dueDate={'05/13/2024'}
           href={`/po/${poNumber}`}
+        />
+        <WholeSaleItem
+          woNumber={woNumber}
+          progress={2}
+          assignedTo={'Collin Shields'}
+          dueDate={'05/13/2024'}
+          href={`/wo/${woNumber}`}
         />
       </div>
 
