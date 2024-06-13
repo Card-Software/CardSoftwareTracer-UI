@@ -8,7 +8,6 @@ interface ProdcutOrderProps {
   progress: number;
   assignedTo: string;
   dueDate: string;
-  href: string;
 }
 
 const ProdcutOrder: React.FC<ProdcutOrderProps> = ({
@@ -16,10 +15,9 @@ const ProdcutOrder: React.FC<ProdcutOrderProps> = ({
   progress,
   assignedTo,
   dueDate,
-  href,
 }) => {
   return (
-    <Link href={href}>
+    <Link href={`Dashboard/po/${poNumber}`}>
       <div className="mb-4 max-w-72 rounded border border-black p-4">
         <h2>PO {poNumber}</h2>
         <ProgressBar progress={progress} />
