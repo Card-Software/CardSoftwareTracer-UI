@@ -16,6 +16,12 @@ const NewProductOrder: React.FC = () => {
     { id: 3, name: 'Client C' },
   ];
 
+  const sampleUsers = [
+    { id: 1, name: 'User 1' },
+    { id: 2, name: 'User 2' },
+    { id: 3, name: 'User 3' },
+  ];
+
   const existingPOs = [
     { id: 1, name: 'PO 1001' },
     { id: 2, name: 'PO 1002' },
@@ -118,7 +124,7 @@ const NewProductOrder: React.FC = () => {
         </select>
       </div>
 
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <label className="mb-2 block text-sm font-bold text-gray-700">
           Connect to other PO(s)
         </label>
@@ -158,7 +164,7 @@ const NewProductOrder: React.FC = () => {
             </span>
           ))}
         </div>
-      </div>
+      </div> */}
 
       <footer className="stream-footer flex justify-between bg-gray-200 p-4">
         <div>

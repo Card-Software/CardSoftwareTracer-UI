@@ -70,13 +70,15 @@ const Dashboard: React.FC = () => {
               assignedTo={order.assignedTo}
               dueDate={order.dueDate}
             />
-            <WholeSaleItem
-              woNumber={order.poNumber.replace('PO', 'WO')}
-              progress={order.progress}
-              assignedTo={order.assignedTo}
-              dueDate={order.dueDate}
-              href={`/Dashboard/wo/${order.poNumber.replace('PO', 'WO')}`}
-            />
+            {order.poNumber === 'PO001' && (
+              <WholeSaleItem
+                woNumber={order.poNumber.replace('PO', 'WO')}
+                progress={order.progress}
+                assignedTo={order.assignedTo}
+                dueDate={order.dueDate}
+                href={`/Dashboard/wo/${order.poNumber.replace('PO', 'WO')}`}
+              />
+            )}
           </div>
         ))}
       </div>

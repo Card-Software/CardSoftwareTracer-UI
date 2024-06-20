@@ -12,11 +12,13 @@ import * as demoModels from '@/models/demo';
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
-  const [orderDetails, setOrderDetails] = useState<demoModels.ProductOrder | null>(null);
-  const [selectedSection, setSelectedSection] = useState<demoModels.Section | null>(null);
+  const [orderDetails, setOrderDetails] =
+    useState<demoModels.ProductOrder | null>(null);
+  const [selectedSection, setSelectedSection] =
+    useState<demoModels.Section | null>(null);
 
   useEffect(() => {
-    const foundOrder = demoDocs.find(doc => doc.ProductOrder === poNumber);
+    const foundOrder = demoDocs.find((doc) => doc.ProductOrder === poNumber);
 
     if (foundOrder) {
       setOrderDetails(foundOrder);
@@ -46,37 +48,50 @@ const PurchaseOrderPage: React.FC = () => {
   return (
     <Layout>
       <Container>
-        <Breadcrumb>
-          <a href="/Dashboard" className="text-blue-500 underline hover:text-blue-700">
+        <div>
+          <a
+            href="/Dashboard"
+            className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
+          >
             Dashboard
-          </a>{' '}
-          -> PO details
-        </Breadcrumb>
+          </a>
+          <span className="text-sm text-gray-500"> &gt; PO Details</span>
+        </div>
         <Section>
-          <SectionTitle>
-            Purchase Order: {poNumber}
-          </SectionTitle>
+          <SectionTitle>Purchase Order: {poNumber}</SectionTitle>
           <CardContainer>
             {TraceabilityStream.Sections.map((section, index) => (
               <React.Fragment key={section.Position}>
                 <Card onClick={() => handleSectionClick(section)}>
                   <CardTitle>
                     {section.SectionName}
-                    <FaExclamationCircle color="red" style={{ marginLeft: '10px' }} />
+                    <FaExclamationCircle
+                      color="red"
+                      style={{ marginLeft: '10px' }}
+                    />
                   </CardTitle>
                   <CardDetails>
-                    <DetailItem><strong>Description:</strong> {section.SectionDescription}</DetailItem>
-                    <DetailItem><strong>Assigned to:</strong> {section.assignedUser.Name}</DetailItem>
+                    <DetailItem>
+                      <strong>Description:</strong> {section.SectionDescription}
+                    </DetailItem>
+                    <DetailItem>
+                      <strong>Assigned to:</strong> {section.assignedUser.Name}
+                    </DetailItem>
                     <DetailItem>
                       <strong>Notes:</strong>
                       <ul>
-                        {section.Notes.map(note => (
+                        {section.Notes.map((note) => (
                           <li key={note.id}>{note.content}</li>
                         ))}
                       </ul>
                     </DetailItem>
                     <DetailItem>
-                      <a href={section.Files[0].PresignedUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">
+                      <a
+                        href={section.Files[0].PresignedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline hover:text-blue-700"
+                      >
                         {section.Files[0].Name}
                       </a>
                     </DetailItem>
@@ -90,7 +105,7 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
             <AddNewCard>
-              <AddNewButton className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600">
+              <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
                 Add New
               </AddNewButton>
             </AddNewCard>
