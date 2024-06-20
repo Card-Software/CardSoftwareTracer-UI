@@ -7,3 +7,27 @@
   align-items: center;
   padding-left: 1rem;
 }
+
+.table-auto {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-auto th,
+.table-auto td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.table-auto th {
+  background-color: #f2f2f2;
+}
+
+.table-auto tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table-auto tr:hover {
+  background-color: #f1f1f1;
+}
