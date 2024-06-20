@@ -1,5 +1,5 @@
 // components/DashboardPage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/dashboard.css';
 import TracerButton from '@/components/TracerButton';
