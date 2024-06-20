@@ -33,7 +33,6 @@ const Dashboard: React.FC = () => {
         progress: 0, // Assuming default progress, update if you have specific logic
         assignedTo: doc.AssignedTo,
         dueDate: '2024-06-18', // Update this field if you have actual due dates
-        href: `/Dashboard/po/${doc.ProductOrder}`,
         ...doc,
       };
     });
@@ -62,23 +61,22 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <div className="w-100 my-8 bg-gray-500">Filter</div>
-      <div>
+      <div className="flex flex-row">
         {productOrders.map((order, index) => (
-          <div key={index}>
+          <div key={index} className="me-16 ms-16">
             <ProductOrderItem
               poNumber={order.poNumber}
               progress={order.progress}
               assignedTo={order.assignedTo}
               dueDate={order.dueDate}
-              href={order.href}
             />
-            {/* <WholeSaleItem
+            <WholeSaleItem
               woNumber={order.poNumber.replace('PO', 'WO')}
               progress={order.progress}
               assignedTo={order.assignedTo}
               dueDate={order.dueDate}
               href={`/Dashboard/wo/${order.poNumber.replace('PO', 'WO')}`}
-            /> */}
+            />
           </div>
         ))}
       </div>

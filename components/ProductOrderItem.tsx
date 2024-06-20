@@ -18,7 +18,7 @@ const ProdcutOrder: React.FC<ProdcutOrderProps> = ({
 }) => {
   return (
     <Link href={`Dashboard/po/${poNumber}`}>
-      <div className="mb-4 max-w-72 rounded border border-black p-4">
+      <div className="mb-8 max-w-72 rounded border border-black p-4">
         <h2>PO {poNumber}</h2>
         <ProgressBar progress={progress} />
         <div className="mt-2 flex items-center">

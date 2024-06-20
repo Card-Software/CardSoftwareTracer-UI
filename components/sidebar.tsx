@@ -19,7 +19,7 @@ const Sidebar: React.FC = () => {
   const pathname = usePathname() || '/';
 
   return (
-    <aside className="sidebar inline-block h-full w-44 bg-blue-900 text-white">
+    <aside className="sidebar inline-block h-full w-44 bg-gray-100 text-teal-900">
       <div className="flex flex-col items-end">
         {menuItems.map((menu) => {
           const isActive = pathname === menu.link;
@@ -27,7 +27,7 @@ const Sidebar: React.FC = () => {
             <Link key={menu.id} href={menu.link} style={{ width: '100%' }}>
               <div
                 className={`px-4 py-2 text-right ${
-                  isActive ? 'bg-blue-700' : 'hover:bg-blue-500'
+                  isActive ? 'bg-teal-700' : 'hover:bg-teal-500'
                 }`}
               >
                 {menu.label}

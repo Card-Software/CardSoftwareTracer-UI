@@ -15,8 +15,8 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between  bg-neutral-800 px-4 py-4 shadow-lg">
-      <div className="text-xl font-bold text-white">CS Tracer</div>
+    <nav className="flex items-center justify-between  bg-teal-800 px-4 py-4 shadow-lg">
+      <div className="text-xl font-bold text-gray-100">CS Tracer</div>
       {loggedIn && (
         <div className="relative">
           <div
