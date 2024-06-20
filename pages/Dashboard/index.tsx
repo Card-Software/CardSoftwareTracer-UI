@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
           />
         </div>
       </div>
-      <div className="w-100 my-8 bg-gray-500">Filter</div>
+      <div className="my-8 w-full border-b-4 border-teal-500"></div>
       <div className="flex flex-row">
         {productOrders.map((order, index) => (
           <div key={index} className="me-16 ms-16">

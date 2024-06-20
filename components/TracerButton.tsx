@@ -10,7 +10,7 @@ const TracerButton: React.FC<TracerButtonProps> = ({ onClick, name, icon }) => {
   return (
     <button
       onClick={onClick}
-      className="button-dashboard flex items-center space-x-2"
+      className="button-dashboard flex items-center space-x-2 bg-teal-800"
     >
       {icon && <span className="mr-2 inline-block">{icon}</span>}
       <span>{name}</span>

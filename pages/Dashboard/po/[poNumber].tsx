@@ -1,3 +1,5 @@
+// pages/PurchaseOrderPage.tsx
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../../app/layout';
@@ -88,7 +90,9 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
             <AddNewCard>
-              <AddNewButton>Add New</AddNewButton>
+              <AddNewButton className="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600">
+                Add New
+              </AddNewButton>
             </AddNewCard>
           </CardContainer>
         </Section>
@@ -178,7 +182,6 @@ const AddNewCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #d7f8ff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
