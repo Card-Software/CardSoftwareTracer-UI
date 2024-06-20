@@ -8,33 +8,16 @@ import dynamic from 'next/dynamic';
 import { FaTrash, FaTimes } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
+import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy.service';
+import { Section } from '@/models/Section.model';
+import { TracerStream } from '@/models/TraceabilityStream.model';
+import { v4 as uuidv4 } from 'uuid';
+
+interface SectionWithId extends Section {
+  id: string;
+}
 
 const Details = () => {
-  const initialProcesses = [
-    {
-      id: '1',
-      name: 'Section 1',
-      description:
-        'This is like a longer description for the section but iwant to see how far it actually goes beofre it ellipseis',
-      position: 1,
-      subSections: [],
-    },
-    {
-      id: '2',
-      name: 'Section 2',
-      description: '',
-      position: 2,
-      subSections: [],
-    },
-    {
-      id: '3',
-      name: 'Section 3',
-      description: '',
-      position: 3,
-      subSections: [],
-    },
-  ];
-
   const DragDropContext = dynamic(
     () => import('react-beautiful-dnd').then((mod) => mod.DragDropContext),
     {
@@ -55,35 +38,55 @@ const Details = () => {
       ssr: false,
     },
   );
+
   const router = useRouter();
   const { query } = router;
-
-  const [processes, setProcesses] = useState(initialProcesses);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalTitle, setModalTitle] = useState('');
-  const [currentProcess, setCurrentProcess] = useState(null);
-  const [paramValue, setParamValue] = useState('');
-  const isEditing = query.id ? true : false;
   const searchParams = useSearchParams();
 
+  const [processes, setProcesses] = useState<SectionWithId[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [currentProcess, setCurrentProcess] = useState<SectionWithId | null>(
+    null,
+  );
+  const [name, setName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isEditing = !!query.id;
+
   useEffect(() => {
-    //console.log(query);
-    //console.log(searchParams);
-    if (query) {
-      console.log(query);
-      if (Array.isArray(query.id)) {
-        //console.log(query.id);
-      }
+    if (isEditing && query.id) {
+      fetchTraceability(query.id as string);
     }
   }, [query]);
 
+  const fetchTraceability = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const data = await traceabilityApiProxyService.getTraceability(id);
+      setName(data.name || '');
+      setProcesses(
+        data.sections.map((section: Section) => ({
+          ...section,
+          id: uuidv4(),
+        })) || [],
+      );
+    } catch (error) {
+      setError('Failed to fetch traceability details.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleOnDragEnd = (result) => {
     if (!result.destination) return;
+
     const items = Array.from(processes);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // Update positions based on new index
     items.forEach((item, index) => {
       item.position = index + 1;
     });
@@ -91,18 +94,14 @@ const Details = () => {
     setProcesses(items);
   };
 
-  const deleteProcess = (id) => {
+  const deleteProcess = (id: string) => {
     if (confirm('Are you sure you want to delete this stage?')) {
       setProcesses((prev) => {
-        // Remove the process with the specified id
         const filteredProcesses = prev.filter((process) => process.id !== id);
-
-        // Update the position of the remaining processes
         const updatedProcesses = filteredProcesses.map((process, index) => ({
           ...process,
           position: index + 1,
         }));
-
         return updatedProcesses;
       });
     }
@@ -110,15 +109,16 @@ const Details = () => {
 
   const handleAddProcess = () => {
     openModal('Add New Stage', {
-      id: String(processes.length + 1),
-      name: '',
-      description: '',
+      id: uuidv4(),
+      sectionName: '',
+      sectionDescription: '',
       position: processes.length + 1,
-      subSections: [],
+      files: [],
+      notes: '',
     });
   };
 
-  const openModal = (title, process) => {
+  const openModal = (title: string, process: SectionWithId) => {
     setModalTitle(title);
     setCurrentProcess(process);
     setIsModalOpen(true);
@@ -129,17 +129,47 @@ const Details = () => {
     setCurrentProcess(null);
   };
 
-  const saveProcess = (data) => {
+  const saveProcess = (data: Partial<SectionWithId>) => {
     if (modalTitle === 'Add New Stage') {
-      setProcesses((prev) => [...prev, { ...currentProcess, ...data }]);
+      setProcesses((prev) => [
+        ...prev,
+        { ...currentProcess, ...data } as SectionWithId,
+      ]);
     } else {
       setProcesses((prev) =>
         prev.map((process) =>
-          process.id === currentProcess.id ? { ...process, ...data } : process,
+          process.id === currentProcess?.id ? { ...process, ...data } : process,
         ),
       );
     }
     closeModal();
+  };
+
+  const handleSave = async () => {
+    setError(null);
+    setIsLoading(true);
+    const newTraceability: TracerStream = {
+      name,
+      sections: processes,
+    };
+
+    try {
+      if (isEditing) {
+        // Update existing traceability
+        await traceabilityApiProxyService.createTraceability(newTraceability);
+        alert('Traceability stream updated successfully!');
+      } else {
+        // Create new traceability
+        await traceabilityApiProxyService.createTraceability(newTraceability);
+        alert('Traceability stream created successfully!');
+        router.push('/TraceabilityStream');
+      }
+    } catch (error) {
+      setError('Failed to save traceability stream.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -159,13 +189,19 @@ const Details = () => {
           {isEditing ? 'Edit Traceability Stream' : 'Add Traceability Stream'}
         </h1>
       </div>
+
+      {error && <p className="text-red-500">{error}</p>}
+
       <div className="my-4">
         <label className="block">Name</label>
         <input
           type="text"
-          className="mt-1 block rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
         />
       </div>
+
       <div className="mb-4">
         <TracerButton
           name="Add New Stage"
@@ -194,22 +230,16 @@ const Details = () => {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        style={{
-                          ...provided.draggableProps.style,
-                          marginBottom: '10px',
-                          backgroundColor: '#f4f4f4',
-                          padding: '10px',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
+                        className="mb-4 flex justify-between rounded-lg bg-gray-200 p-4"
                       >
                         <div>
-                          <p>Section Name: {process.name}</p>
-                          <p className="max-len overflow-hidden text-ellipsis whitespace-nowrap ">
-                            Description: {process.description}
+                          <p className="font-bold">{process.sectionName}</p>
+                          <p className="text-sm text-gray-600">
+                            {process.sectionDescription}
                           </p>
-                          <p>Position: {process.position}</p>
+                          <p className="text-sm text-gray-500">
+                            Position: {process.position}
+                          </p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
@@ -244,19 +274,19 @@ const Details = () => {
         initialData={currentProcess}
       />
 
-      <footer className="stream-footer space-between flex bg-gray-200">
+      <footer className="stream-footer flex justify-between bg-gray-200 p-4">
         <div>
           <button
-            className='hover:bg-blue-600" rounded-md bg-blue-500 px-4 py-2 text-white'
-            onClick={router.back}
+            className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+            onClick={() => router.back()}
           >
             Cancel
           </button>
-        </div>
-        <div>
-          {' '}
-          <button className='hover:bg-blue-600" ml-3 rounded-md bg-blue-500 px-4 py-2 text-white'>
-            Save
+          <button
+            onClick={handleSave}
+            className="ml-3 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          >
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
         </div>
       </footer>
@@ -264,21 +294,33 @@ const Details = () => {
   );
 };
 
-const Modal = ({ isOpen, onClose, onSave, title, initialData }) => {
+const Modal = ({
+  isOpen,
+  onClose,
+  onSave,
+  title,
+  initialData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: { sectionName: string; sectionDescription: string }) => void;
+  title: string;
+  initialData: SectionWithId | null;
+}) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
   useEffect(() => {
     if (initialData) {
-      setName(initialData.name || '');
-      setDescription(initialData.description || '');
+      setName(initialData.sectionName || '');
+      setDescription(initialData.sectionDescription || '');
     }
   }, [initialData]);
 
   if (!isOpen) return null;
 
   const handleSave = () => {
-    onSave({ name, description });
+    onSave({ sectionName: name, sectionDescription: description });
   };
 
   return (

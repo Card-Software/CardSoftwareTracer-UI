@@ -1,74 +1,51 @@
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../../app/layout';
 import styled from 'styled-components';
 import { FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
-import React from 'react';
-import { HiPlus } from 'react-icons/hi';
+import SectionModal from '../../../components/SectionModal'; // Adjust path if necessary
+import demoDocs from '../../../sample-docs/demo-docs.json';
+import * as demoModels from '@/models/demo';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
+  const [orderDetails, setOrderDetails] = useState<demoModels.ProductOrder | null>(null);
+  const [selectedSection, setSelectedSection] = useState<demoModels.Section | null>(null);
 
-  // Dummy data for demonstration purposes
-  const completedStreams = [
-    {
-      id: 1,
-      name: 'Stream A',
-      details: 'Completed details A',
-      completed: true,
-    },
-    {
-      id: 2,
-      name: 'Stream B',
-      details: 'Completed details B',
-      completed: true,
-    },
-    {
-      id: 3,
-      name: 'Stream C',
-      details: 'Completed details C',
-      completed: true,
-    },
-  ];
+  useEffect(() => {
+    const foundOrder  = demoDocs.find(doc => doc.ProductOrder === poNumber);
 
-  const incompleteStreams = [
-    {
-      id: 4,
-      name: 'Stream D',
-      details: 'Incomplete details D',
-      completed: false,
-    },
-    {
-      id: 5,
-      name: 'Stream E',
-      details: 'Incomplete details E',
-      completed: false,
-    },
-    {
-      id: 6,
-      name: 'Stream F',
-      details: 'Incomplete details F',
-      completed: false,
-    },
-    {
-      id: 7,
-      name: 'Stream G',
-      details: 'Incomplete details G',
-      completed: false,
-    },
-  ];
+    if (foundOrder) {
+      setOrderDetails(foundOrder);
+    }
+  }, [poNumber]);
 
-  // Combine streams
-  const streams = [...completedStreams, ...incompleteStreams];
+  const handleSectionClick = (section: any) => {
+    setSelectedSection(section);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedSection(null);
+  };
+
+  if (!orderDetails) {
+    return (
+      <Layout>
+        <Container>
+          <SectionTitle>Loading...</SectionTitle>
+        </Container>
+      </Layout>
+    );
+  }
+
+  const { TraceabilityStream } = orderDetails;
 
   return (
     <Layout>
       <Container>
         <span className="me-8">
-          <a
-            href="/Dashboard"
-            className="text-blue-500 underline hover:text-blue-700"
-          >
+          <a href="/Dashboard" className="text-blue-500 underline hover:text-blue-700">
             Dashboard
           </a>{' '}
           -> PO details
@@ -78,19 +55,26 @@ const PurchaseOrderPage: React.FC = () => {
             Purchase Order: {poNumber}
           </SectionTitle>
           <CardContainer>
-            {streams.map((stream, index) => (
-              <React.Fragment key={stream.id}>
-                <Card completed={stream.completed}>
+            {TraceabilityStream.Sections.map((section, index) => (
+              <React.Fragment key={section.Position}>
+                <Card onClick={() => handleSectionClick(section)}>
                   <CardTitle>
-                    {stream.name}
-                    {!stream.completed && (
-                      <FaExclamationCircle
-                        color="red"
-                        style={{ marginLeft: '10px' }}
-                      />
-                    )}
+                    {section.SectionName}
+                    <FaExclamationCircle color="red" style={{ marginLeft: '10px' }} />
                   </CardTitle>
-                  <CardDetails>{stream.details}</CardDetails>
+                  <CardDetails>
+                    {section.SectionDescription}
+                    <br />
+                    Assigned to: {section.assignedUser.Name}
+                    <br />
+                    Notes: {section.Notes.map(note => (
+                      <li key={note.id}>{note.content}</li>
+                    ))}
+                    <br />
+                    <a href={section.Files[0].PresignedUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700">
+                      {section.Files[0].Name}
+                    </a>
+                  </CardDetails>
                 </Card>
                 <ArrowIcon>
                   <FaArrowRight size={24} />
@@ -99,23 +83,26 @@ const PurchaseOrderPage: React.FC = () => {
             ))}
             <React.Fragment>
               <AddNewCard>
-                <AddNewButton>
-                  Add New
-                </AddNewButton>
+                <AddNewButton>Add New</AddNewButton>
               </AddNewCard>
             </React.Fragment>
           </CardContainer>
         </Section>
       </Container>
+      {selectedSection && (
+        <SectionModal
+          productOrder={orderDetails}
+          section={selectedSection}
+          onClose={handleCloseModal}
+        />
+      )}
     </Layout>
   );
 };
 
 export default PurchaseOrderPage;
 
-const Container = styled.div`
-  padding: 60px;
-`;
+const Container = styled.div``;
 
 const Section = styled.section`
   margin-bottom: 40px;
@@ -135,14 +122,15 @@ const CardContainer = styled.div`
   position: relative;
 `;
 
-const Card = styled.div<{ completed: boolean }>`
-  background-color: ${({ completed }) => (completed ? '#e0ffe0' : '#fff')};
+const Card = styled.div`
+  background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   width: 100%;
   max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
 `;
 
 const CardTitle = styled.h3`
