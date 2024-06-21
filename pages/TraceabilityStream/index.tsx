@@ -5,8 +5,8 @@ import '../../styles/dashboard.css';
 import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
 import { useRouter } from 'next/router';
-import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy.service';
-import { TracerStream } from '@/models/TraceabilityStream.model';
+import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy';
+import { TracerStream } from '@/models/TraceabilityStream';
 
 const TraceabilityStream = () => {
   const router = useRouter();

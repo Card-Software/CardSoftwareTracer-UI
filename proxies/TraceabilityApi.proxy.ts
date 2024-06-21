@@ -1,4 +1,4 @@
-import { TracerStream } from '@/models/TraceabilityStream.model';
+import { TracerStream } from '@/models/TraceabilityStream';
 
 class TraceabilityApiProxyService {
   private baseUrl: string = 'http://localhost:5002/';
@@ -41,6 +41,9 @@ class TraceabilityApiProxyService {
   }
 
   async getAllTraceabilities(): Promise<TracerStream[]> {
+    console.log('Tring base url ');
+    console.log(this.baseUrl2);
+    console.log(process.env.NEXT_PUBLIC_ANOTHER);
     const response = await fetch(
       `${this.baseUrl}TracerStreams/GetAllTracerStreams`,
     );

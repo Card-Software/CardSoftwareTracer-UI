@@ -1,5 +1,5 @@
-import { S3ObjectDto } from './S3ObjectDto.model';
-import { User } from './User.model';
+import { S3ObjectDto } from './S3ObjectDto';
+import { User } from './User';
 
 export interface Section {
   position: number; // Nullable

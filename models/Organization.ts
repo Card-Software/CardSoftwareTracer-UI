@@ -1,5 +1,5 @@
-import { Site } from './Site.model';
-import { User } from './User.model';
+import { Site } from './Site';
+import { User } from './User';
 
 export interface Organization {
   id?: string; // Optional

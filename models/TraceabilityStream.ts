@@ -1,4 +1,4 @@
-import { Section } from './Section.model';
+import { Section } from './Section';
 
 export interface TracerStream {
   id?: string; // Nullable, equivalent to `string?` in C#

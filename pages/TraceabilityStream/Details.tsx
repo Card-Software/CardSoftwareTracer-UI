@@ -8,9 +8,9 @@ import dynamic from 'next/dynamic';
 import { FaTrash, FaTimes } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
-import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy.service';
-import { Section } from '@/models/Section.model';
-import { TracerStream } from '@/models/TraceabilityStream.model';
+import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy';
+import { Section } from '@/models/Section';
+import { TracerStream } from '@/models/TraceabilityStream';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
 

@@ -1,4 +1,4 @@
-import { User } from './User.model';
+import { User } from './User';
 
 export interface View {
   id?: string;

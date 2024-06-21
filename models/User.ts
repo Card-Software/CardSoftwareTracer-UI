@@ -1,4 +1,4 @@
-import { Organization } from './Organization.model';
+import { Organization } from './Organization';
 
 export enum Role {
   Manager = 1,
