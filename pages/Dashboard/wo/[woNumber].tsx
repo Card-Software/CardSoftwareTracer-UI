@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import Layout from '../../../app/layout';
 import styled from 'styled-components';
 import ProdcutOrder from '@/components/ProductOrderItem';
+import Link from 'next/link';
 
 const WholesaleOrderPage: React.FC = () => {
   const router = useRouter();
@@ -11,12 +12,12 @@ const WholesaleOrderPage: React.FC = () => {
     <Layout>
       <Container>
         <div>
-          <a
+          <Link
             href="/Dashboard"
             className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
           >
             Dashboard
-          </a>
+          </Link>
           <span className="text-sm text-gray-500"> &gt; WO Details</span>
         </div>
         <Section>

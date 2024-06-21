@@ -8,6 +8,7 @@ import { FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
 import SectionModal from '../../../components/SectionModal'; // Adjust path if necessary
 import demoDocs from '../../../sample-docs/demo-docs.json';
 import * as demoModels from '@/models/demo';
+import Link from 'next/link';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -49,12 +50,12 @@ const PurchaseOrderPage: React.FC = () => {
     <Layout>
       <Container>
         <div>
-          <a
+          <Link
             href="/Dashboard"
             className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
           >
             Dashboard
-          </a>
+          </Link>
           <span className="text-sm text-gray-500"> &gt; PO Details</span>
         </div>
         <Section>
@@ -86,14 +87,14 @@ const PurchaseOrderPage: React.FC = () => {
                       </ul>
                     </DetailItem>
                     <DetailItem>
-                      <a
+                      <Link
                         href={section.Files[0].PresignedUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 underline hover:text-blue-700"
                       >
                         {section.Files[0].Name}
-                      </a>
+                      </Link>
                     </DetailItem>
                   </CardDetails>
                 </Card>

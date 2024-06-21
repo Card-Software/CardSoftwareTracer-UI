@@ -12,6 +12,7 @@ import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy.ser
 import { Section } from '@/models/Section.model';
 import { TracerStream } from '@/models/TraceabilityStream.model';
 import { v4 as uuidv4 } from 'uuid';
+import Link from 'next/link';
 
 interface SectionWithId extends Section {
   id: string;
@@ -59,7 +60,7 @@ const Details = () => {
     if (isEditing && query.id) {
       fetchTraceability(query.id as string);
     }
-  }, [query]);
+  }, [isEditing, query]);
 
   const fetchTraceability = async (id: string) => {
     try {
@@ -80,7 +81,7 @@ const Details = () => {
     }
   };
 
-  const handleOnDragEnd = (result) => {
+  const handleOnDragEnd = (result: any) => {
     if (!result.destination) return;
 
     const items = Array.from(processes);
@@ -175,12 +176,12 @@ const Details = () => {
   return (
     <Layout>
       <div>
-        <a
+        <Link
           href="/TraceabilityStream"
           className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
         >
           Traceability Stream
-        </a>
+        </Link>
         <span className="text-sm text-gray-500"> &gt; Details</span>
       </div>
 

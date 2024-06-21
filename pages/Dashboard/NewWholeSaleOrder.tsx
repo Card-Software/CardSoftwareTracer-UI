@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/traceabilityStream.css';
+import Link from 'next/link';
 
 const NewWholeSaleOrder: React.FC = () => {
   const sampleClients = [
@@ -36,12 +37,12 @@ const NewWholeSaleOrder: React.FC = () => {
   return (
     <Layout>
       <div className="mb-4">
-        <a
+        <Link
           href="/Dashboard"
           className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
         >
           Wholesale Order
-        </a>
+        </Link>
         <span className="text-sm text-gray-500">
           {' '}
           &gt; Add New Wholesale Order

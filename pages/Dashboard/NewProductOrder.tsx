@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
+import Link from 'next/link';
 
 const NewProductOrder: React.FC = () => {
   const sampleTracStreams = [
@@ -43,12 +44,12 @@ const NewProductOrder: React.FC = () => {
   return (
     <Layout>
       <div className="mb-4">
-        <a
+        <Link
           href="/Dashboard"
           className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
         >
           Traceability Stream
-        </a>
+        </Link>
         <span className="text-sm text-gray-500"> &gt; Add New PO</span>
       </div>
       <div className="mb-8">
