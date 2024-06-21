@@ -1,5 +1,4 @@
-// components/DashboardPage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/dashboard.css';
 import TracerButton from '@/components/TracerButton';
@@ -8,12 +7,12 @@ import ProductOrderItem from '@/components/ProductOrderItem';
 import Modal from '@/components/CardSoftwareModal';
 import { useRouter } from 'next/router';
 import WholeSaleItem from '@/components/WholeSaleItem';
+import demoDocs from '../../sample-docs/demo-docs.json';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
-  const poNumber = '123-456-789';
-  const woNumber = '123-333-777';
+  const [productOrders, setProductOrders] = useState<any[]>([]);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -25,6 +24,20 @@ const Dashboard: React.FC = () => {
   const handleNewWholeSaleOrder = () => {
     router.push('/Dashboard/NewWholeSaleOrder');
   };
+
+  useEffect(() => {
+    // Extract and set product orders from demoDocs
+    const orders = demoDocs.map((doc) => {
+      return {
+        poNumber: doc.ProductOrder,
+        progress: 0, // Assuming default progress, update if you have specific logic
+        assignedTo: doc.AssignedTo,
+        dueDate: '2024-06-18', // Update this field if you have actual due dates
+        ...doc,
+      };
+    });
+    setProductOrders(orders);
+  }, []);
 
   return (
     <Layout>
@@ -47,21 +60,27 @@ const Dashboard: React.FC = () => {
           />
         </div>
       </div>
-      <div className="w-100 my-8 bg-gray-500">Filter</div>
-      <div>
-        <ProductOrderItem
-          poNumber={poNumber}
-          progress={3}
-          assignedTo={'Collin Shields'}
-          dueDate={'05/13/2024'}
-        />
-        <WholeSaleItem
-          woNumber={woNumber}
-          progress={2}
-          assignedTo={'Collin Shields'}
-          dueDate={'05/13/2024'}
-          href={`/Dashboard/wo/${woNumber}`}
-        />
+      <div className="my-8 w-full border-b-4 border-teal-500"></div>
+      <div className="flex flex-row">
+        {productOrders.map((order, index) => (
+          <div key={index} className="me-16 ms-16">
+            <ProductOrderItem
+              poNumber={order.poNumber}
+              progress={order.progress}
+              assignedTo={order.assignedTo}
+              dueDate={order.dueDate}
+            />
+            {order.poNumber === 'PO001' && (
+              <WholeSaleItem
+                woNumber={order.poNumber.replace('PO', 'WO')}
+                progress={order.progress}
+                assignedTo={order.assignedTo}
+                dueDate={order.dueDate}
+                href={`/Dashboard/wo/${order.poNumber.replace('PO', 'WO')}`}
+              />
+            )}
+          </div>
+        ))}
       </div>
 
       <Modal show={showModal} onClose={closeModal} title="Select an Option">

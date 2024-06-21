@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
+import Link from 'next/link';
 
 const NewProductOrder: React.FC = () => {
   const sampleTracStreams = [
@@ -14,6 +15,12 @@ const NewProductOrder: React.FC = () => {
     { id: 1, name: 'Client A' },
     { id: 2, name: 'Client B' },
     { id: 3, name: 'Client C' },
+  ];
+
+  const sampleUsers = [
+    { id: 1, name: 'User 1' },
+    { id: 2, name: 'User 2' },
+    { id: 3, name: 'User 3' },
   ];
 
   const existingPOs = [
@@ -37,12 +44,12 @@ const NewProductOrder: React.FC = () => {
   return (
     <Layout>
       <div className="mb-4">
-        <a
+        <Link
           href="/Dashboard"
           className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
         >
           Traceability Stream
-        </a>
+        </Link>
         <span className="text-sm text-gray-500"> &gt; Add New PO</span>
       </div>
       <div className="mb-8">
@@ -118,7 +125,7 @@ const NewProductOrder: React.FC = () => {
         </select>
       </div>
 
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <label className="mb-2 block text-sm font-bold text-gray-700">
           Connect to other PO(s)
         </label>
@@ -158,7 +165,7 @@ const NewProductOrder: React.FC = () => {
             </span>
           ))}
         </div>
-      </div>
+      </div> */}
 
       <footer className="stream-footer flex justify-between bg-gray-200 p-4">
         <div>

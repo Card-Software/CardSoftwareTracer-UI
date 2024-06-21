@@ -1,18 +1,40 @@
 import Layout from '@/app/layout';
 import TracerButton from '@/components/TracerButton';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../styles/dashboard.css';
+import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
 import { useRouter } from 'next/router';
+import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy';
+import { TracerStream } from '@/models/TraceabilityStream';
 
 const TraceabilityStream = () => {
   const router = useRouter();
   const [name, setName] = useState('');
   const [clients, setClients] = useState('');
+  const [streams, setStreams] = useState<TracerStream[]>([]);
+  const [filteredStreams, setFilteredStreams] = useState<TracerStream[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await traceabilityApiProxyService.getAllTraceabilities();
+        setStreams(data);
+        setFilteredStreams(data);
+      } catch (error) {
+        console.error('Failed to fetch tracer streams', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSearch = () => {
-    // Add search functionality here
-    console.log('Search clicked', { name, clients });
+    // const filtered = streams.filter(stream =>
+    //   stream.name.toLowerCase().includes(name.toLowerCase()) &&
+    //   stream.clients?.toLowerCase().includes(clients.toLowerCase())
+    // );
+    // setFilteredStreams(filtered);
   };
 
   const handleRedirect = () => {
@@ -22,7 +44,9 @@ const TraceabilityStream = () => {
   const handleClear = () => {
     setName('');
     setClients('');
+    setFilteredStreams(streams);
   };
+
   return (
     <Layout>
       <div className="mb-5 flex flex-row items-center">
@@ -71,21 +95,26 @@ const TraceabilityStream = () => {
             </button>
           </div>
         </div>
-        <div className="mx-8">
+        <div className="mx-8 w-full overflow-auto">
           <table className="w-full table-auto border-collapse border border-gray-400">
             <thead>
-              <tr>
-                <th className="border border-gray-300 p-2">Column 1</th>
-                <th className="border border-gray-300 p-2">Column 2</th>
-                <th className="border border-gray-300 p-2">Column 3</th>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 p-2">Name</th>
+                {/* <th className="border border-gray-300 p-2">Clients</th> */}
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td className="border border-gray-300 p-2">Data 1</td>
-                <td className="border border-gray-300 p-2">Data 2</td>
-                <td className="border border-gray-300 p-2">Data 3</td>
-              </tr>
+              {filteredStreams.map((stream) => (
+                <tr key={stream.id} className="hover:bg-gray-100">
+                  <td className="border border-gray-300 p-2">{stream.name}</td>
+                  {/* <td className="border border-gray-300 p-2">{stream.clients}</td> */}
+                  {/* <td className="border border-gray-300 p-2">
+                    {stream.sections
+                      .map((section) => section.sectionName)
+                      .join(', ')}
+                  </td> */}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

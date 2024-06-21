@@ -1,112 +1,125 @@
+// pages/PurchaseOrderPage.tsx
+
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../../app/layout';
 import styled from 'styled-components';
 import { FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
-import React from 'react';
-import { HiPlus } from 'react-icons/hi';
+import SectionModal from '../../../components/SectionModal'; // Adjust path if necessary
+import demoDocs from '../../../sample-docs/demo-docs.json';
+import * as demoModels from '@/models/demo';
+import Link from 'next/link';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
+  const [orderDetails, setOrderDetails] =
+    useState<demoModels.ProductOrder | null>(null);
+  const [selectedSection, setSelectedSection] =
+    useState<demoModels.Section | null>(null);
 
-  // Dummy data for demonstration purposes
-  const completedStreams = [
-    {
-      id: 1,
-      name: 'Stream A',
-      details: 'Completed details A',
-      completed: true,
-    },
-    {
-      id: 2,
-      name: 'Stream B',
-      details: 'Completed details B',
-      completed: true,
-    },
-    {
-      id: 3,
-      name: 'Stream C',
-      details: 'Completed details C',
-      completed: true,
-    },
-  ];
+  useEffect(() => {
+    const foundOrder = demoDocs.find((doc) => doc.ProductOrder === poNumber);
 
-  const incompleteStreams = [
-    {
-      id: 4,
-      name: 'Stream D',
-      details: 'Incomplete details D',
-      completed: false,
-    },
-    {
-      id: 5,
-      name: 'Stream E',
-      details: 'Incomplete details E',
-      completed: false,
-    },
-    {
-      id: 6,
-      name: 'Stream F',
-      details: 'Incomplete details F',
-      completed: false,
-    },
-    {
-      id: 7,
-      name: 'Stream G',
-      details: 'Incomplete details G',
-      completed: false,
-    },
-  ];
+    if (foundOrder) {
+      setOrderDetails(foundOrder);
+    }
+  }, [poNumber]);
 
-  // Combine streams
-  const streams = [...completedStreams, ...incompleteStreams];
+  const handleSectionClick = (section: any) => {
+    setSelectedSection(section);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedSection(null);
+  };
+
+  if (!orderDetails) {
+    return (
+      <Layout>
+        <Container>
+          <SectionTitle>Loading...</SectionTitle>
+        </Container>
+      </Layout>
+    );
+  }
+
+  const { TraceabilityStream } = orderDetails;
 
   return (
     <Layout>
       <Container>
-        <span className="me-8">
-          <a
+        <div>
+          <Link
             href="/Dashboard"
-            className="text-blue-500 underline hover:text-blue-700"
+            className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
           >
             Dashboard
-          </a>{' '}
-          -> PO details
-        </span>
+          </Link>
+          <span className="text-sm text-gray-500"> &gt; PO Details</span>
+        </div>
         <Section>
-          <SectionTitle className="flex justify-center">
-            Purchase Order: {poNumber}
-          </SectionTitle>
+          <SectionTitle>Purchase Order: {poNumber}</SectionTitle>
           <CardContainer>
-            {streams.map((stream, index) => (
-              <React.Fragment key={stream.id}>
-                <Card completed={stream.completed}>
+            {TraceabilityStream.Sections.map((section, index) => (
+              <React.Fragment key={section.Position}>
+                <Card onClick={() => handleSectionClick(section)}>
                   <CardTitle>
-                    {stream.name}
-                    {!stream.completed && (
-                      <FaExclamationCircle
-                        color="red"
-                        style={{ marginLeft: '10px' }}
-                      />
-                    )}
+                    {section.SectionName}
+                    <FaExclamationCircle
+                      color="red"
+                      style={{ marginLeft: '10px' }}
+                    />
                   </CardTitle>
-                  <CardDetails>{stream.details}</CardDetails>
+                  <CardDetails>
+                    <DetailItem>
+                      <strong>Description:</strong> {section.SectionDescription}
+                    </DetailItem>
+                    <DetailItem>
+                      <strong>Assigned to:</strong> {section.assignedUser.Name}
+                    </DetailItem>
+                    <DetailItem>
+                      <strong>Notes:</strong>
+                      <ul>
+                        {section.Notes.map((note) => (
+                          <li key={note.id}>{note.content}</li>
+                        ))}
+                      </ul>
+                    </DetailItem>
+                    <DetailItem>
+                      <Link
+                        href={section.Files[0].PresignedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline hover:text-blue-700"
+                      >
+                        {section.Files[0].Name}
+                      </Link>
+                    </DetailItem>
+                  </CardDetails>
                 </Card>
-                <ArrowIcon>
-                  <FaArrowRight size={24} />
-                </ArrowIcon>
+                {index < TraceabilityStream.Sections.length - 1 && (
+                  <ArrowIcon>
+                    <FaArrowRight size={24} />
+                  </ArrowIcon>
+                )}
               </React.Fragment>
             ))}
-            <React.Fragment>
-              <AddNewCard>
-                <AddNewButton>
-                  Add New
-                </AddNewButton>
-              </AddNewCard>
-            </React.Fragment>
+            <AddNewCard>
+              <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
+                Add New
+              </AddNewButton>
+            </AddNewCard>
           </CardContainer>
         </Section>
       </Container>
+      {selectedSection && (
+        <SectionModal
+          productOrder={orderDetails}
+          section={selectedSection}
+          onClose={handleCloseModal}
+        />
+      )}
     </Layout>
   );
 };
@@ -114,7 +127,13 @@ const PurchaseOrderPage: React.FC = () => {
 export default PurchaseOrderPage;
 
 const Container = styled.div`
-  padding: 60px;
+  padding: 20px;
+`;
+
+const Breadcrumb = styled.span`
+  display: block;
+  margin-bottom: 20px;
+  font-size: 14px;
 `;
 
 const Section = styled.section`
@@ -135,24 +154,35 @@ const CardContainer = styled.div`
   position: relative;
 `;
 
-const Card = styled.div<{ completed: boolean }>`
-  background-color: ${({ completed }) => (completed ? '#e0ffe0' : '#fff')};
+const Card = styled.div`
+  background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   width: 100%;
   max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const CardTitle = styled.h3`
   display: flex;
   align-items: center;
   margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 18px;
 `;
 
-const CardDetails = styled.p`
-  margin-bottom: 0;
+const CardDetails = styled.div`
+  font-size: 14px;
+`;
+
+const DetailItem = styled.p`
+  margin-bottom: 10px;
 `;
 
 const ArrowIcon = styled.div`
@@ -168,17 +198,21 @@ const AddNewCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #d7f8ff;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   width: 100%;
   max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const AddNewButton = styled.button`
-  background-color: #d7f8ff;
+  background-color: transparent;
   border: none;
   color: #000;
   font-size: 16px;
