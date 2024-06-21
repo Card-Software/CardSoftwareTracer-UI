@@ -38,3 +38,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 # CardSoftwareTracer-UI
 
 test push
+
+# For Prettier formatting
+
+```bash
+npx prettier . --write
+```
