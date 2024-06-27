@@ -10,7 +10,7 @@ import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
 import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy';
 import { Section } from '@/models/Section';
-import { TracerStream } from '@/models/TraceabilityStream';
+import { TracerStream } from '@/models/TracerStream';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
 

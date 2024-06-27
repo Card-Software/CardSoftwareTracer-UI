@@ -1,4 +1,4 @@
-import { TracerStream } from '@/models/TraceabilityStream';
+import { TracerStream } from '@/models/TracerStream';
 
 class TraceabilityApiProxyService {
   private baseUrl: string = 'http://localhost:5002/';
