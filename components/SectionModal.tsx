@@ -1,15 +1,16 @@
+import { Section } from '@/models/Section';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
 interface SectionModalProps {
   productOrder: any;
-  section: any;
+  section: Section;
   onClose: () => void;
 }
 
 const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
-  const [description, setDescription] = useState(section.SectionDescription);
-  const [name, setName] = useState(section.SectionName);
+  const [description, setDescription] = useState(section.sectionDescription);
+  const [name, setName] = useState(section.sectionName);
   const [newNote, setNewNote] = useState('');
 
   const handleNoteChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -21,31 +22,27 @@ const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
     setNewNote('');
   };
 
+  console.log(section);
+
   return (
     <ModalWrapper className="open">
       <ModalOverlay onClick={onClose} />
       <ModalContent>
         <ModalHeader>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Section Name"
-            className="section-name"
-          />
+          <h2>Section</h2>
           <button onClick={onClose}>Close</button>
         </ModalHeader>
         <ModalBody>
+          <label>Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Section Description"
             className="section-description"
           />
-          <h3>Assigned to: {section.assignedUser.Name}</h3>
           <h3>Notes:</h3>
           <ul>
-            {section.Notes.map((note: any) => (
+            {section.notes.map((note: any) => (
               <li key={note.id}>{note.content}</li>
             ))}
           </ul>
@@ -57,7 +54,7 @@ const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
           <Button onClick={handleAddNote}>Add Note</Button>
           <h3>Files:</h3>
           <ul>
-            {section.Files.map((file: any) => (
+            {section.files.map((file: any) => (
               <FileItem key={file.Name}>
                 <a
                   href={file.PresignedUrl}

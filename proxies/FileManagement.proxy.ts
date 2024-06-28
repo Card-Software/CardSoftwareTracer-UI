@@ -1,0 +1,56 @@
+class FileManagementProxy {
+  private baseUrl: string = process.env.TRACER_APP_API_URL || '';
+  //#region
+  async CreateBucket(bucketName: string): Promise<any> {
+    const response = await fetch(`${this.baseUrl}CreateBucket`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bucketName),
+    });
+    return await response.json();
+  }
+
+  async RetrieveBuckets(): Promise<string[]> {
+    const response = await fetch(`${this.baseUrl}RetrieveBuckets`);
+    return await response.json();
+  }
+  //#endregion
+  //#region
+  async UploadFile(
+    bucketName: string,
+    prefix: string,
+    file: File,
+  ): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch(
+      `${this.baseUrl}File/UploadFile?bucketName=${bucketName}&prefix=${prefix}`,
+      {
+        method: 'POST',
+        body: formData,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to upload file');
+    }
+
+    return await response.json();
+  }
+
+  async PreviewFile(
+    bucketName: string,
+    prefix: string,
+    fileName: string,
+  ): Promise<any> {
+    const response = await fetch(
+      `${this.baseUrl}File/preview?bucketName=${bucketName}&prefix=${prefix}&fileName=${fileName}`,
+    );
+    return await response.json();
+  }
+}
+
+export const fileManagementApiProxy = new FileManagementProxy();

@@ -8,11 +8,13 @@ import dynamic from 'next/dynamic';
 import { FaTrash, FaTimes } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
-import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy';
+import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { Section } from '@/models/Section';
 import { TracerStream } from '@/models/TracerStream';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
+import { Organization } from '@/models/Organization';
+import { userAuthorizationService } from '@/services/UserAuthorization.service';
 
 interface SectionWithId extends Section {
   id: string;
@@ -47,12 +49,13 @@ const Details = () => {
   const [processes, setProcesses] = useState<SectionWithId[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
-  const [currentProcess, setCurrentProcess] = useState<SectionWithId | null>(
-    null,
-  );
+  const [currentProcess, setCurrentProcess] = useState<Section | null>(null);
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const organization: Organization = userAuthorizationService.organization;
 
   const isEditing = !!query.id;
 
@@ -65,8 +68,10 @@ const Details = () => {
   const fetchTraceability = async (id: string) => {
     try {
       setIsLoading(true);
-      const data = await traceabilityApiProxyService.getTraceability(id);
+      let data = await orderManagementApiProxy.getTraceability(id);
+      console.log(data);
       setName(data.name || '');
+      setDescription(data.description || '');
       setProcesses(
         data.sections.map((section: Section) => ({
           ...section,
@@ -109,19 +114,22 @@ const Details = () => {
   };
 
   const handleAddProcess = () => {
-    openModal('Add New Stage', {
-      id: uuidv4(),
+    openModal('Add New Section', {
+      sectionId: uuidv4(),
       sectionName: '',
       sectionDescription: '',
       position: processes.length + 1,
+      notes: [],
       files: [],
-      notes: '',
+      fileNameOnExport: '',
+      isRequired: false,
+      owner: organization,
     });
   };
 
-  const openModal = (title: string, process: SectionWithId) => {
+  const openModal = (title: string, section: Section) => {
     setModalTitle(title);
-    setCurrentProcess(process);
+    setCurrentProcess(section);
     setIsModalOpen(true);
   };
 
@@ -130,8 +138,8 @@ const Details = () => {
     setCurrentProcess(null);
   };
 
-  const saveProcess = (data: Partial<SectionWithId>) => {
-    if (modalTitle === 'Add New Stage') {
+  const saveSection = (data: Partial<SectionWithId>) => {
+    if (modalTitle === 'Add New Section') {
       setProcesses((prev) => [
         ...prev,
         { ...currentProcess, ...data } as SectionWithId,
@@ -139,7 +147,9 @@ const Details = () => {
     } else {
       setProcesses((prev) =>
         prev.map((process) =>
-          process.id === currentProcess?.id ? { ...process, ...data } : process,
+          process.sectionId === currentProcess?.sectionId
+            ? { ...process, ...data }
+            : process,
         ),
       );
     }
@@ -150,21 +160,41 @@ const Details = () => {
     setError(null);
     setIsLoading(true);
     const newTraceability: TracerStream = {
-      name,
-      sections: processes,
+      name: name,
+      description: description,
+      notes: [],
+      owner: organization,
+      sections: processes.map((process) => ({
+        sectionId: process.sectionId,
+        sectionName: process.sectionName,
+        sectionDescription: process.sectionDescription,
+        position: process.position,
+        files: process.files,
+        fileNameOnExport: process.fileNameOnExport,
+        isRequired: process.isRequired,
+        owner: process.owner,
+        notes: process.notes,
+      })),
     };
 
     try {
-      if (isEditing) {
+      if (isEditing && query.id) {
         // Update existing traceability
-        await traceabilityApiProxyService.createTraceability(newTraceability);
-        alert('Traceability stream updated successfully!');
+        const result =
+          await orderManagementApiProxy.updateTraceability(newTraceability);
+        if (result) {
+          alert('Traceability stream updated successfully!');
+        }
       } else {
         // Create new traceability
-        await traceabilityApiProxyService.createTraceability(newTraceability);
-        alert('Traceability stream created successfully!');
-        router.push('/TraceabilityStream');
+        const result =
+          await orderManagementApiProxy.createTraceability(newTraceability);
+        if (result) {
+          alert('Traceability stream created successfully!');
+        }
       }
+      //TODO: REMOVE COLLIN
+      // router.push('/TraceabilityStream');
     } catch (error) {
       setError('Failed to save traceability stream.');
       console.error(error);
@@ -203,9 +233,18 @@ const Details = () => {
         />
       </div>
 
+      <div className="my-4">
+        <label className="block">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        />
+      </div>
+
       <div className="mb-4">
         <TracerButton
-          name="Add New Stage"
+          name="Add New Section"
           icon={<HiPlus />}
           onClick={handleAddProcess}
         />
@@ -220,10 +259,10 @@ const Details = () => {
           <Droppable droppableId="processes">
             {(provided) => (
               <div {...provided.droppableProps} ref={provided.innerRef}>
-                {processes.map((process, index) => (
+                {processes.map((section, index) => (
                   <Draggable
-                    key={process.id}
-                    draggableId={process.id}
+                    key={section.sectionId}
+                    draggableId={section.sectionId}
                     index={index}
                   >
                     {(provided) => (
@@ -234,23 +273,23 @@ const Details = () => {
                         className="mb-4 flex justify-between rounded-lg bg-gray-200 p-4"
                       >
                         <div>
-                          <p className="font-bold">{process.sectionName}</p>
+                          <p className="font-bold">{section.sectionName}</p>
                           <p className="text-sm text-gray-600">
-                            {process.sectionDescription}
+                            {section.sectionDescription}
                           </p>
                           <p className="text-sm text-gray-500">
-                            Position: {process.position}
+                            Position: {section.position}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() => openModal('Edit Stage', process)}
+                            onClick={() => openModal('Edit Section', section)}
                             className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={() => deleteProcess(process.id)}
+                            onClick={() => deleteProcess(section.sectionId)}
                             className="text-red-500 hover:text-red-700"
                           >
                             <FaTrash className="h-5 w-5" />
@@ -270,7 +309,7 @@ const Details = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
-        onSave={saveProcess}
+        onSave={saveSection}
         title={modalTitle}
         initialData={currentProcess}
       />
@@ -306,7 +345,7 @@ const Modal = ({
   onClose: () => void;
   onSave: (data: { sectionName: string; sectionDescription: string }) => void;
   title: string;
-  initialData: SectionWithId | null;
+  initialData: Section | null;
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

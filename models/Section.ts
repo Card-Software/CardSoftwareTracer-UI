@@ -11,7 +11,7 @@ export interface Section {
   files: S3ObjectDto[]; //Can get rid of this
   fileNameOnExport: string;
   assignedUser?: User;
-  notes?: Note[]; // this should be also shown in section when inherited to productOrderSection
+  notes: Note[]; // this should be also shown in section when inherited to productOrderSection
   isRequired: boolean;
   owner: Organization;
 }

@@ -7,13 +7,14 @@ import { User } from './User';
 export interface ProductOrder {
   // we get rid momentary of whole sale orders
   id?: string;
-  productOrder: string;
+  productOrderNumber: string;
   owner: Organization;
   description: string;
   notes: Note[];
   assignedUser: User;
-  dateCreated: Date;
+  createdDate: Date;
   client: string;
+  status: string;
   product: string; // we are gonna force EACH PO to have a product. There should not be productless POs.or po with multiple products
   // if we were to accept product orders that have multiple products, that's where WholesaleOrder comes in.
   quantity?: number; // this is the total quantity of the product in the PO. If 0, then we dont want to track quantity.

@@ -1,50 +1,50 @@
-// pages/PurchaseOrderPage.tsx
+// pages/Dashboard/po/[poNumber].tsx
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Layout from '../../../app/layout';
+import Layout from '@/app/layout';
 import styled from 'styled-components';
 import { FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
-import SectionModal from '../../../components/SectionModal'; // Adjust path if necessary
-import demoDocs from '../../../sample-docs/demo-docs.json';
-import * as demoModels from '@/models/demo';
+import SectionModal from '@/components/SectionModal';
+import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
+import { ProductOrder } from '@/models/ProductOrder';
 import Link from 'next/link';
+import { Section as SectionModel } from '@/models/Section';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
-  const [orderDetails, setOrderDetails] =
-    useState<demoModels.ProductOrder | null>(null);
-  const [selectedSection, setSelectedSection] =
-    useState<demoModels.Section | null>(null);
+
+  const [orderDetails, setOrderDetails] = useState<ProductOrder | null>(null);
+  const [selectedSection, setSelectedSection] = useState<any | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const foundOrder = demoDocs.find((doc) => doc.ProductOrder === poNumber);
+    const fetchOrderDetails = async () => {
+      if (poNumber) {
+        const order = await orderManagementApiProxy.getProductOrder(
+          poNumber as string,
+        );
+        setOrderDetails(order);
+      }
+    };
 
-    if (foundOrder) {
-      setOrderDetails(foundOrder);
-    }
+    fetchOrderDetails();
   }, [poNumber]);
 
-  const handleSectionClick = (section: any) => {
+  const handleSectionClick = (section: SectionModel) => {
     setSelectedSection(section);
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
+    setIsModalOpen(false);
     setSelectedSection(null);
   };
 
   if (!orderDetails) {
-    return (
-      <Layout>
-        <Container>
-          <SectionTitle>Loading...</SectionTitle>
-        </Container>
-      </Layout>
-    );
+    return <div>Loading...</div>;
   }
-
-  const { TraceabilityStream } = orderDetails;
 
   return (
     <Layout>
@@ -60,60 +60,102 @@ const PurchaseOrderPage: React.FC = () => {
         </div>
         <Section>
           <SectionTitle>Purchase Order: {poNumber}</SectionTitle>
+          <DetailItem>
+            <strong>Description:</strong> {orderDetails.description}
+          </DetailItem>
+          <DetailItem>
+            <strong>Assigned to:</strong> {orderDetails.assignedUser.firstName}{' '}
+            {orderDetails.assignedUser.lastname}
+          </DetailItem>
+          <DetailItem>
+            <strong>Client:</strong> {orderDetails.client}
+          </DetailItem>
+
           <CardContainer>
-            {TraceabilityStream.Sections.map((section, index) => (
-              <React.Fragment key={section.Position}>
-                <Card onClick={() => handleSectionClick(section)}>
+            {orderDetails.childrenTracerStreams.map((stream, index) => (
+              <React.Fragment key={stream.id}>
+                <Card>
                   <CardTitle>
-                    {section.SectionName}
-                    <FaExclamationCircle
-                      color="red"
-                      style={{ marginLeft: '10px' }}
-                    />
+                    {stream.friendlyName} - {stream.product} - {stream.quantity}
                   </CardTitle>
-                  <CardDetails>
-                    <DetailItem>
-                      <strong>Description:</strong> {section.SectionDescription}
-                    </DetailItem>
-                    <DetailItem>
-                      <strong>Assigned to:</strong> {section.assignedUser.Name}
-                    </DetailItem>
-                    <DetailItem>
-                      <strong>Notes:</strong>
-                      <ul>
-                        {section.Notes.map((note) => (
-                          <li key={note.id}>{note.content}</li>
-                        ))}
-                      </ul>
-                    </DetailItem>
-                    <DetailItem>
-                      <Link
-                        href={section.Files[0].PresignedUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 underline hover:text-blue-700"
-                      >
-                        {section.Files[0].Name}
-                      </Link>
-                    </DetailItem>
-                  </CardDetails>
+                  <SectionContainer>
+                    {stream.sections.map((section, secIndex) => (
+                      <React.Fragment key={section.sectionId}>
+                        <SectionCard
+                          onClick={() => handleSectionClick(section)}
+                        >
+                          <CardTitle>
+                            {section.sectionName}
+                            <FaExclamationCircle
+                              color="red"
+                              style={{ marginLeft: '10px' }}
+                            />
+                          </CardTitle>
+                          <CardDetails>
+                            <DetailItem>
+                              <strong>Description:</strong>{' '}
+                              {section.sectionDescription}
+                            </DetailItem>
+                            {section.assignedUser && (
+                              <DetailItem>
+                                <strong>Assigned to:</strong>{' '}
+                                {section.assignedUser.firstName}{' '}
+                                {section.assignedUser.lastname}
+                              </DetailItem>
+                            )}
+                            {section.notes && section.notes.length > 0 && (
+                              <DetailItem>
+                                <strong>Notes:</strong>
+                                <ul>
+                                  {section.notes.map((note) => (
+                                    <li key={note.id}>{note.content}</li>
+                                  ))}
+                                </ul>
+                              </DetailItem>
+                            )}
+                          </CardDetails>
+                        </SectionCard>
+                        {secIndex < stream.sections.length - 1 && (
+                          <ArrowIcon>
+                            <FaArrowRight size={24} />
+                          </ArrowIcon>
+                        )}
+                      </React.Fragment>
+                    ))}
+                    <ArrowIcon>
+                      <FaArrowRight size={24} />
+                    </ArrowIcon>
+                    <SectionCard>
+                      <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
+                        Add New Section
+                      </AddNewButton>
+                    </SectionCard>
+                  </SectionContainer>
                 </Card>
-                {index < TraceabilityStream.Sections.length - 1 && (
+                {index < orderDetails.childrenTracerStreams.length - 1 && (
                   <ArrowIcon>
                     <FaArrowRight size={24} />
                   </ArrowIcon>
                 )}
               </React.Fragment>
             ))}
-            <AddNewCard>
-              <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
-                Add New
-              </AddNewButton>
-            </AddNewCard>
+          </CardContainer>
+        </Section>
+
+        <Section>
+          <SectionTitle>Linked Product Orders</SectionTitle>
+          <CardContainer>
+            {orderDetails.childrenPosReferences.map((ref) => (
+              <Link href={`/Dashboard/po/${ref}`} key={ref}>
+                <ReferenceCard>
+                  <CardTitle>PO Reference: {ref}</CardTitle>
+                </ReferenceCard>
+              </Link>
+            ))}
           </CardContainer>
         </Section>
       </Container>
-      {selectedSection && (
+      {isModalOpen && selectedSection && (
         <SectionModal
           productOrder={orderDetails}
           section={selectedSection}
@@ -130,14 +172,17 @@ const Container = styled.div`
   padding: 20px;
 `;
 
-const Breadcrumb = styled.span`
-  display: block;
-  margin-bottom: 20px;
-  font-size: 14px;
-`;
-
 const Section = styled.section`
   margin-bottom: 40px;
+`;
+
+const SectionContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  flex-grow: 1;
 `;
 
 const SectionTitle = styled.h2`
@@ -149,9 +194,10 @@ const SectionTitle = styled.h2`
 
 const CardContainer = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
   position: relative;
+  flex-grow: 1;
 `;
 
 const Card = styled.div`
@@ -159,7 +205,6 @@ const Card = styled.div`
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
-  width: 100%;
   max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
@@ -167,6 +212,12 @@ const Card = styled.div`
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
+  min-width: 100%;
+`;
+
+const SectionCard = styled(Card)`
+  margin-bottom: 10px;
+  min-width: 0;
 `;
 
 const CardTitle = styled.h3`
@@ -191,17 +242,16 @@ const ArrowIcon = styled.div`
   justify-content: center;
   width: 100%;
   max-width: 30px;
-  margin: 0 10px;
+  margin: 0 5px;
 `;
 
-const AddNewCard = styled.div`
+const AddSectionCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
-  width: 100%;
   max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
@@ -216,6 +266,13 @@ const AddNewButton = styled.button`
   border: none;
   color: #000;
   font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ReferenceCard = styled(Card)`
   cursor: pointer;
   &:hover {
     text-decoration: underline;
