@@ -3,14 +3,14 @@ import { HiUser } from 'react-icons/hi';
 import ProgressBar from './ProgressBar';
 import Link from 'next/link';
 
-interface ProdcutOrderProps {
+interface ProductOrderProps {
   poNumber: string;
   progress: number;
   assignedTo: string;
   dueDate: string;
 }
 
-const ProdcutOrder: React.FC<ProdcutOrderProps> = ({
+const ProductOrderItem: React.FC<ProductOrderProps> = ({
   poNumber,
   progress,
   assignedTo,
@@ -31,4 +31,4 @@ const ProdcutOrder: React.FC<ProdcutOrderProps> = ({
   );
 };
 
-export default ProdcutOrder;
+export default ProductOrderItem;

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
 import { Section } from '@/models/Section';
+import React, { useState, useRef } from 'react';
+import styled from 'styled-components';
 import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { fileManagementApiProxy } from '@/proxies/FileManagement.proxy';
 import ProdcutOrder from './ProductOrderItem';
@@ -19,14 +19,42 @@ const SectionModal: React.FC<SectionModalProps> = ({
   onClose,
 }) => {
   const [description, setDescription] = useState(section.sectionDescription);
-  const [name, setName] = useState(section.sectionName);
-  const [tracerStreamName, setTracerStreamName] = useState('');
   const [newNote, setNewNote] = useState('');
-  const [file, setFile] = useState<File | null>(null);
-  const [files, setFiles] = useState(section.files || []);
+  const [tracerStreamName, setTracerStreamName] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]); // State to hold uploaded file names
+  const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input element
 
   const handleNoteChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewNote(event.target.value);
+  };
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucketName', 'your-bucket-name'); // Replace with your actual bucket name
+        formData.append('prefix', 'optional-prefix'); // Optional: Add prefix if needed
+
+        const response = await fetch('/File/UploadFile', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const { fileName } = await response.json();
+          setUploadedFiles([...uploadedFiles, fileName]); // Update state with uploaded file name
+        } else {
+          console.error('Failed to upload file');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
   };
 
   const handleAddNote = () => {
@@ -34,36 +62,46 @@ const SectionModal: React.FC<SectionModalProps> = ({
     setNewNote('');
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      setFile(event.target.files[0]);
-    }
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
   };
 
-  const handleFileUpload = async () => {
-    if (!file) {
-      alert('Please select a file to upload.');
-      return;
-    }
+  const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
 
-    try {
-      const organization = await userAuthorizationService.organization;
-      const bucketName = organization.s3BucketName;
-      if (!bucketName) {
-        throw new Error('S3 bucket name not found');
+    const file = event.dataTransfer.files[0];
+    uploadFile(file);
+  };
+
+  const handleFileInputChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    uploadFile(file);
+  };
+
+  const uploadFile = async (file: File | undefined) => {
+    if (file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucketName', 'your-bucket-name'); // Replace with your actual bucket name
+        formData.append('prefix', 'optional-prefix'); // Optional: Add prefix if needed
+
+        const response = await fetch('/File/UploadFile', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const { fileName } = await response.json();
+          setUploadedFiles([...uploadedFiles, fileName]); // Update state with uploaded file name
+        } else {
+          console.error('Failed to upload file');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
       }
-
-      const uploadedFile = await fileManagementApiProxy.UploadFile(
-        bucketName,
-        productOrder,
-        tracerStreamId,
-        section.sectionName,
-        file,
-      );
-      setFiles([...files, uploadedFile]);
-      setFile(null);
-    } catch (error) {
-      console.error('Failed to upload file', error);
     }
   };
 
@@ -105,24 +143,27 @@ const SectionModal: React.FC<SectionModalProps> = ({
           <Button onClick={handleAddNote}>Add Note</Button>
           <h3>Files:</h3>
           <ul>
-            {files.map((file: any) => (
-              <FileItem key={file.Name}>
-                <a
-                  href={file.PresignedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {file.Name}
-                </a>
+            {uploadedFiles.map((fileName, index) => (
+              <li key={index}>
+                {fileName}
                 <Button>Edit</Button>
                 <Button>Delete</Button>
-              </FileItem>
+              </li>
             ))}
           </ul>
-          <DragAndDropArea>
-            <p>Drag & drop files here or click to upload</p>
-            <input type="file" onChange={handleFileChange} />
-            <Button onClick={handleFileUpload}>Upload File</Button>
+          <DragAndDropArea
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()} // Trigger file input click
+          >
+            <label>Drag & drop files here or click to upload:</label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileInputChange}
+              style={{ display: 'none' }}
+            />
+            <Button>Upload File</Button>
           </DragAndDropArea>
         </ModalBody>
         <ModalFooter>
@@ -340,9 +381,14 @@ const DragAndDropArea = styled.div`
     background: #ebf8ff;
   }
 
-  p {
+  label {
     margin-bottom: 10px;
     color: #4a5568;
+    display: block;
+  }
+
+  input[type='file'] {
+    display: none;
   }
 
   input {

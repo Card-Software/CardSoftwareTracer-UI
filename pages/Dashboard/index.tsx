@@ -4,39 +4,40 @@ import '../../styles/dashboard.css';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
 import ProductOrderItem from '@/components/ProductOrderItem';
-import Modal from '@/components/CardSoftwareModal';
 import { useRouter } from 'next/router';
-import WholeSaleItem from '@/components/WholeSaleItem';
-import demoDocs from '../../sample-docs/demo-docs.json';
+import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
+import { ProductOrder } from '@/models/ProductOrder';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
-  const [showModal, setShowModal] = useState(false);
   const [productOrders, setProductOrders] = useState<any[]>([]);
-
-  const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
 
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
   };
 
-  const handleNewWholeSaleOrder = () => {
-    router.push('/Dashboard/NewWholeSaleOrder');
-  };
-
   useEffect(() => {
-    // Extract and set product orders from demoDocs
-    const orders = demoDocs.map((doc) => {
-      return {
-        poNumber: doc.ProductOrder,
-        progress: 0, // Assuming default progress, update if you have specific logic
-        assignedTo: doc.AssignedTo,
-        dueDate: '2024-06-18', // Update this field if you have actual due dates
-        ...doc,
-      };
-    });
-    setProductOrders(orders);
+    const fetchProductOrders = async () => {
+      try {
+        const orders = await orderManagementApiProxy.getAllProductOrders();
+        // Map the API response to include necessary fields for the component
+        const mappedOrders = orders.map((order) => ({
+          id: order.id,
+          poNumber: order.productOrderNumber,
+          progress: 3, // Manually setting progress, update this as needed
+          assignedTo: order.assignedUser
+            ? `${order.assignedUser.firstName} ${order.assignedUser.lastname}`
+            : 'Unassigned', // Check if assignedUser exists and concatenate firstName and lastName
+          dueDate: new Date(order.createdDate).toLocaleDateString(), // Format the date as needed
+          ...order, // Include other fields
+        }));
+        setProductOrders(mappedOrders);
+      } catch (error) {
+        console.error('Failed to fetch product orders:', error);
+      }
+    };
+
+    fetchProductOrders();
   }, []);
 
   return (
@@ -52,49 +53,20 @@ const Dashboard: React.FC = () => {
             onClick={handleNewProductOrder}
           />
         </div>
-        <div className="ps-6">
-          <TracerButton
-            name="Add Wholesale Order"
-            icon={<HiPlus />}
-            onClick={handleNewWholeSaleOrder}
-          />
-        </div>
       </div>
       <div className="my-8 w-full border-b-4 border-teal-500"></div>
-      <div className="flex flex-row">
-        {productOrders.map((order, index) => (
-          <div key={index} className="me-16 ms-16">
-            <ProductOrderItem
-              poNumber={order.poNumber}
-              progress={order.progress}
-              assignedTo={order.assignedTo}
-              dueDate={order.dueDate}
-            />
-            {order.poNumber === 'PO001' && (
-              <WholeSaleItem
-                woNumber={order.poNumber.replace('PO', 'WO')}
-                progress={order.progress}
-                assignedTo={order.assignedTo}
-                dueDate={order.dueDate}
-                href={`/Dashboard/wo/${order.poNumber.replace('PO', 'WO')}`}
-              />
-            )}
-          </div>
-        ))}
+      {/* Grid container for product orders */}
+      <div className="grid grid-cols-3 gap-4">
+        {productOrders.length > 0 ? (
+          productOrders.map((order) => (
+            <div key={order.poNumber}>
+              <ProductOrderItem {...order} />
+            </div>
+          ))
+        ) : (
+          <p>No product orders available.</p>
+        )}
       </div>
-
-      <Modal show={showModal} onClose={closeModal} title="Select an Option">
-        <select>
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
-        </select>
-        <select>
-          <option value="optionA">Option A</option>
-          <option value="optionB">Option B</option>
-          <option value="optionC">Option C</option>
-        </select>
-      </Modal>
     </Layout>
   );
 };

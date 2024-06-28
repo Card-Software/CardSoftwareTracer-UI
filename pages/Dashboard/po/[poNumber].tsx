@@ -132,11 +132,6 @@ const PurchaseOrderPage: React.FC = () => {
                     </SectionCard>
                   </SectionContainer>
                 </Card>
-                {index < orderDetails.childrenTracerStreams.length - 1 && (
-                  <ArrowIcon>
-                    <FaArrowRight size={24} />
-                  </ArrowIcon>
-                )}
               </React.Fragment>
             ))}
           </CardContainer>
