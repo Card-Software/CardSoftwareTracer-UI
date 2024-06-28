@@ -10,13 +10,19 @@ import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
 import Link from 'next/link';
 import { Section as SectionModel } from '@/models/Section';
+import { TracerStreamExtended } from '@/models/TracerStream';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
 
   const [orderDetails, setOrderDetails] = useState<ProductOrder | null>(null);
-  const [selectedSection, setSelectedSection] = useState<any | null>(null);
+  const [linkedOrders, setLinkedOrders] = useState<ProductOrder[]>([]);
+  const [selectedSection, setSelectedSection] = useState<SectionModel | null>(
+    null,
+  );
+  const [selectedStream, setSelectedStream] =
+    useState<TracerStreamExtended | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -26,14 +32,33 @@ const PurchaseOrderPage: React.FC = () => {
           poNumber as string,
         );
         setOrderDetails(order);
+        //for eacgh order refernce get the actual order details
+        // and store in a state. use forkjoin
+        // to get all the details at once.
+
+        if (
+          order.childrenPosReferences &&
+          order.childrenPosReferences.length > 0
+        ) {
+          const linkedOrderDetails = await Promise.all(
+            order.childrenPosReferences.map((ref) =>
+              orderManagementApiProxy.getProductOrder(ref),
+            ),
+          );
+          setLinkedOrders(linkedOrderDetails);
+        }
       }
     };
 
     fetchOrderDetails();
   }, [poNumber]);
 
-  const handleSectionClick = (section: SectionModel) => {
+  const handleSectionClick = (
+    section: SectionModel,
+    stream: TracerStreamExtended,
+  ) => {
     setSelectedSection(section);
+    setSelectedStream(stream);
     setIsModalOpen(true);
   };
 
@@ -70,19 +95,32 @@ const PurchaseOrderPage: React.FC = () => {
           <DetailItem>
             <strong>Client:</strong> {orderDetails.client}
           </DetailItem>
+          <DetailItem>
+            <strong>Quantity:</strong> {orderDetails.quantity}
+          </DetailItem>
 
           <CardContainer>
             {orderDetails.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>
                 <Card>
                   <CardTitle>
-                    {stream.friendlyName} - {stream.product} - {stream.quantity}
+                    <div className="flex flex-col">
+                      <p>
+                        <strong>Name:</strong> {stream.friendlyName}
+                      </p>
+                      <p>
+                        <strong>Product:</strong> {stream.product}
+                      </p>
+                      <p>
+                        <strong>Quantity:</strong> {stream.quantity}
+                      </p>
+                    </div>
                   </CardTitle>
                   <SectionContainer>
                     {stream.sections.map((section, secIndex) => (
                       <React.Fragment key={section.sectionId}>
                         <SectionCard
-                          onClick={() => handleSectionClick(section)}
+                          onClick={() => handleSectionClick(section, stream)}
                         >
                           <CardTitle>
                             {section.sectionName}
@@ -140,10 +178,17 @@ const PurchaseOrderPage: React.FC = () => {
         <Section>
           <SectionTitle>Linked Product Orders</SectionTitle>
           <CardContainer>
-            {orderDetails.childrenPosReferences.map((ref) => (
-              <Link href={`/Dashboard/po/${ref}`} key={ref}>
+            {linkedOrders.map((order) => (
+              <Link
+                href={`/Dashboard/po/${order.productOrderNumber}`}
+                key={order.productOrderNumber}
+              >
                 <ReferenceCard>
-                  <CardTitle>PO Reference: {ref}</CardTitle>
+                  <CardTitle>
+                    PO Reference: {order.productOrderNumber}
+                  </CardTitle>
+                  <CardTitle>Product: {order.product}</CardTitle>
+                  <CardTitle>Quantityt: {order.quantity}</CardTitle>
                 </ReferenceCard>
               </Link>
             ))}
@@ -152,7 +197,8 @@ const PurchaseOrderPage: React.FC = () => {
       </Container>
       {isModalOpen && selectedSection && (
         <SectionModal
-          productOrder={orderDetails}
+          productOrder={orderDetails.productOrderNumber}
+          tracerStreamId={selectedStream?.friendlyName || 'no-stream-id'}
           section={selectedSection}
           onClose={handleCloseModal}
         />

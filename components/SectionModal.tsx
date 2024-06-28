@@ -1,9 +1,11 @@
 import { Section } from '@/models/Section';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { fileManagementApiProxy } from '@/proxies/FileManagement.proxy';
 import ProdcutOrder from './ProductOrderItem';
+import { S3ObjectDto } from '@/models/S3ObjectDto';
+import Link from 'next/link';
 
 interface SectionModalProps {
   productOrder: string;
@@ -20,13 +22,35 @@ const SectionModal: React.FC<SectionModalProps> = ({
 }) => {
   const [description, setDescription] = useState(section.sectionDescription);
   const [newNote, setNewNote] = useState('');
-  const [tracerStreamName, setTracerStreamName] = useState('');
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]); // State to hold uploaded file names
+  const [tracerStreamName, setTracerStreamName] = useState(tracerStreamId);
+  const [uploadedFiles, setUploadedFiles] = useState<S3ObjectDto[]>([]); // State to hold uploaded file names
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input element
+  const bucketName = userAuthorizationService.organization.s3BucketName;
 
   const handleNoteChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewNote(event.target.value);
   };
+
+  const prefix = `${productOrder}/${tracerStreamId}/${section.sectionName}`;
+
+  useEffect(() => {
+    const fetchFiles = async () => {
+      if (bucketName) {
+        try {
+          const files = await fileManagementApiProxy.getAllFiles(
+            bucketName,
+            prefix,
+          );
+          // Assuming the response structure contains 'Name'
+          setUploadedFiles(files);
+        } catch (error) {
+          console.error('Error fetching files:', error);
+        }
+      }
+    };
+
+    fetchFiles();
+  }, [bucketName, prefix]);
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -35,15 +59,17 @@ const SectionModal: React.FC<SectionModalProps> = ({
 
     if (file) {
       try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('bucketName', 'your-bucket-name'); // Replace with your actual bucket name
-        formData.append('prefix', 'optional-prefix'); // Optional: Add prefix if needed
-
-        const response = await fetch('/File/UploadFile', {
-          method: 'POST',
-          body: formData,
-        });
+        if (!bucketName) {
+          console.error('Bucket name not found');
+          return;
+        }
+        const response = await fileManagementApiProxy.UploadFile(
+          bucketName,
+          productOrder,
+          tracerStreamId,
+          section.sectionName,
+          file,
+        );
 
         if (response.ok) {
           const { fileName } = await response.json();
@@ -60,6 +86,11 @@ const SectionModal: React.FC<SectionModalProps> = ({
   const handleAddNote = () => {
     alert('Add note functionality not implemented.');
     setNewNote('');
+  };
+
+  const getOnlyFileName = (name: string) => {
+    const parts = name.split('/');
+    return parts[parts.length - 1];
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -143,10 +174,16 @@ const SectionModal: React.FC<SectionModalProps> = ({
           <Button onClick={handleAddNote}>Add Note</Button>
           <h3>Files:</h3>
           <ul>
-            {uploadedFiles.map((fileName, index) => (
+            {uploadedFiles.map((s3Object, index) => (
               <li key={index}>
-                {fileName}
-                <Button>Edit</Button>
+                {getOnlyFileName(s3Object.name || '')}
+                <Link
+                  className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+                  href={s3Object.presignedUrl || ''}
+                  target="_blank"
+                >
+                  View
+                </Link>
                 <Button>Delete</Button>
               </li>
             ))}
@@ -160,7 +197,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
             <input
               type="file"
               ref={fileInputRef}
-              onChange={handleFileInputChange}
+              onChange={handleFileUpload}
               style={{ display: 'none' }}
             />
             <Button>Upload File</Button>
