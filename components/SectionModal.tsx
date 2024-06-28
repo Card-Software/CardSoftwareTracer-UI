@@ -1,17 +1,29 @@
-import { Section } from '@/models/Section';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Section } from '@/models/Section';
+import { userAuthorizationService } from '@/services/UserAuthorization.service';
+import { fileManagementApiProxy } from '@/proxies/FileManagement.proxy';
+import ProdcutOrder from './ProductOrderItem';
 
 interface SectionModalProps {
-  productOrder: any;
+  productOrder: string;
+  tracerStreamId: string;
   section: Section;
   onClose: () => void;
 }
 
-const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
+const SectionModal: React.FC<SectionModalProps> = ({
+  productOrder,
+  tracerStreamId,
+  section,
+  onClose,
+}) => {
   const [description, setDescription] = useState(section.sectionDescription);
   const [name, setName] = useState(section.sectionName);
+  const [tracerStreamName, setTracerStreamName] = useState('');
   const [newNote, setNewNote] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState(section.files || []);
 
   const handleNoteChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewNote(event.target.value);
@@ -22,7 +34,38 @@ const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
     setNewNote('');
   };
 
-  console.log(section);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setFile(event.target.files[0]);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!file) {
+      alert('Please select a file to upload.');
+      return;
+    }
+
+    try {
+      const organization = await userAuthorizationService.organization;
+      const bucketName = organization.s3BucketName;
+      if (!bucketName) {
+        throw new Error('S3 bucket name not found');
+      }
+
+      const uploadedFile = await fileManagementApiProxy.UploadFile(
+        bucketName,
+        productOrder,
+        tracerStreamId,
+        section.sectionName,
+        file,
+      );
+      setFiles([...files, uploadedFile]);
+      setFile(null);
+    } catch (error) {
+      console.error('Failed to upload file', error);
+    }
+  };
 
   return (
     <ModalWrapper className="open">
@@ -33,6 +76,14 @@ const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
           <button onClick={onClose}>Close</button>
         </ModalHeader>
         <ModalBody>
+          <label>Tracer Stream Name</label>
+          <input
+            type="text"
+            value={tracerStreamName}
+            onChange={(e) => setTracerStreamName(e.target.value)}
+            placeholder="Tracer Stream Name"
+            className="tracer-stream-name"
+          />
           <label>Description</label>
           <textarea
             value={description}
@@ -54,7 +105,7 @@ const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
           <Button onClick={handleAddNote}>Add Note</Button>
           <h3>Files:</h3>
           <ul>
-            {section.files.map((file: any) => (
+            {files.map((file: any) => (
               <FileItem key={file.Name}>
                 <a
                   href={file.PresignedUrl}
@@ -70,7 +121,8 @@ const SectionModal: React.FC<SectionModalProps> = ({ section, onClose }) => {
           </ul>
           <DragAndDropArea>
             <p>Drag & drop files here or click to upload</p>
-            <Button>Upload File</Button>
+            <input type="file" onChange={handleFileChange} />
+            <Button onClick={handleFileUpload}>Upload File</Button>
           </DragAndDropArea>
         </ModalBody>
         <ModalFooter>
@@ -124,7 +176,7 @@ const ModalContent = styled.div`
 `;
 
 const ModalHeader = styled.div`
-  background: #2d3748; /* bg-gray-800 */
+  background: #2d3748;
   color: #fff;
   padding: 20px;
   display: flex;
@@ -161,6 +213,15 @@ const ModalBody = styled.div`
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+
+  .tracer-stream-name {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+  }
 
   .section-description {
     width: 100%;
@@ -230,6 +291,7 @@ const Button = styled.button`
   border-radius: 4px;
   cursor: pointer;
   transition: background 0.3s;
+  margin-top: 10px;
 
   &:hover {
     background: #2b6cb0;
@@ -281,6 +343,10 @@ const DragAndDropArea = styled.div`
   p {
     margin-bottom: 10px;
     color: #4a5568;
+  }
+
+  input {
+    display: none;
   }
 
   button {

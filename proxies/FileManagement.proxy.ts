@@ -20,9 +20,12 @@ class FileManagementProxy {
   //#region
   async UploadFile(
     bucketName: string,
-    prefix: string,
+    productOrder: string,
+    nameOfTracerStream: string,
+    sectionName: string,
     file: File,
   ): Promise<any> {
+    const prefix = `${productOrder}/${nameOfTracerStream}/${sectionName}`;
     const formData = new FormData();
     formData.append('file', file);
 
