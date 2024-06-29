@@ -3,60 +3,72 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { fileManagementApiProxy } from '@/proxies/FileManagement.proxy';
-import ProdcutOrder from './ProductOrderItem';
 import { S3ObjectDto } from '@/models/S3ObjectDto';
 import Link from 'next/link';
 
 interface SectionModalProps {
-  productOrder: string;
-  tracerStreamId: string;
-  section: Section;
+  productOrder?: string;
+  tracerStreamId?: string;
+  originalSection: Section;
   onClose: () => void;
+  onSave: (section: Section) => void;
+  mode: 'edit' | 'sectionCreation' | 'sectionCreationOnExistingTracer';
 }
 
 const SectionModal: React.FC<SectionModalProps> = ({
   productOrder,
   tracerStreamId,
-  section,
+  originalSection,
   onClose,
+  onSave,
+  mode,
 }) => {
-  const [description, setDescription] = useState(section.sectionDescription);
+  const [section, setSection] = useState<Section>(
+    originalSection || ({} as Section),
+  );
   const [newNote, setNewNote] = useState('');
-  const [tracerStreamName, setTracerStreamName] = useState(tracerStreamId);
-  const [uploadedFiles, setUploadedFiles] = useState<S3ObjectDto[]>([]); // State to hold uploaded file names
+  const [tracerStreamName, setTracerStreamName] = useState(
+    tracerStreamId || '',
+  );
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input element
   const bucketName = userAuthorizationService.organization.s3BucketName;
+  const prefix = `${productOrder}/${tracerStreamId}/${section.sectionName}`;
+
+  const handleSectionChange = (
+    property: string,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setSection((prevSection) => ({
+      ...prevSection,
+      [property]: event.target.value,
+    }));
+  };
 
   const handleNoteChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewNote(event.target.value);
   };
 
-  const prefix = `${productOrder}/${tracerStreamId}/${section.sectionName}`;
-
   useEffect(() => {
-    const fetchFiles = async () => {
-      if (bucketName) {
-        try {
-          const files = await fileManagementApiProxy.getAllFiles(
-            bucketName,
-            prefix,
-          );
-          // Assuming the response structure contains 'Name'
-          setUploadedFiles(files);
-        } catch (error) {
-          console.error('Error fetching files:', error);
+    if (mode === 'edit' || mode === 'sectionCreationOnExistingTracer') {
+      const fetchFiles = async () => {
+        if (bucketName) {
+          try {
+            const files = await fileManagementApiProxy.getAllFiles(
+              bucketName,
+              prefix,
+            );
+            setSection((prevSection) => ({ ...prevSection, files }));
+          } catch (error) {
+            console.error('Error fetching files:', error);
+          }
         }
-      }
-    };
+      };
 
-    fetchFiles();
-  }, [bucketName, prefix]);
+      fetchFiles();
+    }
+  }, [bucketName, prefix, mode]);
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-
+  const uploadFile = async (file: File) => {
     if (file) {
       try {
         if (!bucketName) {
@@ -65,21 +77,34 @@ const SectionModal: React.FC<SectionModalProps> = ({
         }
         const response = await fileManagementApiProxy.UploadFile(
           bucketName,
-          productOrder,
-          tracerStreamId,
-          section.sectionName,
+          productOrder!,
+          tracerStreamId!,
+          section!.sectionName,
           file,
         );
 
         if (response.ok) {
-          const { fileName } = await response.json();
-          setUploadedFiles([...uploadedFiles, fileName]); // Update state with uploaded file name
+          const allFiles = await fileManagementApiProxy.getAllFiles(
+            bucketName,
+            prefix,
+          );
+          setSection((prevSection) => ({ ...prevSection, files: allFiles }));
         } else {
           console.error('Failed to upload file');
         }
       } catch (error) {
         console.error('Error uploading file:', error);
       }
+    }
+  };
+
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      uploadFile(file);
     }
   };
 
@@ -104,38 +129,6 @@ const SectionModal: React.FC<SectionModalProps> = ({
     uploadFile(file);
   };
 
-  const handleFileInputChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    uploadFile(file);
-  };
-
-  const uploadFile = async (file: File | undefined) => {
-    if (file) {
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('bucketName', 'your-bucket-name'); // Replace with your actual bucket name
-        formData.append('prefix', 'optional-prefix'); // Optional: Add prefix if needed
-
-        const response = await fetch('/File/UploadFile', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (response.ok) {
-          const { fileName } = await response.json();
-          setUploadedFiles([...uploadedFiles, fileName]); // Update state with uploaded file name
-        } else {
-          console.error('Failed to upload file');
-        }
-      } catch (error) {
-        console.error('Error uploading file:', error);
-      }
-    }
-  };
-
   return (
     <ModalWrapper className="open">
       <ModalOverlay onClick={onClose} />
@@ -145,65 +138,82 @@ const SectionModal: React.FC<SectionModalProps> = ({
           <button onClick={onClose}>Close</button>
         </ModalHeader>
         <ModalBody>
-          <label>Tracer Stream Name</label>
-          <input
-            type="text"
-            value={tracerStreamName}
-            onChange={(e) => setTracerStreamName(e.target.value)}
-            placeholder="Tracer Stream Name"
-            className="tracer-stream-name"
-          />
+          {mode !== 'edit' && (
+            <>
+              <label>Section Name</label>
+              <input
+                type="text"
+                value={section.sectionName}
+                onChange={(e) => handleSectionChange('sectionName', e)}
+                placeholder="Section Name"
+                className="tracer-stream-name"
+              />
+            </>
+          )}
           <label>Description</label>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={section.sectionDescription}
+            onChange={(e) => handleSectionChange('sectionDescription', e)}
             placeholder="Section Description"
             className="section-description"
           />
-          <h3>Notes:</h3>
-          <ul>
-            {section.notes.map((note: any) => (
-              <li key={note.id}>{note.content}</li>
-            ))}
-          </ul>
-          <TextArea
-            value={newNote}
-            onChange={handleNoteChange}
-            placeholder="Add a new note"
-          />
-          <Button onClick={handleAddNote}>Add Note</Button>
-          <h3>Files:</h3>
-          <ul>
-            {uploadedFiles.map((s3Object, index) => (
-              <li key={index}>
-                {getOnlyFileName(s3Object.name || '')}
-                <Link
-                  className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-                  href={s3Object.presignedUrl || ''}
-                  target="_blank"
-                >
-                  View
-                </Link>
-                <Button>Delete</Button>
-              </li>
-            ))}
-          </ul>
-          <DragAndDropArea
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()} // Trigger file input click
-          >
-            <label>Drag & drop files here or click to upload:</label>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-            />
-            <Button>Upload File</Button>
-          </DragAndDropArea>
+          <label>Position</label>
+          <input
+            type="number"
+            value={section.position}
+            onChange={(e) => handleSectionChange('position', e)}
+            placeholder="Position"
+            className="tracer-stream-name"
+          ></input>
+          {mode !== 'sectionCreation' && (
+            <>
+              <h3>Notes:</h3>
+              <ul>
+                {section?.notes.map((note: any) => (
+                  <li key={note.id}>{note.content}</li>
+                ))}
+              </ul>
+              <TextArea
+                value={newNote}
+                onChange={handleNoteChange}
+                placeholder="Add a new note"
+              />
+              <Button onClick={handleAddNote}>Add Note</Button>
+              <h3>Files:</h3>
+              <ul>
+                {section.files?.map((s3Object: S3ObjectDto, index: number) => (
+                  <FileItem key={index}>
+                    {getOnlyFileName(s3Object.name || '')}
+                    <Link
+                      className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+                      href={s3Object.presignedUrl || ''}
+                      target="_blank"
+                    >
+                      View
+                    </Link>
+                    <Button>Delete</Button>
+                  </FileItem>
+                ))}
+              </ul>
+              <DragAndDropArea
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()} // Trigger file input click
+              >
+                <label>Drag & drop files here or click to upload:</label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                />
+                <Button>Upload File</Button>
+              </DragAndDropArea>
+            </>
+          )}
         </ModalBody>
         <ModalFooter>
+          <Button onClick={() => onSave(section)}>Save</Button>
           <Button onClick={onClose}>Close</Button>
         </ModalFooter>
       </ModalContent>
@@ -224,7 +234,7 @@ const ModalWrapper = styled.div`
   z-index: 1000;
 
   &.open {
-    width: 30%;
+    width: 50%;
   }
 `;
 

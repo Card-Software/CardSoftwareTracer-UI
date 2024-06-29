@@ -26,8 +26,11 @@ class OrderManagementApiProxy {
     return await response.json();
   }
 
-  async updateTraceability(traceability: TracerStream): Promise<TracerStream> {
-    const nameEncoded = encodeURIComponent(traceability.name);
+  async updateTraceability(
+    tracerName: string,
+    traceability: TracerStream,
+  ): Promise<TracerStream> {
+    const nameEncoded = encodeURIComponent(tracerName);
     const response = await fetch(
       `${this.baseUrl}TracerStreams/UpdateStream/${nameEncoded}`,
       {
@@ -75,9 +78,13 @@ class OrderManagementApiProxy {
     return await response.json();
   }
 
-  async updateProductOrder(productOrder: ProductOrder): Promise<ProductOrder> {
+  async updateProductOrder(
+    productOrder: ProductOrder,
+    originalProductOderId?: string,
+  ): Promise<any> {
+    const poId = originalProductOderId || productOrder.id;
     const response = await fetch(
-      `${this.baseUrl}ProductOrderController/${productOrder.id}`,
+      `${this.baseUrl}ProductOrderController/update/${poId}`,
       {
         method: 'PUT',
         headers: {
@@ -86,7 +93,7 @@ class OrderManagementApiProxy {
         body: JSON.stringify(productOrder),
       },
     );
-    return await response.json();
+    return await response;
   }
 
   async deleteProductOrder(id: string): Promise<void> {

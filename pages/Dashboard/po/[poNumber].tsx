@@ -1,22 +1,27 @@
-// pages/Dashboard/po/[poNumber].tsx
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import styled from 'styled-components';
-import { FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
+import { FaExclamationCircle, FaArrowRight, FaPlus } from 'react-icons/fa';
 import SectionModal from '@/components/SectionModal';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
 import Link from 'next/link';
 import { Section as SectionModel } from '@/models/Section';
-import { TracerStreamExtended } from '@/models/TracerStream';
+import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
+import { ObjectId } from 'bson';
+import { userAuthorizationService } from '@/services/UserAuthorization.service';
+import { User } from '@/models/User';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
+  const user: User = userAuthorizationService.user;
+  const organization = userAuthorizationService.organization;
 
-  const [orderDetails, setOrderDetails] = useState<ProductOrder | null>(null);
+  const [originalProductOrder, setOriginalProductOrder] =
+    useState<ProductOrder | null>(null);
+  const [productOrder, setProductOrder] = useState<ProductOrder | null>(null);
   const [linkedOrders, setLinkedOrders] = useState<ProductOrder[]>([]);
   const [selectedSection, setSelectedSection] = useState<SectionModel | null>(
     null,
@@ -25,16 +30,25 @@ const PurchaseOrderPage: React.FC = () => {
     useState<TracerStreamExtended | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [newTracerStreamId, setNewTracerStreamId] = useState('');
+  const [newTracerStreamName, setNewTracerStreamName] = useState('');
+  const [newTracerStreamProduct, setNewTracerStreamProduct] = useState('');
+  const [newTracerStreamQuantity, setNewTracerStreamQuantity] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredProductOrders, setFilteredProductOrders] = useState<
+    ProductOrder[]
+  >([]);
+  const [connectedPOs, setConnectedPOs] = useState<ProductOrder[]>([]);
+  const [allTracerStreams, setAllTracerStreams] = useState<TracerStream[]>([]);
+
   useEffect(() => {
     const fetchOrderDetails = async () => {
       if (poNumber) {
         const order = await orderManagementApiProxy.getProductOrder(
           poNumber as string,
         );
-        setOrderDetails(order);
-        //for eacgh order refernce get the actual order details
-        // and store in a state. use forkjoin
-        // to get all the details at once.
+        setOriginalProductOrder(order);
+        setProductOrder(order);
 
         if (
           order.childrenPosReferences &&
@@ -50,8 +64,35 @@ const PurchaseOrderPage: React.FC = () => {
       }
     };
 
+    const fetchTracerStreams = async () => {
+      const tracerStreams =
+        await orderManagementApiProxy.getAllTraceabilities();
+      setAllTracerStreams(tracerStreams);
+    };
+
     fetchOrderDetails();
+    fetchTracerStreams();
   }, [poNumber]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = linkedOrders.filter((po) =>
+        po.productOrderNumber.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+      setFilteredProductOrders(filtered);
+    } else {
+      setFilteredProductOrders([]);
+    }
+  }, [searchTerm, linkedOrders]);
+
+  const handleProductOrderChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setProductOrder({
+      ...productOrder,
+      [e.target.name]: e.target.value,
+    } as ProductOrder);
+  };
 
   const handleSectionClick = (
     section: SectionModel,
@@ -67,7 +108,62 @@ const PurchaseOrderPage: React.FC = () => {
     setSelectedSection(null);
   };
 
-  if (!orderDetails) {
+  const handleAddTracerStream = () => {
+    if (newTracerStreamId && newTracerStreamName) {
+      const selectedStream = allTracerStreams.find(
+        (stream) => stream.id === newTracerStreamId,
+      );
+      if (selectedStream && productOrder) {
+        const tracerStreamExtended: TracerStreamExtended = {
+          ...selectedStream,
+          id: new ObjectId().toHexString(),
+          friendlyName: newTracerStreamName,
+          quantity: newTracerStreamQuantity,
+          product: newTracerStreamProduct,
+        };
+
+        setProductOrder({
+          ...productOrder,
+          childrenTracerStreams: [
+            ...productOrder.childrenTracerStreams,
+            tracerStreamExtended,
+          ],
+        });
+
+        setNewTracerStreamId('');
+        setNewTracerStreamName('');
+        setNewTracerStreamQuantity(1);
+      }
+    }
+  };
+
+  const handleAddPOReference = (po: ProductOrder) => {
+    if (!connectedPOs.some((connectedPo) => connectedPo.id === po.id)) {
+      setConnectedPOs([...connectedPOs, po]);
+    }
+    setSearchTerm('');
+    setFilteredProductOrders([]);
+  };
+
+  const handleSave = async () => {
+    if (productOrder) {
+      try {
+        const response =
+          await orderManagementApiProxy.updateProductOrder(productOrder);
+        if (response.status === 204) {
+          alert('Product Order updated successfully!');
+          router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
+        } else {
+          alert(`Failed to save Product Order. Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Failed to save Product Order', error);
+        alert('Failed to save Product Order');
+      }
+    }
+  };
+
+  if (!productOrder) {
     return <div>Loading...</div>;
   }
 
@@ -86,21 +182,46 @@ const PurchaseOrderPage: React.FC = () => {
         <Section>
           <SectionTitle>Purchase Order: {poNumber}</SectionTitle>
           <DetailItem>
-            <strong>Description:</strong> {orderDetails.description}
+            <label htmlFor="description" className="block">
+              <strong>Description:</strong>
+            </label>
+            <input
+              type="text"
+              id="description"
+              name="description"
+              value={productOrder.description}
+              onChange={handleProductOrderChange}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
           </DetailItem>
           <DetailItem>
-            <strong>Assigned to:</strong> {orderDetails.assignedUser.firstName}{' '}
-            {orderDetails.assignedUser.lastname}
+            <strong>Assigned to:</strong> {productOrder.assignedUser.firstName}{' '}
+            {productOrder.assignedUser.lastname}
           </DetailItem>
           <DetailItem>
-            <strong>Client:</strong> {orderDetails.client}
+            <strong>Client:</strong> {productOrder.client}
           </DetailItem>
           <DetailItem>
-            <strong>Quantity:</strong> {orderDetails.quantity}
+            <label htmlFor="quantity" className="block">
+              <strong>Quantity:</strong>
+            </label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={productOrder.quantity}
+              onChange={(e) =>
+                setProductOrder({
+                  ...productOrder,
+                  quantity: Number(e.target.value),
+                })
+              }
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
           </DetailItem>
 
           <CardContainer>
-            {orderDetails.childrenTracerStreams.map((stream, index) => (
+            {productOrder.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>
                 <Card>
                   <CardTitle>
@@ -163,7 +284,25 @@ const PurchaseOrderPage: React.FC = () => {
                     <ArrowIcon>
                       <FaArrowRight size={24} />
                     </ArrowIcon>
-                    <SectionCard>
+                    <SectionCard
+                      onClick={() =>
+                        handleSectionClick(
+                          {
+                            sectionId: '',
+                            sectionName: '',
+                            sectionDescription: '',
+                            assignedUser: user,
+                            notes: [],
+                            position: 0,
+                            fileNameOnExport: '',
+                            files: [],
+                            isRequired: false,
+                            owner: organization,
+                          },
+                          stream,
+                        )
+                      }
+                    >
                       <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
                         Add New Section
                       </AddNewButton>
@@ -173,6 +312,116 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
           </CardContainer>
+        </Section>
+
+        <Section>
+          <SectionTitle>Add New Tracer Stream</SectionTitle>
+          <div className="mb-4 flex gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Select Traceability Stream
+              </label>
+              <select
+                value={newTracerStreamId}
+                onChange={(e) => setNewTracerStreamId(e.target.value)}
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="" disabled>
+                  Select a traceability stream
+                </option>
+                {allTracerStreams.map((stream) => (
+                  <option key={stream.id} value={stream.id}>
+                    {stream.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Product
+              </label>
+              <input
+                type="text"
+                value={newTracerStreamProduct}
+                onChange={(e) => setNewTracerStreamProduct(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Name
+              </label>
+              <input
+                type="text"
+                value={newTracerStreamName}
+                onChange={(e) => setNewTracerStreamName(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Quantity
+              </label>
+              <input
+                type="number"
+                value={newTracerStreamQuantity}
+                onChange={(e) =>
+                  setNewTracerStreamQuantity(Number(e.target.value))
+                }
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              className="self-end rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              onClick={handleAddTracerStream}
+            >
+              <FaPlus /> Add Tracer Stream
+            </button>
+          </div>
+        </Section>
+
+        <Section>
+          <SectionTitle>Add Order References</SectionTitle>
+          <div className="mb-4">
+            <label className="block text-sm font-bold text-gray-700">
+              Search PO
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search PO"
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+            {filteredProductOrders.length > 0 && (
+              <ul className="mt-2 max-h-40 overflow-auto border border-gray-300">
+                {filteredProductOrders.map((po) => (
+                  <li
+                    key={po.id}
+                    className="cursor-pointer p-2 hover:bg-gray-200"
+                    onClick={() => handleAddPOReference(po)}
+                  >
+                    {po.productOrderNumber}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700">
+              Connected Product Orders
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {connectedPOs.map((po) => (
+                <span
+                  key={po.id}
+                  className="inline-block rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700"
+                >
+                  {po.productOrderNumber} - {po.product} - {po.quantity}
+                </span>
+              ))}
+            </div>
+          </div>
         </Section>
 
         <Section>
@@ -188,19 +437,61 @@ const PurchaseOrderPage: React.FC = () => {
                     PO Reference: {order.productOrderNumber}
                   </CardTitle>
                   <CardTitle>Product: {order.product}</CardTitle>
-                  <CardTitle>Quantityt: {order.quantity}</CardTitle>
+                  <CardTitle>Quantity: {order.quantity}</CardTitle>
                 </ReferenceCard>
               </Link>
             ))}
           </CardContainer>
         </Section>
       </Container>
-      {isModalOpen && selectedSection && (
+      <footer className="sticky bottom-0 flex justify-start space-x-2 bg-white p-4">
+        <button
+          className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+          onClick={() => router.back()}
+        >
+          Cancel
+        </button>
+        <button
+          className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          onClick={handleSave}
+        >
+          Save
+        </button>
+      </footer>
+      {isModalOpen && selectedSection && selectedStream && (
         <SectionModal
-          productOrder={orderDetails.productOrderNumber}
-          tracerStreamId={selectedStream?.friendlyName || 'no-stream-id'}
-          section={selectedSection}
+          productOrder={productOrder.productOrderNumber}
+          tracerStreamId={selectedStream.friendlyName}
+          originalSection={selectedSection}
           onClose={handleCloseModal}
+          onSave={(updatedSection: SectionModel) => {
+            setProductOrder((prevOrder) => {
+              if (!prevOrder) return null;
+
+              const updatedStreams = prevOrder.childrenTracerStreams.map(
+                (stream) =>
+                  stream.id === selectedStream.id
+                    ? {
+                        ...stream,
+                        sections: stream.sections.map((section) =>
+                          section.sectionId === updatedSection.sectionId
+                            ? updatedSection
+                            : section,
+                        ),
+                      }
+                    : stream,
+              );
+
+              return { ...prevOrder, childrenTracerStreams: updatedStreams };
+            });
+
+            handleCloseModal();
+          }}
+          mode={
+            selectedSection.sectionId
+              ? 'edit'
+              : 'sectionCreationOnExistingTracer'
+          }
         />
       )}
     </Layout>
@@ -284,22 +575,6 @@ const ArrowIcon = styled.div`
   width: 100%;
   max-width: 30px;
   margin: 0 5px;
-`;
-
-const AddSectionCard = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  max-width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: box-shadow 0.3s ease;
-  &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
 `;
 
 const AddNewButton = styled.button`
