@@ -13,7 +13,8 @@ export interface User {
   password?: string;
   organization: Organization[]; // Organization type is assumed to be defined elsewhere
   roles: Dictionary; // Dictionary type is defined below
-  name: string;
+  firstName: string;
+  lastname: string;
 }
 
 export interface Dictionary {

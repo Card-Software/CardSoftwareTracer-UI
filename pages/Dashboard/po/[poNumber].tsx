@@ -1,50 +1,171 @@
-// pages/PurchaseOrderPage.tsx
-
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Layout from '../../../app/layout';
+import Layout from '@/app/layout';
 import styled from 'styled-components';
-import { FaExclamationCircle, FaArrowRight } from 'react-icons/fa';
-import SectionModal from '../../../components/SectionModal'; // Adjust path if necessary
-import demoDocs from '../../../sample-docs/demo-docs.json';
-import * as demoModels from '@/models/demo';
+import { FaExclamationCircle, FaArrowRight, FaPlus } from 'react-icons/fa';
+import SectionModal from '@/components/SectionModal';
+import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
+import { ProductOrder } from '@/models/ProductOrder';
 import Link from 'next/link';
+import { Section as SectionModel } from '@/models/Section';
+import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
+import { ObjectId } from 'bson';
+import { userAuthorizationService } from '@/services/UserAuthorization.service';
+import { User } from '@/models/User';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
-  const [orderDetails, setOrderDetails] =
-    useState<demoModels.ProductOrder | null>(null);
-  const [selectedSection, setSelectedSection] =
-    useState<demoModels.Section | null>(null);
+  const user: User = userAuthorizationService.user;
+  const organization = userAuthorizationService.organization;
+
+  const [originalProductOrder, setOriginalProductOrder] =
+    useState<ProductOrder | null>(null);
+  const [productOrder, setProductOrder] = useState<ProductOrder | null>(null);
+  const [linkedOrders, setLinkedOrders] = useState<ProductOrder[]>([]);
+  const [selectedSection, setSelectedSection] = useState<SectionModel | null>(
+    null,
+  );
+  const [selectedStream, setSelectedStream] =
+    useState<TracerStreamExtended | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [newTracerStreamId, setNewTracerStreamId] = useState('');
+  const [newTracerStreamName, setNewTracerStreamName] = useState('');
+  const [newTracerStreamProduct, setNewTracerStreamProduct] = useState('');
+  const [newTracerStreamQuantity, setNewTracerStreamQuantity] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredProductOrders, setFilteredProductOrders] = useState<
+    ProductOrder[]
+  >([]);
+  const [connectedPOs, setConnectedPOs] = useState<ProductOrder[]>([]);
+  const [allTracerStreams, setAllTracerStreams] = useState<TracerStream[]>([]);
 
   useEffect(() => {
-    const foundOrder = demoDocs.find((doc) => doc.ProductOrder === poNumber);
+    const fetchOrderDetails = async () => {
+      if (poNumber) {
+        const order = await orderManagementApiProxy.getProductOrder(
+          poNumber as string,
+        );
+        setOriginalProductOrder(order);
+        setProductOrder(order);
 
-    if (foundOrder) {
-      setOrderDetails(foundOrder);
-    }
+        if (
+          order.childrenPosReferences &&
+          order.childrenPosReferences.length > 0
+        ) {
+          const linkedOrderDetails = await Promise.all(
+            order.childrenPosReferences.map((ref) =>
+              orderManagementApiProxy.getProductOrder(ref),
+            ),
+          );
+          setLinkedOrders(linkedOrderDetails);
+        }
+      }
+    };
+
+    const fetchTracerStreams = async () => {
+      const tracerStreams =
+        await orderManagementApiProxy.getAllTraceabilities();
+      setAllTracerStreams(tracerStreams);
+    };
+
+    fetchOrderDetails();
+    fetchTracerStreams();
   }, [poNumber]);
 
-  const handleSectionClick = (section: any) => {
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = linkedOrders.filter((po) =>
+        po.productOrderNumber.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+      setFilteredProductOrders(filtered);
+    } else {
+      setFilteredProductOrders([]);
+    }
+  }, [searchTerm, linkedOrders]);
+
+  const handleProductOrderChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setProductOrder({
+      ...productOrder,
+      [e.target.name]: e.target.value,
+    } as ProductOrder);
+  };
+
+  const handleSectionClick = (
+    section: SectionModel,
+    stream: TracerStreamExtended,
+  ) => {
     setSelectedSection(section);
+    setSelectedStream(stream);
+    setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
+    setIsModalOpen(false);
     setSelectedSection(null);
   };
 
-  if (!orderDetails) {
-    return (
-      <Layout>
-        <Container>
-          <SectionTitle>Loading...</SectionTitle>
-        </Container>
-      </Layout>
-    );
-  }
+  const handleAddTracerStream = () => {
+    if (newTracerStreamId && newTracerStreamName) {
+      const selectedStream = allTracerStreams.find(
+        (stream) => stream.id === newTracerStreamId,
+      );
+      if (selectedStream && productOrder) {
+        const tracerStreamExtended: TracerStreamExtended = {
+          ...selectedStream,
+          id: new ObjectId().toHexString(),
+          friendlyName: newTracerStreamName,
+          quantity: newTracerStreamQuantity,
+          product: newTracerStreamProduct,
+        };
 
-  const { TraceabilityStream } = orderDetails;
+        setProductOrder({
+          ...productOrder,
+          childrenTracerStreams: [
+            ...productOrder.childrenTracerStreams,
+            tracerStreamExtended,
+          ],
+        });
+
+        setNewTracerStreamId('');
+        setNewTracerStreamName('');
+        setNewTracerStreamQuantity(1);
+      }
+    }
+  };
+
+  const handleAddPOReference = (po: ProductOrder) => {
+    if (!connectedPOs.some((connectedPo) => connectedPo.id === po.id)) {
+      setConnectedPOs([...connectedPOs, po]);
+    }
+    setSearchTerm('');
+    setFilteredProductOrders([]);
+  };
+
+  const handleSave = async () => {
+    if (productOrder) {
+      try {
+        const response =
+          await orderManagementApiProxy.updateProductOrder(productOrder);
+        if (response.status === 204) {
+          alert('Product Order updated successfully!');
+          router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
+        } else {
+          alert(`Failed to save Product Order. Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Failed to save Product Order', error);
+        alert('Failed to save Product Order');
+      }
+    }
+  };
+
+  if (!productOrder) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Layout>
@@ -60,64 +181,317 @@ const PurchaseOrderPage: React.FC = () => {
         </div>
         <Section>
           <SectionTitle>Purchase Order: {poNumber}</SectionTitle>
+          <DetailItem>
+            <label htmlFor="description" className="block">
+              <strong>Description:</strong>
+            </label>
+            <input
+              type="text"
+              id="description"
+              name="description"
+              value={productOrder.description}
+              onChange={handleProductOrderChange}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </DetailItem>
+          <DetailItem>
+            <strong>Assigned to:</strong> {productOrder.assignedUser.firstName}{' '}
+            {productOrder.assignedUser.lastname}
+          </DetailItem>
+          <DetailItem>
+            <strong>Client:</strong> {productOrder.client}
+          </DetailItem>
+          <DetailItem>
+            <label htmlFor="quantity" className="block">
+              <strong>Quantity:</strong>
+            </label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={productOrder.quantity}
+              onChange={(e) =>
+                setProductOrder({
+                  ...productOrder,
+                  quantity: Number(e.target.value),
+                })
+              }
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </DetailItem>
+
           <CardContainer>
-            {TraceabilityStream.Sections.map((section, index) => (
-              <React.Fragment key={section.Position}>
-                <Card onClick={() => handleSectionClick(section)}>
+            {productOrder.childrenTracerStreams.map((stream, index) => (
+              <React.Fragment key={stream.id}>
+                <Card>
                   <CardTitle>
-                    {section.SectionName}
-                    <FaExclamationCircle
-                      color="red"
-                      style={{ marginLeft: '10px' }}
-                    />
+                    <div className="flex flex-col">
+                      <p>
+                        <strong>Name:</strong> {stream.friendlyName}
+                      </p>
+                      <p>
+                        <strong>Product:</strong> {stream.product}
+                      </p>
+                      <p>
+                        <strong>Quantity:</strong> {stream.quantity}
+                      </p>
+                    </div>
                   </CardTitle>
-                  <CardDetails>
-                    <DetailItem>
-                      <strong>Description:</strong> {section.SectionDescription}
-                    </DetailItem>
-                    <DetailItem>
-                      <strong>Assigned to:</strong> {section.assignedUser.Name}
-                    </DetailItem>
-                    <DetailItem>
-                      <strong>Notes:</strong>
-                      <ul>
-                        {section.Notes.map((note) => (
-                          <li key={note.id}>{note.content}</li>
-                        ))}
-                      </ul>
-                    </DetailItem>
-                    <DetailItem>
-                      <Link
-                        href={section.Files[0].PresignedUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 underline hover:text-blue-700"
-                      >
-                        {section.Files[0].Name}
-                      </Link>
-                    </DetailItem>
-                  </CardDetails>
+                  <SectionContainer>
+                    {stream.sections.map((section, secIndex) => (
+                      <React.Fragment key={section.sectionId}>
+                        <SectionCard
+                          onClick={() => handleSectionClick(section, stream)}
+                        >
+                          <CardTitle>
+                            {section.sectionName}
+                            <FaExclamationCircle
+                              color="red"
+                              style={{ marginLeft: '10px' }}
+                            />
+                          </CardTitle>
+                          <CardDetails>
+                            <DetailItem>
+                              <strong>Description:</strong>{' '}
+                              {section.sectionDescription}
+                            </DetailItem>
+                            {section.assignedUser && (
+                              <DetailItem>
+                                <strong>Assigned to:</strong>{' '}
+                                {section.assignedUser.firstName}{' '}
+                                {section.assignedUser.lastname}
+                              </DetailItem>
+                            )}
+                            {section.notes && section.notes.length > 0 && (
+                              <DetailItem>
+                                <strong>Notes:</strong>
+                                <ul>
+                                  {section.notes.map((note) => (
+                                    <li key={note.id}>{note.content}</li>
+                                  ))}
+                                </ul>
+                              </DetailItem>
+                            )}
+                          </CardDetails>
+                        </SectionCard>
+                        {secIndex < stream.sections.length - 1 && (
+                          <ArrowIcon>
+                            <FaArrowRight size={24} />
+                          </ArrowIcon>
+                        )}
+                      </React.Fragment>
+                    ))}
+                    <ArrowIcon>
+                      <FaArrowRight size={24} />
+                    </ArrowIcon>
+                    <SectionCard
+                      onClick={() =>
+                        handleSectionClick(
+                          {
+                            sectionId: '',
+                            sectionName: '',
+                            sectionDescription: '',
+                            assignedUser: user,
+                            notes: [],
+                            position: 0,
+                            fileNameOnExport: '',
+                            files: [],
+                            isRequired: false,
+                            owner: organization,
+                          },
+                          stream,
+                        )
+                      }
+                    >
+                      <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
+                        Add New Section
+                      </AddNewButton>
+                    </SectionCard>
+                  </SectionContainer>
                 </Card>
-                {index < TraceabilityStream.Sections.length - 1 && (
-                  <ArrowIcon>
-                    <FaArrowRight size={24} />
-                  </ArrowIcon>
-                )}
               </React.Fragment>
             ))}
-            <AddNewCard>
-              <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
-                Add New
-              </AddNewButton>
-            </AddNewCard>
+          </CardContainer>
+        </Section>
+
+        <Section>
+          <SectionTitle>Add New Tracer Stream</SectionTitle>
+          <div className="mb-4 flex gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Select Traceability Stream
+              </label>
+              <select
+                value={newTracerStreamId}
+                onChange={(e) => setNewTracerStreamId(e.target.value)}
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="" disabled>
+                  Select a traceability stream
+                </option>
+                {allTracerStreams.map((stream) => (
+                  <option key={stream.id} value={stream.id}>
+                    {stream.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Product
+              </label>
+              <input
+                type="text"
+                value={newTracerStreamProduct}
+                onChange={(e) => setNewTracerStreamProduct(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Name
+              </label>
+              <input
+                type="text"
+                value={newTracerStreamName}
+                onChange={(e) => setNewTracerStreamName(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-gray-700">
+                Quantity
+              </label>
+              <input
+                type="number"
+                value={newTracerStreamQuantity}
+                onChange={(e) =>
+                  setNewTracerStreamQuantity(Number(e.target.value))
+                }
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <button
+              className="self-end rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              onClick={handleAddTracerStream}
+            >
+              <FaPlus /> Add Tracer Stream
+            </button>
+          </div>
+        </Section>
+
+        <Section>
+          <SectionTitle>Add Order References</SectionTitle>
+          <div className="mb-4">
+            <label className="block text-sm font-bold text-gray-700">
+              Search PO
+            </label>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search PO"
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+            {filteredProductOrders.length > 0 && (
+              <ul className="mt-2 max-h-40 overflow-auto border border-gray-300">
+                {filteredProductOrders.map((po) => (
+                  <li
+                    key={po.id}
+                    className="cursor-pointer p-2 hover:bg-gray-200"
+                    onClick={() => handleAddPOReference(po)}
+                  >
+                    {po.productOrderNumber}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700">
+              Connected Product Orders
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {connectedPOs.map((po) => (
+                <span
+                  key={po.id}
+                  className="inline-block rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700"
+                >
+                  {po.productOrderNumber} - {po.product} - {po.quantity}
+                </span>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        <Section>
+          <SectionTitle>Linked Product Orders</SectionTitle>
+          <CardContainer>
+            {linkedOrders.map((order) => (
+              <Link
+                href={`/Dashboard/po/${order.productOrderNumber}`}
+                key={order.productOrderNumber}
+              >
+                <ReferenceCard>
+                  <CardTitle>
+                    PO Reference: {order.productOrderNumber}
+                  </CardTitle>
+                  <CardTitle>Product: {order.product}</CardTitle>
+                  <CardTitle>Quantity: {order.quantity}</CardTitle>
+                </ReferenceCard>
+              </Link>
+            ))}
           </CardContainer>
         </Section>
       </Container>
-      {selectedSection && (
+      <footer className="sticky bottom-0 flex justify-start space-x-2 bg-white p-4">
+        <button
+          className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+          onClick={() => router.back()}
+        >
+          Cancel
+        </button>
+        <button
+          className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          onClick={handleSave}
+        >
+          Save
+        </button>
+      </footer>
+      {isModalOpen && selectedSection && selectedStream && (
         <SectionModal
-          productOrder={orderDetails}
-          section={selectedSection}
+          productOrder={productOrder.productOrderNumber}
+          tracerStreamId={selectedStream.friendlyName}
+          originalSection={selectedSection}
           onClose={handleCloseModal}
+          onSave={(updatedSection: SectionModel) => {
+            setProductOrder((prevOrder) => {
+              if (!prevOrder) return null;
+
+              const updatedStreams = prevOrder.childrenTracerStreams.map(
+                (stream) =>
+                  stream.id === selectedStream.id
+                    ? {
+                        ...stream,
+                        sections: stream.sections.map((section) =>
+                          section.sectionId === updatedSection.sectionId
+                            ? updatedSection
+                            : section,
+                        ),
+                      }
+                    : stream,
+              );
+
+              return { ...prevOrder, childrenTracerStreams: updatedStreams };
+            });
+
+            handleCloseModal();
+          }}
+          mode={
+            selectedSection.sectionId
+              ? 'edit'
+              : 'sectionCreationOnExistingTracer'
+          }
         />
       )}
     </Layout>
@@ -130,14 +504,17 @@ const Container = styled.div`
   padding: 20px;
 `;
 
-const Breadcrumb = styled.span`
-  display: block;
-  margin-bottom: 20px;
-  font-size: 14px;
-`;
-
 const Section = styled.section`
   margin-bottom: 40px;
+`;
+
+const SectionContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  flex-grow: 1;
 `;
 
 const SectionTitle = styled.h2`
@@ -149,9 +526,10 @@ const SectionTitle = styled.h2`
 
 const CardContainer = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 20px;
   position: relative;
+  flex-grow: 1;
 `;
 
 const Card = styled.div`
@@ -159,7 +537,6 @@ const Card = styled.div`
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
-  width: 100%;
   max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
@@ -167,6 +544,12 @@ const Card = styled.div`
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
+  min-width: 100%;
+`;
+
+const SectionCard = styled(Card)`
+  margin-bottom: 10px;
+  min-width: 0;
 `;
 
 const CardTitle = styled.h3`
@@ -191,24 +574,7 @@ const ArrowIcon = styled.div`
   justify-content: center;
   width: 100%;
   max-width: 30px;
-  margin: 0 10px;
-`;
-
-const AddNewCard = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  width: 100%;
-  max-width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: box-shadow 0.3s ease;
-  &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
+  margin: 0 5px;
 `;
 
 const AddNewButton = styled.button`
@@ -216,6 +582,13 @@ const AddNewButton = styled.button`
   border: none;
   color: #000;
   font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ReferenceCard = styled(Card)`
   cursor: pointer;
   &:hover {
     text-decoration: underline;

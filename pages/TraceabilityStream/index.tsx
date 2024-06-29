@@ -5,8 +5,8 @@ import '../../styles/dashboard.css';
 import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
 import { useRouter } from 'next/router';
-import { traceabilityApiProxyService } from '@/proxies/TraceabilityApi.proxy';
-import { TracerStream } from '@/models/TraceabilityStream';
+import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
+import { TracerStream } from '@/models/TracerStream';
 
 const TraceabilityStream = () => {
   const router = useRouter();
@@ -18,7 +18,7 @@ const TraceabilityStream = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await traceabilityApiProxyService.getAllTraceabilities();
+        const data = await orderManagementApiProxy.getAllTraceabilities();
         setStreams(data);
         setFilteredStreams(data);
       } catch (error) {
@@ -37,6 +37,12 @@ const TraceabilityStream = () => {
     // setFilteredStreams(filtered);
   };
 
+  //declare function handleTracerClick with id parameter
+  const handleTracerClick =
+    (id: string) => (event: React.MouseEvent<HTMLTableRowElement>) => {
+      //use router.push to redirect to /TraceabilityStream/Details
+      router.push('/TraceabilityStream/Details?id=' + id);
+    };
   const handleRedirect = () => {
     router.push('/TraceabilityStream/Details');
   };
@@ -105,7 +111,11 @@ const TraceabilityStream = () => {
             </thead>
             <tbody>
               {filteredStreams.map((stream) => (
-                <tr key={stream.id} className="hover:bg-gray-100">
+                <tr
+                  key={stream.id}
+                  className="hover:bg-gray-100"
+                  onClick={handleTracerClick(stream.name || '')}
+                >
                   <td className="border border-gray-300 p-2">{stream.name}</td>
                   {/* <td className="border border-gray-300 p-2">{stream.clients}</td> */}
                   {/* <td className="border border-gray-300 p-2">

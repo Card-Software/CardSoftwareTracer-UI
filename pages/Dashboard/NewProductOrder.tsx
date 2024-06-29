@@ -1,44 +1,141 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
 import Link from 'next/link';
+import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
+import { userAuthorizationService } from '@/services/UserAuthorization.service';
+import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
+import { User } from '@/models/User';
+import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
+import { ProductOrder } from '@/models/ProductOrder';
+import { ObjectId } from 'bson';
+import { useRouter } from 'next/router';
 
 const NewProductOrder: React.FC = () => {
-  const sampleTracStreams = [
-    { id: 1, name: 'TracStream 1' },
-    { id: 2, name: 'TracStream 2' },
-    { id: 3, name: 'TracStream 3' },
-  ];
-
-  const sampleClients = [
-    { id: 1, name: 'Client A' },
-    { id: 2, name: 'Client B' },
-    { id: 3, name: 'Client C' },
-  ];
-
-  const sampleUsers = [
-    { id: 1, name: 'User 1' },
-    { id: 2, name: 'User 2' },
-    { id: 3, name: 'User 3' },
-  ];
-
-  const existingPOs = [
-    { id: 1, name: 'PO 1001' },
-    { id: 2, name: 'PO 1002' },
-    { id: 3, name: 'PO 1003' },
-  ];
-
+  const router = useRouter();
+  const [allTracerStreams, setAllTracerStreams] = useState<TracerStream[]>([]);
+  const [allProductOrders, setAllProductOrders] = useState<ProductOrder[]>([]);
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedStream, setSelectedStream] = useState('');
-  const [connectedPOs, setConnectedPOs] = useState<string[]>([]);
+  const [connectedPOs, setConnectedPOs] = useState<ProductOrder[]>([]);
+  const [filteredProductOrders, setFilteredProductOrders] = useState<
+    ProductOrder[]
+  >([]);
+  const [connectedTracerStreams, setConnectedTracerStreams] = useState<
+    TracerStreamExtended[]
+  >([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [poNumber, setPoNumber] = useState('');
+  const [quantity, setQuantity] = useState<number>(0);
+  const [product, setProduct] = useState('');
+  const [assignedUser, setAssignedUser] = useState('');
+  const [description, setDescription] = useState('');
+  const [sampleUsers, setSampleUsers] = useState<User[]>([]);
+  const [isPoSelected, setIsPoSelected] = useState(false);
+  const [isStreamSelected, setIsStreamSelected] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalStream, setModalStream] = useState<TracerStream | null>(null);
+  const [modalQuantity, setModalQuantity] = useState(1);
+  const [modalProduct, setModalProduct] = useState('');
 
-  const handleConnectPO = (poName: string) => {
-    if (!connectedPOs.includes(poName)) {
-      setConnectedPOs([...connectedPOs, poName]);
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = allProductOrders.filter((po) =>
+        po.productOrderNumber.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+      setFilteredProductOrders(filtered);
+    } else {
+      setFilteredProductOrders([]);
+    }
+  }, [searchTerm, allProductOrders]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const tracerStreams =
+        await orderManagementApiProxy.getAllTraceabilities();
+      const productOrders = await orderManagementApiProxy.getAllProductOrders();
+      const user = await organizationManagementProxy.GetUser(
+        '6676fa30216dcfa58f98284d',
+      );
+      setAllTracerStreams(tracerStreams);
+      setAllProductOrders(productOrders);
+      setSampleUsers([user]);
+    };
+
+    fetchData();
+  }, []);
+
+  const sampleClients = [
+    { id: 1, name: 'Adidas' },
+    { id: 2, name: 'GAP' },
+    { id: 3, name: 'Pride' },
+  ];
+
+  const handleConnectPO = (po: ProductOrder) => {
+    if (!connectedPOs.some((connectedPo) => connectedPo.id === po.id)) {
+      setConnectedPOs([...connectedPOs, po]);
     }
     setSearchTerm('');
+    setFilteredProductOrders([]);
+    setIsPoSelected(false);
+  };
+
+  const handleSave = async () => {
+    const newProductOrder: ProductOrder = {
+      productOrderNumber: poNumber,
+      owner: userAuthorizationService.organization,
+      description: description,
+      notes: [], // Add relevant notes if applicable
+      assignedUser: sampleUsers.find((user) => user.id === assignedUser)!,
+      createdDate: new Date(),
+      client: selectedClient,
+      status: 'New', // Set an appropriate status
+      product: product,
+      quantity: quantity,
+      childrenTracerStreams: connectedTracerStreams,
+      childrenPosReferences: connectedPOs.map((po) => po.productOrderNumber),
+    };
+
+    try {
+      await orderManagementApiProxy.createProductOrder(newProductOrder);
+      // Redirect or show success message as needed
+      alert('Product Order saved successfully!');
+      router.push(`/Dashboard/po/${poNumber}`);
+    } catch (error) {
+      console.error('Failed to save Product Order', error);
+      // Handle error as needed
+    }
+  };
+
+  const handleConnectTracerStream = () => {
+    if (modalStream) {
+      const tracerStreamExtended: TracerStreamExtended = {
+        ...modalStream,
+        friendlyName: modalProduct,
+        quantity: modalQuantity,
+        product: modalProduct,
+        id: new ObjectId().toHexString(),
+      };
+
+      setConnectedTracerStreams([
+        ...connectedTracerStreams,
+        tracerStreamExtended,
+      ]);
+      // if (
+      //   !connectedTracerStreams.some((ts) => ts.id === tracerStreamExtended.id)
+      // ) {
+      //   setConnectedTracerStreams([
+      //     ...connectedTracerStreams,
+      //     tracerStreamExtended,
+      //   ]);
+      // }
+      setModalStream(null);
+      setModalQuantity(1);
+      setModalProduct('');
+      setIsModalOpen(false);
+      setIsStreamSelected(false);
+    }
   };
 
   return (
@@ -48,26 +145,47 @@ const NewProductOrder: React.FC = () => {
           href="/Dashboard"
           className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
         >
-          Traceability Stream
+          Dashboard
         </Link>
         <span className="text-sm text-gray-500"> &gt; Add New PO</span>
       </div>
       <div className="mb-8">
         <h1 className="text-2xl font-bold">Add New Product Order</h1>
       </div>
-      <div className="space-between mb-6 flex gap-5">
+      <div className="space-between mb-4 flex gap-5">
         <div className="form-box">
           <label className="mb-2 block text-sm font-bold text-gray-700">
             PO #
           </label>
           <input
             type="text"
-            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
-          ></input>
+            value={poNumber}
+            onChange={(e) => setPoNumber(e.target.value)}
+            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+          />
         </div>
         <div className="form-box">
           <label className="mb-2 block text-sm font-bold text-gray-700">
             Assign To
+          </label>
+          <select
+            value={assignedUser}
+            onChange={(e) => setAssignedUser(e.target.value)}
+            className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="" disabled>
+              Select an associate
+            </option>
+            {sampleUsers.map((user) => (
+              <option key={user.id} value={user.id}>
+                {user.firstName} {user.lastname}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Client
           </label>
           <select
             value={selectedClient}
@@ -75,7 +193,7 @@ const NewProductOrder: React.FC = () => {
             className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
             <option value="" disabled>
-              Select an associate
+              Select a client
             </option>
             {sampleClients.map((client) => (
               <option key={client.id} value={client.name}>
@@ -85,106 +203,223 @@ const NewProductOrder: React.FC = () => {
           </select>
         </div>
       </div>
-      <div className="mb-6">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Client
-        </label>
-        <select
-          value={selectedClient}
-          onChange={(e) => setSelectedClient(e.target.value)}
-          className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="" disabled>
-            Select a client
-          </option>
-          {sampleClients.map((client) => (
-            <option key={client.id} value={client.name}>
-              {client.name}
-            </option>
-          ))}
-        </select>
+      <div className="space-between mb-4 flex gap-5">
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Quantity
+          </label>
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Product
+          </label>
+          <input
+            type="text"
+            value={product}
+            onChange={(e) => setProduct(e.target.value)}
+            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
       <div className="mb-6">
         <label className="mb-2 block text-sm font-bold text-gray-700">
-          Traceability Stream
+          Description
         </label>
-        <select
-          value={selectedStream}
-          onChange={(e) => setSelectedStream(e.target.value)}
-          className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="" disabled>
-            Select a traceability stream
-          </option>
-          {sampleTracStreams.map((stream) => (
-            <option key={stream.id} value={stream.name}>
-              {stream.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* <div className="mb-6">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Connect to other PO(s)
-        </label>
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search for a PO"
-          className="block w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
         />
-        <div className="relative mt-2">
-          {searchTerm && (
-            <div className="absolute max-h-48 w-full overflow-y-auto rounded-md border border-gray-300 bg-white shadow-lg">
-              {existingPOs
-                .filter((po) =>
-                  po.name.toLowerCase().includes(searchTerm.toLowerCase()),
-                )
-                .map((po) => (
-                  <div
-                    key={po.id}
-                    onClick={() => handleConnectPO(po.name)}
-                    className="cursor-pointer px-4 py-2 hover:bg-gray-200"
-                  >
-                    {po.name}
-                  </div>
-                ))}
-            </div>
+      </div>
+      <div className="space-between mb-6 flex gap-5">
+        <div className="mb-6">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Traceability Stream
+          </label>
+          <select
+            value={selectedStream}
+            onChange={(e) => {
+              setSelectedStream(e.target.value);
+              setIsStreamSelected(true);
+            }}
+            className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="" disabled>
+              Select a traceability stream
+            </option>
+            {allTracerStreams.map((stream) => (
+              <option key={stream.id} value={stream.id}>
+                {stream.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-6">
+          <button
+            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            onClick={() => {
+              const selectedStreamDetails = allTracerStreams.find(
+                (ts) => ts.id === selectedStream,
+              );
+              if (selectedStreamDetails) {
+                setModalStream(selectedStreamDetails);
+                setIsModalOpen(true);
+              }
+            }}
+            // disabled={!isStreamSelected}
+          >
+            Add Tracer Stream
+          </button>
+        </div>
+
+        <div className="mb-6">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Connected Product Orders
+          </label>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search PO"
+            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+          />
+          {filteredProductOrders.length > 0 && (
+            <ul className="mt-2 max-h-40 overflow-auto border border-gray-300">
+              {filteredProductOrders.map((po) => (
+                <li
+                  key={po.id}
+                  className="cursor-pointer p-2 hover:bg-gray-200"
+                  onClick={() => {
+                    setSearchTerm(po.productOrderNumber);
+                    setIsPoSelected(true);
+                  }}
+                >
+                  {po.productOrderNumber}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
-        <div className="mt-4">
+        <div className="mb-6">
+          <button
+            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            onClick={() => {
+              const selectedPoDetails = filteredProductOrders.find(
+                (po) => po.productOrderNumber === searchTerm,
+              );
+              if (selectedPoDetails) {
+                handleConnectPO(selectedPoDetails);
+              }
+            }}
+            disabled={!isPoSelected}
+          >
+            Add PO Reference
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Connected Product Orders
+        </label>
+        <div className="flex flex-wrap gap-2">
           {connectedPOs.map((po) => (
             <span
-              key={po}
-              className="mb-2 mr-2 inline-block rounded-full bg-blue-500 px-3 py-1 text-sm text-white"
+              key={po.id}
+              className="inline-block rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700"
             >
-              {po}
+              {po.productOrderNumber} - {po.product} - {po.quantity}
             </span>
           ))}
         </div>
-      </div> */}
+      </div>
 
-      <footer className="stream-footer flex justify-between bg-gray-200 p-4">
-        <div>
-          <button
-            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            onClick={() => console.log('Cancel clicked')}
-          >
-            Cancel
-          </button>
+      <div className="mb-6">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Connected Tracer Streams
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {connectedTracerStreams.map((ts) => (
+            <span
+              key={ts.id}
+              className="inline-block rounded-full bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700"
+            >
+              {ts.friendlyName} - {ts.product} - {ts.quantity}
+            </span>
+          ))}
         </div>
-        <div>
-          <button
-            className="ml-3 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            onClick={() => console.log('Save clicked')}
-          >
-            Save
-          </button>
-        </div>
+      </div>
+
+      <footer className="sticky bottom-0 flex justify-start space-x-2 bg-white p-4">
+        <button
+          className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+          onClick={() => console.log('Cancel clicked')}
+        >
+          Cancel
+        </button>
+        <button
+          className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          onClick={handleSave}
+        >
+          Save
+        </button>
       </footer>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
+          <div className="w-1/3 rounded-lg bg-white p-6 shadow-md">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold">Add Tracer Stream</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700">Product</label>
+              <input
+                type="text"
+                value={modalProduct}
+                onChange={(e) => setModalProduct(e.target.value)}
+                className="w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700">Quantity</label>
+              <input
+                type="number"
+                value={modalQuantity}
+                onChange={(e) => setModalQuantity(Number(e.target.value))}
+                className="w-full rounded-md border px-3 py-2 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConnectTracerStream}
+                className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
