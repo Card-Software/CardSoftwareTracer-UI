@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
+import '../../../styles/dashboard.css';
 import styled from 'styled-components';
 import { FaExclamationCircle, FaArrowRight, FaPlus } from 'react-icons/fa';
 import SectionModal from '@/components/SectionModal';
@@ -12,6 +13,8 @@ import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
 import { ObjectId } from 'bson';
 import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { User } from '@/models/User';
+import TracerButton from '@/components/TracerButton';
+import { HiPlus } from 'react-icons/hi';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -180,28 +183,48 @@ const PurchaseOrderPage: React.FC = () => {
           <span className="text-sm text-gray-500"> &gt; PO Details</span>
         </div>
         <Section>
-          <SectionTitle>Purchase Order: {poNumber}</SectionTitle>
-          <DetailItem>
-            <label htmlFor="description" className="block">
-              <strong>Description:</strong>
-            </label>
-            <input
-              type="text"
-              id="description"
-              name="description"
-              value={productOrder.description}
-              onChange={handleProductOrderChange}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
+          <div className="align-center my-2 mb-8 flex gap-5">
+            <div>
+              <h1 className="text-2xl font-bold">Product Order Details</h1>
+            </div>
+            <div className="flex gap-5">
+              <div>
+                <TracerButton
+                  name="Add Tracer Stream"
+                  icon={<HiPlus />}
+                  onClick={() => router.push('/Dashboard/NewProductOrder')}
+                />
+              </div>
+              <div>
+                <TracerButton
+                  name="Add Order Reference"
+                  icon={<HiPlus />}
+                  onClick={() => router.push('/Dashboard/NewProductOrder')}
+                />
+              </div>
+            </div>
+          </div>
+
+          <DetailItem className="flex">
+            <strong>PO Number:</strong> {productOrder.productOrderNumber}
           </DetailItem>
+
+          {/* TODO: Make this editable */}
+          <DetailItem className="flex">
+            <strong>External PO Number:</strong> 54322
+          </DetailItem>
+
+          {/* TODO: Make this editable. Similar to what we see in the NewProductOrder page */}
           <DetailItem>
             <strong>Assigned to:</strong> {productOrder.assignedUser.firstName}{' '}
             {productOrder.assignedUser.lastname}
           </DetailItem>
+
+          {/* TODO: Make this editable */}
           <DetailItem>
             <strong>Client:</strong> {productOrder.client}
           </DetailItem>
-          <DetailItem>
+          <DetailItem className="flex">
             <label htmlFor="quantity" className="block">
               <strong>Quantity:</strong>
             </label>
@@ -216,6 +239,19 @@ const PurchaseOrderPage: React.FC = () => {
                   quantity: Number(e.target.value),
                 })
               }
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </DetailItem>
+          <DetailItem>
+            <label htmlFor="description" className="block">
+              <strong>Description:</strong>
+            </label>
+            <input
+              type="text"
+              id="description"
+              name="description"
+              value={productOrder.description}
+              onChange={handleProductOrderChange}
               className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
           </DetailItem>
