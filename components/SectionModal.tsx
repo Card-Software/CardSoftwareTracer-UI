@@ -5,6 +5,7 @@ import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { fileManagementApiProxy } from '@/proxies/FileManagement.proxy';
 import { S3ObjectDto } from '@/models/S3ObjectDto';
 import Link from 'next/link';
+import { FaTimes } from 'react-icons/fa';
 
 interface SectionModalProps {
   productOrder?: string;
@@ -134,8 +135,10 @@ const SectionModal: React.FC<SectionModalProps> = ({
       <ModalOverlay onClick={onClose} />
       <ModalContent>
         <ModalHeader>
-          <h2>Section</h2>
-          <button onClick={onClose}>Close</button>
+          <h1>Section Management</h1>
+          <button onClick={onClose} className="close-button">
+            <FaTimes size={24} />
+          </button>
         </ModalHeader>
         <ModalBody>
           {mode !== 'edit' && (
@@ -281,20 +284,6 @@ const ModalHeader = styled.div`
     border: 1px solid #e2e8f0;
     color: #2d3748;
   }
-
-  button {
-    background: #e53e3e;
-    border: none;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
-
-    &:hover {
-      background: #c53030;
-    }
-  }
 `;
 
 const ModalBody = styled.div`
@@ -342,12 +331,14 @@ const ModalBody = styled.div`
 
 const ModalFooter = styled.div`
   padding: 20px;
-  background: #f7fafc;
+
+  background: #2d3748;
   text-align: right;
   border-bottom-left-radius: 8px;
 
   button {
-    background: #2d3748;
+    background: white;
+    margin-left: 2rem;
     border: none;
     color: #fff;
     padding: 10px 20px;
