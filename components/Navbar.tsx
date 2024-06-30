@@ -1,15 +1,28 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { FiLogIn } from 'react-icons/fi'; // Importing a login icon from react-icons
 
 const Navbar: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(true); // Change this to `true` or `false` to simulate login state
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
-  const userName = 'John Doe'; // Replace with dynamic user name if available
+  const [userName, setUserName] = useState(''); // Change this to the user's name
+
+  useEffect(() => {
+    const fullName = userAuthenticationService.getFullName();
+    if (fullName) {
+      setUserName(fullName);
+    }
+  }, []);
+
+  //use effect to now if the user is logged in
+  useEffect(() => {
+    const loggedIn = userAuthenticationService.isLoggedIn();
+    setLoggedIn(loggedIn);
+  }, []);
 
   const handleLogout = () => {
-    // Implement logout logic here
-    console.log('User logged out');
+    userAuthenticationService.logout();
     setLoggedIn(false);
     setShowLogoutMenu(false);
   };

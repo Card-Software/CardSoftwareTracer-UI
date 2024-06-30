@@ -1,7 +1,7 @@
 import { S3ObjectDto } from '@/models/S3ObjectDto';
 
 class FileManagementProxy {
-  private baseUrl: string = process.env.TRACER_APP_API_URL || '';
+  private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
   private deployedUrl: string =
     process.env.NEXT_PUBLIC_TRACER_APP_API_URL_DEPLOYED || '';
   //#region
