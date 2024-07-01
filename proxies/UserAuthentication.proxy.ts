@@ -7,7 +7,7 @@ class UserAuthenticationProxy {
 
   async Login(email: string, password: string): Promise<{ token: string }> {
     const response = await fetch(
-      `${this.baseUrl}AuthenticationController/login`,
+      `${this.deployedUrl}AuthenticationController/login`,
       {
         method: 'POST',
         headers: {
