@@ -3,12 +3,14 @@ import { User } from '@/models/User';
 
 class OrganizationManagementProxy {
   baseUrl = process.env.NEXT_PUBLIC_TRACER_APP_API_URL;
+  private deployedUrl: string =
+    process.env.NEXT_PUBLIC_TRACER_APP_API_URL_DEPLOYED || '';
 
   //#region
   // Organization controller
   async CreateOrganization(organization: Organization): Promise<Organization> {
     const response = await fetch(
-      `${this.baseUrl}OrganizationController/create`,
+      `${this.deployedUrl}OrganizationController/create`,
       {
         method: 'POST',
         headers: {
@@ -22,14 +24,14 @@ class OrganizationManagementProxy {
 
   async GetOrganization(id: string): Promise<Organization> {
     const response = await fetch(
-      `${this.baseUrl}OrganizationController/get/${id}`,
+      `${this.deployedUrl}OrganizationController/get/${id}`,
     );
     return await response.json();
   }
 
   async UpdateOrganization(organization: Organization): Promise<Organization> {
     const response = await fetch(
-      `${this.baseUrl}OrganizationController/update/${organization.id}`,
+      `${this.deployedUrl}OrganizationController/update/${organization.id}`,
       {
         method: 'PUT',
         headers: {
@@ -42,13 +44,15 @@ class OrganizationManagementProxy {
   }
 
   async GetAllEnterprises(): Promise<Organization[]> {
-    const response = await fetch(`${this.baseUrl}OrganizationController/all`);
+    const response = await fetch(
+      `${this.deployedUrl}OrganizationController/all`,
+    );
     return await response.json();
   }
 
   async DeleteEnterprise(id: string): Promise<Organization> {
     const response = await fetch(
-      `${this.baseUrl}OrganizationController/delete/${id}`,
+      `${this.deployedUrl}OrganizationController/delete/${id}`,
       {
         method: 'DELETE',
       },
@@ -60,7 +64,7 @@ class OrganizationManagementProxy {
   //#region
   // User controller
   async CreateUser(user: User): Promise<User> {
-    const response = await fetch(`${this.baseUrl}UserController/create`, {
+    const response = await fetch(`${this.deployedUrl}UserController/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,13 +75,13 @@ class OrganizationManagementProxy {
   }
 
   async GetUser(id: string): Promise<User> {
-    const response = await fetch(`${this.baseUrl}UserController/get/${id}`);
+    const response = await fetch(`${this.deployedUrl}UserController/get/${id}`);
     return await response.json();
   }
 
   async UpdateUser(user: User): Promise<User> {
     const response = await fetch(
-      `${this.baseUrl}UserController/update/${user.id}`,
+      `${this.deployedUrl}UserController/update/${user.id}`,
       {
         method: 'PUT',
         headers: {
@@ -90,14 +94,17 @@ class OrganizationManagementProxy {
   }
 
   async GetAllUsers(): Promise<User[]> {
-    const response = await fetch(`${this.baseUrl}UserController/all`);
+    const response = await fetch(`${this.deployedUrl}UserController/all`);
     return await response.json();
   }
 
   async DeleteUser(id: string): Promise<User> {
-    const response = await fetch(`${this.baseUrl}UserController/delete/${id}`, {
-      method: 'DELETE',
-    });
+    const response = await fetch(
+      `${this.deployedUrl}UserController/delete/${id}`,
+      {
+        method: 'DELETE',
+      },
+    );
     return await response.json();
   }
 }

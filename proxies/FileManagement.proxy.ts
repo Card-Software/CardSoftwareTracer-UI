@@ -6,7 +6,7 @@ class FileManagementProxy {
     process.env.NEXT_PUBLIC_TRACER_APP_API_URL_DEPLOYED || '';
   //#region
   async CreateBucket(bucketName: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}CreateBucket`, {
+    const response = await fetch(`${this.deployedUrl}CreateBucket`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ class FileManagementProxy {
   }
 
   async RetrieveBuckets(): Promise<string[]> {
-    const response = await fetch(`${this.baseUrl}RetrieveBuckets`);
+    const response = await fetch(`${this.deployedUrl}RetrieveBuckets`);
     return await response.json();
   }
   //#endregion
@@ -64,7 +64,7 @@ class FileManagementProxy {
     fileName: string,
   ): Promise<any> {
     const response = await fetch(
-      `${this.baseUrl}File/preview?bucketName=${bucketName}&prefix=${prefix}&fileName=${fileName}`,
+      `${this.deployedUrl}File/preview?bucketName=${bucketName}&prefix=${prefix}&fileName=${fileName}`,
     );
     return await response.json();
   }
