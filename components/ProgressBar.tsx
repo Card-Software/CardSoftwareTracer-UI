@@ -4,6 +4,12 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
+  //TODO: FIX
+  // if PO has only one tracer stream
+  // we show progress of that tracer stream only
+
+  // else we show progress of all tracer streams
+  // 0-2 tracer streams
   const total_strings = 7;
 
   const progress_ratio = 100 / total_strings;
