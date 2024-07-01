@@ -1,5 +1,5 @@
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
-import { useState } from 'react';
+import { useState, KeyboardEvent } from 'react';
 import '../app/globals.css';
 
 const Login = () => {
@@ -11,6 +11,12 @@ const Login = () => {
     userAuthenticationService.login(username, password);
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleLogin();
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
       {/* Left Side (Background with Title) */}
@@ -18,7 +24,7 @@ const Login = () => {
         Card Software Traceability
       </div>
       {/* Mobile Layout Adjustment */}
-      <div className="flex w-full items-center justify-center rounded-b-lg bg-teal-800 bg-cover bg-center py-12 text-2xl font-bold text-white lg:hidden">
+      <div className="mb-20 flex w-full items-center justify-center rounded-b-lg bg-teal-800 bg-cover bg-center py-12 text-2xl font-bold text-white lg:hidden">
         Card Software Traceability
       </div>
       {/* Right Side (Login Form) */}
@@ -35,6 +41,7 @@ const Login = () => {
               name="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-teal-600 focus:outline-none"
             />
           </div>
@@ -48,6 +55,7 @@ const Login = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-teal-600 focus:outline-none"
             />
           </div>
