@@ -15,6 +15,7 @@ import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { User } from '@/models/User';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
+import '../../../app/globals.css';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -195,37 +196,39 @@ const PurchaseOrderPage: React.FC = () => {
                   onClick={() => router.push('/Dashboard/NewProductOrder')}
                 />
               </div>
-              <div>
+              {/* <div>
                 <TracerButton
                   name="Add Order Reference"
                   icon={<HiPlus />}
                   onClick={() => router.push('/Dashboard/NewProductOrder')}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
-          <DetailItem className="flex">
-            <strong>PO Number:</strong> {productOrder.productOrderNumber}
+          <DetailItem className="mb-4 flex items-center">
+            <strong className="mr-2">PO Number:</strong>
+            <span>{productOrder.productOrderNumber}</span>
           </DetailItem>
 
-          {/* TODO: Make this editable */}
-          <DetailItem className="flex">
-            <strong>External PO Number:</strong> 54322
+          <DetailItem className="mb-4 flex items-center">
+            <strong className="mr-2">External PO Number:</strong>
+            <span>54322</span> {/* TODO: Make this editable */}
           </DetailItem>
 
-          {/* TODO: Make this editable. Similar to what we see in the NewProductOrder page */}
-          <DetailItem>
-            <strong>Assigned to:</strong> {productOrder.assignedUser.firstName}{' '}
-            {productOrder.assignedUser.lastname}
+          <DetailItem className="mb-4">
+            <strong>Assigned to:</strong>
+            <span>{productOrder.assignedUser.firstName} </span>{' '}
+            {/* TODO: Make this editable. Similar to what we see in the NewProductOrder page */}
           </DetailItem>
 
-          {/* TODO: Make this editable */}
-          <DetailItem>
-            <strong>Client:</strong> {productOrder.client}
+          <DetailItem className="mb-4">
+            <strong>Client:</strong>
+            <span>{productOrder.client}</span> {/* TODO: Make this editable */}
           </DetailItem>
-          <DetailItem className="flex">
-            <label htmlFor="quantity" className="block">
+
+          <DetailItem className="mb-4 flex items-center">
+            <label htmlFor="quantity" className="mr-2 block">
               <strong>Quantity:</strong>
             </label>
             <input
@@ -239,10 +242,11 @@ const PurchaseOrderPage: React.FC = () => {
                   quantity: Number(e.target.value),
                 })
               }
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
             />
           </DetailItem>
-          <DetailItem>
+
+          <DetailItem className="mb-4">
             <label htmlFor="description" className="block">
               <strong>Description:</strong>
             </label>
@@ -252,7 +256,7 @@ const PurchaseOrderPage: React.FC = () => {
               name="description"
               value={productOrder.description}
               onChange={handleProductOrderChange}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
             />
           </DetailItem>
 
@@ -350,7 +354,7 @@ const PurchaseOrderPage: React.FC = () => {
           </CardContainer>
         </Section>
 
-        <Section>
+        {/* <Section>
           <SectionTitle>Add New Tracer Stream</SectionTitle>
           <div className="mb-4 flex gap-4">
             <div>
@@ -414,9 +418,9 @@ const PurchaseOrderPage: React.FC = () => {
               <FaPlus /> Add Tracer Stream
             </button>
           </div>
-        </Section>
+        </Section> */}
 
-        <Section>
+        {/* <Section>
           <SectionTitle>Add Order References</SectionTitle>
           <div className="mb-4">
             <label className="block text-sm font-bold text-gray-700">
@@ -458,9 +462,9 @@ const PurchaseOrderPage: React.FC = () => {
               ))}
             </div>
           </div>
-        </Section>
+        </Section> */}
 
-        <Section>
+        {/* <Section>
           <SectionTitle>Linked Product Orders</SectionTitle>
           <CardContainer>
             {linkedOrders.map((order) => (
@@ -478,7 +482,7 @@ const PurchaseOrderPage: React.FC = () => {
               </Link>
             ))}
           </CardContainer>
-        </Section>
+        </Section> */}
       </Container>
       <footer className="sticky bottom-0 flex justify-start space-x-2 bg-white p-4">
         <button
@@ -600,8 +604,8 @@ const CardDetails = styled.div`
   font-size: 14px;
 `;
 
-const DetailItem = styled.p`
-  margin-bottom: 10px;
+const DetailItem = styled.div`
+  margin-bottom: 16px;
 `;
 
 const ArrowIcon = styled.div`

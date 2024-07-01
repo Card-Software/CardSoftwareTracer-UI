@@ -28,8 +28,8 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="flex items-center justify-between  border-b-2 border-white bg-teal-800 px-4 py-4 shadow-lg">
-      <div className="text-xl font-bold text-gray-100">CS Tracer</div>
+    <nav className="flex items-center justify-between  border-b-2 border-white bg-teal-700 px-4 py-4 shadow-lg">
+      <div className="text-xl font-bold text-white">CS Tracer</div>
       {loggedIn && (
         <div className="relative">
           <div

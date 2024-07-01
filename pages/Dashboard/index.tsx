@@ -54,7 +54,7 @@ const Dashboard: React.FC = () => {
           />
         </div>
       </div>
-      <div className="my-8 w-full border-b-4 border-teal-500"></div>
+      <div className="my-8 w-full border-b-4 border-teal-700"></div>
       {/* Grid container for product orders */}
       <div className="grid grid-cols-3 gap-4">
         {productOrders.length > 0 ? (
