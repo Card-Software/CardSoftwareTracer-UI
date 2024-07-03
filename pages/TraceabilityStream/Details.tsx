@@ -133,7 +133,7 @@ const Details = () => {
       notes: [],
       files: [],
       fileNameOnExport: '',
-      isRequired: false,
+      isRequired: true,
       owner: organization,
     });
   };
@@ -169,6 +169,8 @@ const Details = () => {
       if (isEditing && query.id) {
         // Update existing traceability
         console.log('tracerStream', tracerStream);
+        tracerStream.owner = organization;
+
         const result = await orderManagementApiProxy.updateTraceability(
           originalTracerStream?.name || '',
           tracerStream,
