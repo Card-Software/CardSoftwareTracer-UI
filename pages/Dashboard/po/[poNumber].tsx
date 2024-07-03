@@ -11,17 +11,17 @@ import Link from 'next/link';
 import { Section as SectionModel } from '@/models/Section';
 import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
 import { ObjectId } from 'bson';
-import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { User } from '@/models/User';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
 import { fileManagementService } from '@/services/FileManagement.service';
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
-  const user: User = userAuthorizationService.user;
-  const organization = userAuthorizationService.organization;
+  const user = userAuthenticationService.getUser();
+  const organization = userAuthenticationService.getOrganization();
 
   const [originalProductOrder, setOriginalProductOrder] =
     useState<ProductOrder | null>(null);
@@ -336,7 +336,8 @@ const PurchaseOrderPage: React.FC = () => {
                       <FaArrowRight size={24} />
                     </ArrowIcon>
                     <SectionCard
-                      onClick={() =>
+                      onClick={() => {
+                        if (!user || !organization) return;
                         handleSectionClick(
                           {
                             sectionId: '',
@@ -351,8 +352,8 @@ const PurchaseOrderPage: React.FC = () => {
                             owner: organization,
                           },
                           stream,
-                        )
-                      }
+                        );
+                      }}
                     >
                       <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
                         Add New Section

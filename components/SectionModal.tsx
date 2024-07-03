@@ -1,11 +1,11 @@
 import { Section } from '@/models/Section';
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { fileManagementApiProxy } from '@/proxies/FileManagement.proxy';
 import { S3ObjectDto } from '@/models/S3ObjectDto';
 import Link from 'next/link';
 import { FaTimes } from 'react-icons/fa';
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
 
 interface SectionModalProps {
   productOrder?: string;
@@ -32,7 +32,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
     tracerStreamId || '',
   );
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input element
-  const bucketName = userAuthorizationService.organization.s3BucketName;
+  const bucketName = userAuthenticationService.getOrganization()?.id;
   const prefix = `${productOrder}/${tracerStreamId}/${section.sectionId}`;
 
   const handleSectionChange = (
