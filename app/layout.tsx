@@ -1,23 +1,19 @@
 import React, { ReactNode } from 'react';
 import './globals.css';
 import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/sidebar';
+import Sidebar from '@/components/Sidebar';
 
-interface LayoutProps {
+interface Props {
   children: ReactNode;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<Props> = ({ children }) => {
   return (
-    <div className="flex min-h-screen flex-col">
-      {' '}
-      {/* Updated to flex-col */}
+    <div className="flex h-screen flex-col overflow-hidden">
       <Navbar />
-      <div className="flex flex-grow">
-        {' '}
-        {/* Updated to flex-grow */}
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-grow p-4">{children}</main>
+        <main className="flex-1 overflow-y-auto p-4">{children}</main>
       </div>
     </div>
   );

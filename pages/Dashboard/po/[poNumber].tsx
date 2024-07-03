@@ -495,15 +495,15 @@ const PurchaseOrderPage: React.FC = () => {
           </CardContainer>
         </Section> */}
       </Container>
-      <footer className="sticky bottom-0 flex justify-start space-x-2 bg-white p-4">
+      <footer className="stream-footer flex bg-gray-200 p-4">
         <button
-          className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+          className="me-6 rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
           onClick={() => router.back()}
         >
           Cancel
         </button>
         <button
-          className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
           onClick={handleSave}
         >
           Save

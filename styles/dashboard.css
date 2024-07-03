@@ -9,3 +9,13 @@
     background-color 0.3s,
     border-color 0.3s; /* Smooth transition for background and border color */
 }
+
+.stream-footer {
+  position: fixed;
+  bottom: 0px;
+  height: 4rem;
+  margin-left: -18px;
+  width: 100%;
+  align-items: center;
+  padding-left: 1rem;
+}

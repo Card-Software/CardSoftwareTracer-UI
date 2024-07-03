@@ -337,17 +337,17 @@ const ModalFooter = styled.div`
   border-bottom-left-radius: 8px;
 
   button {
-    background: white;
+    background: rgb(15 118 110);
     margin-left: 2rem;
     border: none;
-    color: #fff;
+    color: white;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.3s;
 
     &:hover {
-      background: #1a202c;
+      background: rgb(13 148 136);
     }
   }
 `;
