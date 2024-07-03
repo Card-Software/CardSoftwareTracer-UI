@@ -107,11 +107,11 @@ const TraceabilityStream = () => {
           </div>
         </div> */}
         <div className="mx-8 w-full overflow-auto">
-          <table className="w-full border-collapse border border-teal-600">
+          <table className="w-full border-collapse border border-teal-700">
             <thead>
-              <tr className="bg-teal-600 text-white">
-                <th className="border border-teal-600 px-4 py-2">Name</th>
-                <th className="border border-teal-600 px-4 py-2">Details</th>
+              <tr className="bg-teal-700 text-white">
+                <th className="border border-teal-700 px-4 py-2">Name</th>
+                <th className="border border-teal-700 px-4 py-2">Details</th>
               </tr>
             </thead>
             <tbody>
@@ -121,10 +121,10 @@ const TraceabilityStream = () => {
                   className="cursor-pointer hover:bg-gray-100"
                   onClick={handleTracerClick(stream.name || '')}
                 >
-                  <td className="border border-teal-600 px-4 py-2">
+                  <td className="border border-teal-700 px-4 py-2">
                     {stream.name}
                   </td>
-                  <td className="border border-teal-600 px-4 py-2">
+                  <td className="border border-teal-700 px-4 py-2">
                     {/* Example detail content */}
 
                     <span className="mt-1 block text-sm text-gray-500">
