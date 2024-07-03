@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/traceabilityStream.css';
 import Link from 'next/link';
+import withAuth from '@/hoc/auth';
 
 const NewWholeSaleOrder: React.FC = () => {
   const sampleClients = [
@@ -165,4 +166,4 @@ const NewWholeSaleOrder: React.FC = () => {
   );
 };
 
-export default NewWholeSaleOrder;
+export default withAuth(NewWholeSaleOrder);

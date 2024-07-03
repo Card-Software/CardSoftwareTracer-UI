@@ -17,6 +17,7 @@ import { Organization } from '@/models/Organization';
 import SectionModal from '@/components/SectionModal';
 import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure the path is correct
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import withAuth from '@/hoc/auth';
 
 interface SectionWithId extends Section {
   id: string;
@@ -334,4 +335,4 @@ const Details = () => {
   );
 };
 
-export default Details;
+export default withAuth(Details);

@@ -24,6 +24,7 @@ import { HiPlus } from 'react-icons/hi';
 import { fileManagementService } from '@/services/FileManagement.service';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import LoadingOverlay from '@/components/LoadingOverlay';
+import withAuth from '@/hoc/auth';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -536,7 +537,7 @@ const PurchaseOrderPage: React.FC = () => {
   );
 };
 
-export default PurchaseOrderPage;
+export default withAuth(PurchaseOrderPage);
 
 const Container = styled.div`
   padding: 20px;

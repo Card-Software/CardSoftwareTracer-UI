@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { TracerStream } from '@/models/TracerStream';
 import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure the path is correct
+import withAuth from '@/hoc/auth';
 
 const TraceabilityStream = () => {
   const router = useRouter();
@@ -143,4 +144,4 @@ const TraceabilityStream = () => {
   );
 };
 
-export default TraceabilityStream;
+export default withAuth(TraceabilityStream);

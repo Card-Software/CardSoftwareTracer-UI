@@ -7,6 +7,7 @@ import ProductOrderItem from '@/components/ProductOrderItem';
 import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
+import withAuth from '@/hoc/auth';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -60,4 +61,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard);

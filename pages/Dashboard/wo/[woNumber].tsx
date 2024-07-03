@@ -3,6 +3,7 @@ import Layout from '../../../app/layout';
 import styled from 'styled-components';
 import ProdcutOrder from '@/components/ProductOrderItem';
 import Link from 'next/link';
+import withAuth from '@/hoc/auth';
 
 const WholesaleOrderPage: React.FC = () => {
   const router = useRouter();
@@ -24,7 +25,7 @@ const WholesaleOrderPage: React.FC = () => {
           <SectionTitle className="flex justify-center">
             Whole Sale Order: {woNumber}
           </SectionTitle>
-          <CardContainer>
+          {/* <CardContainer>
             <ProdcutOrder
               poNumber={'PO002'}
               progress={3}
@@ -44,14 +45,14 @@ const WholesaleOrderPage: React.FC = () => {
               assignedTo={'Zane Sorensen'}
               dueDate={'08/11/2024'}
             />
-          </CardContainer>
+          </CardContainer> */}
         </Section>
       </Container>
     </Layout>
   );
 };
 
-export default WholesaleOrderPage;
+export default withAuth(WholesaleOrderPage);
 
 const Container = styled.div`
   padding: 10px;

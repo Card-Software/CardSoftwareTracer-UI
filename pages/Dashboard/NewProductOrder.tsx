@@ -13,6 +13,7 @@ import { useRouter } from 'next/router';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import TracerButton from '@/components/TracerButton';
 import TracerStreamModal from '@/components/TracerStreamModal'; // Ensure you import the modal component
+import withAuth from '@/hoc/auth';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -273,4 +274,4 @@ const NewProductOrder: React.FC = () => {
   );
 };
 
-export default NewProductOrder;
+export default withAuth(NewProductOrder);
