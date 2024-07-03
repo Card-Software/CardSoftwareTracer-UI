@@ -270,22 +270,26 @@ const PurchaseOrderPage: React.FC = () => {
               <React.Fragment key={stream.id}>
                 <Card>
                   <CardTitle>
-                    <button
-                      className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-                      onClick={() => hanldeExportButton(stream)}
-                    >
-                      Button for export files
-                    </button>
-                    <div className="flex flex-col">
-                      <p>
-                        <strong>Name:</strong> {stream.friendlyName}
-                      </p>
-                      <p>
-                        <strong>Product:</strong> {stream.product}
-                      </p>
-                      <p>
-                        <strong>Quantity:</strong> {stream.quantity}
-                      </p>
+                    <div className="flex w-full flex-row justify-between">
+                      <div>
+                        <button
+                          className="rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          onClick={() => hanldeExportButton(stream)}
+                        >
+                          Button for export files
+                        </button>
+                      </div>
+                      <div className="flex flex-col">
+                        <p>
+                          <strong>Name:</strong> {stream.friendlyName}
+                        </p>
+                        <p>
+                          <strong>Product:</strong> {stream.product}
+                        </p>
+                        <p>
+                          <strong>Quantity:</strong> {stream.quantity}
+                        </p>
+                      </div>
                     </div>
                   </CardTitle>
                   <SectionContainer>
@@ -561,10 +565,9 @@ const Section = styled.section`
 
 const SectionContainer = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   gap: 20px;
   margin-top: 20px;
-  flex-wrap: wrap;
   flex-grow: 1;
 `;
 
@@ -588,18 +591,17 @@ const Card = styled.div`
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
-  max-width: 300px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: box-shadow 0.3s ease;
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
-  min-width: 100%;
 `;
 
 const SectionCard = styled(Card)`
-  margin-bottom: 10px;
+  flex: 1 1 calc(50% - 20px); /* Two columns with a gap of 20px */
+  margin-bottom: 20px;
   min-width: 0;
 `;
 
@@ -629,13 +631,15 @@ const ArrowIcon = styled.div`
 `;
 
 const AddNewButton = styled.button`
-  background-color: transparent;
+  background-color: #38b2ac;
   border: none;
-  color: #000;
+  color: white;
+  padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
+  border-radius: 8px;
   &:hover {
-    text-decoration: underline;
+    background-color: #319795;
   }
 `;
 
