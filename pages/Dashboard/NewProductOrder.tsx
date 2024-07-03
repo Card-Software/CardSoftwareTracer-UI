@@ -55,12 +55,10 @@ const NewProductOrder: React.FC = () => {
       const tracerStreams =
         await orderManagementApiProxy.getAllTraceabilities();
       const productOrders = await orderManagementApiProxy.getAllProductOrders();
-      const user = await organizationManagementProxy.GetUser(
-        '6676fa30216dcfa58f98284d',
-      );
+      const users = await organizationManagementProxy.GetAllUsers();
       setAllTracerStreams(tracerStreams);
       setAllProductOrders(productOrders);
-      setSampleUsers([user]);
+      setSampleUsers(users);
     };
 
     fetchData();

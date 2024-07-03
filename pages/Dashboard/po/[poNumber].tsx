@@ -268,13 +268,10 @@ const PurchaseOrderPage: React.FC = () => {
                 <Card>
                   <CardTitle>
                     <button
-                      className="btn btn-main"
+                      className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
                       onClick={() => hanldeExportButton(stream)}
                     >
-                      Testing
-                    </button>
-                    <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
-                      Button
+                      Button for export files
                     </button>
                     <div className="flex flex-col">
                       <p>
