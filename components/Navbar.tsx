@@ -1,5 +1,6 @@
 'use client';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import router from 'next/router';
 import React, { use, useEffect, useRef, useState } from 'react';
 import { FiLogIn } from 'react-icons/fi'; // Importing a login icon from react-icons
 
@@ -23,6 +24,7 @@ const Navbar: React.FC = () => {
 
   const handleLogout = () => {
     userAuthenticationService.logout();
+    router.push('/login');
     setLoggedIn(false);
     setShowLogoutMenu(false);
   };

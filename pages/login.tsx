@@ -1,14 +1,37 @@
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
-import { useState, KeyboardEvent } from 'react';
+import { useState, KeyboardEvent, useEffect } from 'react';
 import '../app/globals.css';
+import router from 'next/router';
+import LoadingOverlay from '@/components/LoadingOverlay'; // Adjust the path as necessary
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  //check if the user is logged in
+  useEffect(() => {
+    const loggedIn = userAuthenticationService.isLoggedIn();
+    if (loggedIn) {
+      router.push('/Dashboard');
+    }
+  }, []);
+
+  const handleLogin = async () => {
+    setLoading(true); // Set loading to true
     // Call the authentication service
-    userAuthenticationService.login(username, password);
+    const logginStatus = await userAuthenticationService.login(
+      username,
+      password,
+    );
+    setLoading(false); // Set loading to false
+
+    if (!logginStatus) {
+      alert('Invalid username or password');
+      return;
+    } else {
+      router.push('/Dashboard');
+    }
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -18,7 +41,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col lg:flex-row">
+    <div className="relative flex min-h-screen flex-col lg:flex-row">
+      <LoadingOverlay show={loading} />
       {/* Left Side (Background with Title) */}
       <div className="hidden items-center justify-center bg-teal-800 bg-cover bg-center text-4xl font-bold text-white lg:flex lg:w-1/2">
         Card Software Traceability

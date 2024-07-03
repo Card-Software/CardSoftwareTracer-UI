@@ -7,11 +7,11 @@ import router, { NextRouter } from 'next/router';
 class UserAuthenticationService {
   private user: User | null = null;
   private organization: Organization | null = null;
-  private router: NextRouter;
 
   constructor() {
-    this.router = router;
-    this.initialize();
+    if (typeof window !== 'undefined') {
+      this.initialize();
+    }
   }
 
   private async initialize() {
@@ -23,18 +23,20 @@ class UserAuthenticationService {
     }
   }
 
-  async login(email: string, password: string): Promise<void> {
+  async login(email: string, password: string): Promise<boolean> {
     try {
       const response = await userAuthenticationProxy.Login(email, password);
       if (response.token) {
         localStorage.setItem('CSTracerUserJWT', response.token);
         await this.fetchUserData(response.token);
-        // Redirect to the Dashboard
-        router.push('/Dashboard');
+        return true;
       }
     } catch (error) {
       console.error('Login failed:', error);
+      return false;
     }
+
+    return false;
   }
 
   private async fetchUserData(token: string): Promise<void> {
@@ -76,6 +78,8 @@ class UserAuthenticationService {
   }
 
   isTokenValid(): boolean {
+    if (typeof window === 'undefined') return false;
+
     const token = localStorage.getItem('CSTracerUserJWT');
     if (!token) return false;
 
@@ -93,15 +97,18 @@ class UserAuthenticationService {
   }
 
   logout(): void {
-    localStorage.removeItem('CSTracerUserJWT');
-    localStorage.removeItem('CSTracerUser');
-    localStorage.removeItem('CSTracerOrganization');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('CSTracerUserJWT');
+      localStorage.removeItem('CSTracerUser');
+      localStorage.removeItem('CSTracerOrganization');
+    }
     this.user = null;
     this.organization = null;
-    router.push('/login');
+    // router.push('/login');
   }
 
   isLoggedIn(): boolean {
+    if (typeof window === 'undefined') return false;
     return localStorage.getItem('CSTracerUserJWT') ? true : false;
   }
 
@@ -118,6 +125,8 @@ class UserAuthenticationService {
   }
 
   getUser(): User | null {
+    if (typeof window === 'undefined') return null;
+
     const user = this.user
       ? this.user
       : JSON.parse(localStorage.getItem('CSTracerUser') || 'null');
@@ -131,6 +140,8 @@ class UserAuthenticationService {
   }
 
   getOrganization(): Organization | null {
+    if (typeof window === 'undefined') return null;
+
     const organization = this.organization
       ? this.organization
       : JSON.parse(localStorage.getItem('CSTracerOrganization') || 'null');

@@ -33,7 +33,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
   );
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input element
   const bucketName = userAuthorizationService.organization.s3BucketName;
-  const prefix = `${productOrder}/${tracerStreamId}/${section.sectionName}`;
+  const prefix = `${productOrder}/${tracerStreamId}/${section.sectionId}`;
 
   const handleSectionChange = (
     property: string,
@@ -80,7 +80,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
           bucketName,
           productOrder!,
           tracerStreamId!,
-          section!.sectionName,
+          originalSection.sectionId,
           file,
         );
 

@@ -7,6 +7,7 @@ import { HiPlus } from 'react-icons/hi';
 import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { TracerStream } from '@/models/TracerStream';
+import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure the path is correct
 
 const TraceabilityStream = () => {
   const router = useRouter();
@@ -14,15 +15,19 @@ const TraceabilityStream = () => {
   const [clients, setClients] = useState('');
   const [streams, setStreams] = useState<TracerStream[]>([]);
   const [filteredStreams, setFilteredStreams] = useState<TracerStream[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const data = await orderManagementApiProxy.getAllTraceabilities();
         setStreams(data);
         setFilteredStreams(data);
       } catch (error) {
         console.error('Failed to fetch tracer streams', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -30,19 +35,17 @@ const TraceabilityStream = () => {
   }, []);
 
   const handleSearch = () => {
-    // const filtered = streams.filter(stream =>
-    //   stream.name.toLowerCase().includes(name.toLowerCase()) &&
-    //   stream.clients?.toLowerCase().includes(clients.toLowerCase())
-    // );
-    // setFilteredStreams(filtered);
+    const filtered = streams.filter((stream) =>
+      stream.name.toLowerCase().includes(name.toLowerCase()),
+    );
+    setFilteredStreams(filtered);
   };
 
-  //declare function handleTracerClick with id parameter
   const handleTracerClick =
     (id: string) => (event: React.MouseEvent<HTMLTableRowElement>) => {
-      //use router.push to redirect to /TraceabilityStream/Details
       router.push('/TraceabilityStream/Details?id=' + id);
     };
+
   const handleRedirect = () => {
     router.push('/TraceabilityStream/Details');
   };
@@ -55,6 +58,7 @@ const TraceabilityStream = () => {
 
   return (
     <Layout>
+      <LoadingOverlay show={isLoading} />
       <div className="mb-5 flex flex-row items-center">
         <div className="me-8 text-xl">
           <h1>Traceability Stream</h1>
@@ -64,7 +68,7 @@ const TraceabilityStream = () => {
         </div>
       </div>
       <div className="flex flex-row items-start justify-start">
-        <div className="rounded-lg bg-gray-100 p-6 shadow-md">
+        {/* <div className="rounded-lg bg-gray-100 p-6 shadow-md">
           <div className="mb-4 me-8 text-xl">
             <h1>Filters</h1>
           </div>
@@ -77,6 +81,7 @@ const TraceabilityStream = () => {
               onChange={(e) => setName(e.target.value)}
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700">Clients</label>
             <input
@@ -88,7 +93,7 @@ const TraceabilityStream = () => {
           </div>
           <div className="flex space-x-2">
             <button
-              className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="rounded-md bg-teal-800 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
               onClick={handleSearch}
             >
               Search
@@ -100,13 +105,13 @@ const TraceabilityStream = () => {
               Clear
             </button>
           </div>
-        </div>
+        </div> */}
         <div className="mx-8 w-full overflow-auto">
           <table className="w-full table-auto border-collapse border border-gray-400">
             <thead>
               <tr className="bg-gray-200">
                 <th className="border border-gray-300 p-2">Name</th>
-                {/* <th className="border border-gray-300 p-2">Clients</th> */}
+                <th className="border border-gray-300 p-2">Description</th>
               </tr>
             </thead>
             <tbody>
@@ -114,15 +119,12 @@ const TraceabilityStream = () => {
                 <tr
                   key={stream.id}
                   className="hover:bg-gray-100"
-                  onClick={handleTracerClick(stream.name || '')}
+                  onClick={handleTracerClick(stream.name)}
                 >
                   <td className="border border-gray-300 p-2">{stream.name}</td>
-                  {/* <td className="border border-gray-300 p-2">{stream.clients}</td> */}
-                  {/* <td className="border border-gray-300 p-2">
-                    {stream.sections
-                      .map((section) => section.sectionName)
-                      .join(', ')}
-                  </td> */}
+                  <td className="border border-gray-300 p-2">
+                    {stream.description}
+                  </td>
                 </tr>
               ))}
             </tbody>

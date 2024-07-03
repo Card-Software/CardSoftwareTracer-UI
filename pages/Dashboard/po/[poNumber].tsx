@@ -15,6 +15,7 @@ import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { User } from '@/models/User';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
+import { fileManagementService } from '@/services/FileManagement.service';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -109,6 +110,11 @@ const PurchaseOrderPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedSection(null);
+  };
+
+  const hanldeExportButton = (stream: TracerStreamExtended) => {
+    if (!productOrder) return;
+    fileManagementService.downloadFilesFromS3Bucket(stream, productOrder);
   };
 
   const handleAddTracerStream = () => {
@@ -261,6 +267,15 @@ const PurchaseOrderPage: React.FC = () => {
               <React.Fragment key={stream.id}>
                 <Card>
                   <CardTitle>
+                    <button
+                      className="btn btn-main"
+                      onClick={() => hanldeExportButton(stream)}
+                    >
+                      Testing
+                    </button>
+                    <button className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700">
+                      Button
+                    </button>
                     <div className="flex flex-col">
                       <p>
                         <strong>Name:</strong> {stream.friendlyName}
@@ -497,7 +512,7 @@ const PurchaseOrderPage: React.FC = () => {
       {isModalOpen && selectedSection && selectedStream && (
         <SectionModal
           productOrder={productOrder.productOrderNumber}
-          tracerStreamId={selectedStream.friendlyName}
+          tracerStreamId={selectedStream.id}
           originalSection={selectedSection}
           onClose={handleCloseModal}
           onSave={(updatedSection: SectionModel) => {
