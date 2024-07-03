@@ -513,7 +513,7 @@ const PurchaseOrderPage: React.FC = () => {
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal
           originalTracerStream={
-            streamModalMode === 'edit' ? selectedStream : undefined
+            streamModalMode === 'edit' ? selectedStream : null
           }
           onClose={handleCloseStreamModal}
           onSave={(updatedStream: TracerStreamExtended) => {

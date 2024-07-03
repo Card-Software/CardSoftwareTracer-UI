@@ -7,9 +7,10 @@ import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import { Organization } from '@/models/Organization';
 import LoadingOverlay from './LoadingOverlay';
+import { ObjectId } from 'bson';
 
 interface TracerStreamModalProps {
-  originalTracerStream?: TracerStreamExtended;
+  originalTracerStream: TracerStreamExtended | null;
   onClose: () => void;
   onSave: (tracerStream: TracerStreamExtended) => void;
   mode: 'edit' | 'add';
@@ -25,6 +26,7 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
 }) => {
   const [tracerStream, setTracerStream] = useState<TracerStreamExtended>(
     originalTracerStream || {
+      id: new ObjectId().toString(),
       friendlyName: '',
       quantity: 1,
       product: '',
@@ -71,7 +73,9 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
     if (!newTracerStream) return;
 
     tracerStream.sections = newTracerStream.sections;
-    console.log(tracerStream.sections);
+    tracerStream.description = newTracerStream.description;
+    tracerStream.name = newTracerStream.name;
+    tracerStream.id = new ObjectId().toString();
   };
 
   const handleSave = async () => {

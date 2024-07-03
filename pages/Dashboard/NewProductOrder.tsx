@@ -8,7 +8,6 @@ import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
 import { User } from '@/models/User';
 import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
-import { ObjectId } from 'bson';
 import { useRouter } from 'next/router';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import TracerButton from '@/components/TracerButton';
@@ -125,10 +124,7 @@ const NewProductOrder: React.FC = () => {
   const handleConnectTracerStream = (
     tracerStreamExtended: TracerStreamExtended,
   ) => {
-    setConnectedTracerStreams([
-      ...connectedTracerStreams,
-      tracerStreamExtended,
-    ]);
+    connectedTracerStreams.push(tracerStreamExtended);
     setIsModalOpen(false);
   };
 
@@ -276,7 +272,7 @@ const NewProductOrder: React.FC = () => {
 
       {isModalOpen && (
         <TracerStreamModal
-          originalTracerStream={undefined}
+          originalTracerStream={null}
           onClose={() => setIsModalOpen(false)}
           onSave={handleConnectTracerStream}
           mode="add"
