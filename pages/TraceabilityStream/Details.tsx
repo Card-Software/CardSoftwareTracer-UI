@@ -195,123 +195,125 @@ const Details = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div>
-        <Link
-          href="/TraceabilityStream"
-          className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
-        >
-          Traceability Stream
-        </Link>
-        <span className="text-sm text-gray-500"> &gt; Details</span>
-      </div>
+      <div className="mb-20">
+        <div>
+          <Link
+            href="/TraceabilityStream"
+            className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
+          >
+            Traceability Stream
+          </Link>
+          <span className="text-sm text-gray-500"> &gt; Details</span>
+        </div>
 
-      <div className="me-8 text-xl">
-        <h1>
-          {isEditing ? 'Edit Traceability Stream' : 'Add Traceability Stream'}
-        </h1>
-      </div>
+        <div className="me-8 text-xl">
+          <h1>
+            {isEditing ? 'Edit Traceability Stream' : 'Add Traceability Stream'}
+          </h1>
+        </div>
 
-      {error && <p className="text-red-500">{error}</p>}
+        {error && <p className="text-red-500">{error}</p>}
 
-      <div className="my-4">
-        <label htmlFor="name" className="block">
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={tracerStream.name}
-          onChange={handleTracerStreamChange}
-          className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-        />
-      </div>
+        <div className="my-4">
+          <label htmlFor="name" className="block">
+            Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={tracerStream.name}
+            onChange={handleTracerStreamChange}
+            className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          />
+        </div>
 
-      <div className="my-4">
-        <label htmlFor="description" className="block">
-          Description
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          value={tracerStream.description}
-          onChange={handleTracerStreamChange}
-          className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-        />
-      </div>
+        <div className="my-4">
+          <label htmlFor="description" className="block">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            value={tracerStream.description}
+            onChange={handleTracerStreamChange}
+            className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          />
+        </div>
 
-      <div className="mb-4">
-        <TracerButton
-          name="Add New Section"
-          icon={<HiPlus />}
-          onClick={handleAddSection}
-        />
-        <p>
-          Traceability stream starts from top to bottom. E.g., Position 1 is the
-          first stage, and position n is the last stage.
-        </p>
-      </div>
+        <div className="mb-4">
+          <TracerButton
+            name="Add New Section"
+            icon={<HiPlus />}
+            onClick={handleAddSection}
+          />
+          <p>
+            Traceability stream starts from top to bottom. E.g., Position 1 is
+            the first stage, and position n is the last stage.
+          </p>
+        </div>
 
-      <div>
-        <DragDropContext onDragEnd={handleOnDragEnd}>
-          <Droppable droppableId="sections">
-            {(provided) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
-                {tracerStream.sections.map((section, index) => (
-                  <Draggable
-                    key={section.sectionId}
-                    draggableId={section.sectionId}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="mb-4 flex justify-between rounded-lg bg-gray-200 p-4"
-                      >
-                        <div>
-                          <p className="font-bold">{section.sectionName}</p>
-                          <p className="text-sm text-gray-600">
-                            {section.sectionDescription}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Position: {section.position}
-                          </p>
+        <div>
+          <DragDropContext onDragEnd={handleOnDragEnd}>
+            <Droppable droppableId="sections">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {tracerStream.sections.map((section, index) => (
+                    <Draggable
+                      key={section.sectionId}
+                      draggableId={section.sectionId}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="mb-4 flex justify-between rounded-lg bg-gray-200 p-4"
+                        >
+                          <div>
+                            <p className="font-bold">{section.sectionName}</p>
+                            <p className="text-sm text-gray-600">
+                              {section.sectionDescription}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              Position: {section.position}
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => openModal('Edit Section', section)}
+                              className="rounded-md bg-teal-800 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => deleteProcess(section.sectionId)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <FaTrash className="h-5 w-5" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => openModal('Edit Section', section)}
-                            className="rounded-md bg-teal-800 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => deleteProcess(section.sectionId)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <FaTrash className="h-5 w-5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
 
-      {isModalOpen && (
-        <SectionModal
-          onClose={closeModal}
-          onSave={saveSection}
-          originalSection={currentProcess as Section}
-          mode={'sectionCreation'}
-        />
-      )}
+        {isModalOpen && (
+          <SectionModal
+            onClose={closeModal}
+            onSave={saveSection}
+            originalSection={currentProcess as Section}
+            mode={'sectionCreation'}
+          />
+        )}
+      </div>
 
       <footer className="stream-footer flex justify-between bg-gray-200 p-4">
         <div>
