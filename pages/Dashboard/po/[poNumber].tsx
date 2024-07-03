@@ -547,14 +547,6 @@ const Section = styled.section`
   margin-bottom: 40px;
 `;
 
-const SectionContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 20px;
-  flex-grow: 1;
-`;
-
 const SectionTitle = styled.h2`
   border-bottom: 2px solid #ccc;
   padding-bottom: 10px;
@@ -583,11 +575,36 @@ const Card = styled.div`
   }
 `;
 
-const SectionCard = styled(Card)`
-  flex: 1 1 calc(33.333% - 20px); /* Three columns with a gap of 20px */
-  margin-bottom: 20px;
-  min-width: 0;
+const SectionContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+  align-items: center;
 `;
+
+const SectionCard = styled(Card)`
+  flex: 1 1 calc(25% - 20px); /* Adjust the percentage to fit 4 cards per row with gaps */
+  min-width: 250px;
+  max-width: 300px;
+  margin-bottom: 20px;
+  word-wrap: break-word; /* Ensure long content wraps within the card */
+`;
+
+const ArrowIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; /* Width of the arrow icon */
+  font-size: 24px;
+  color: gray;
+`;
+
+// const SectionCard = styled(Card)`
+//   flex: 1 1 calc(33.333% - 20px); /* Three columns with a gap of 20px */
+//   margin-bottom: 20px;
+//   min-width: 0;
+// `;
 
 const CardTitle = styled.h3`
   display: flex;
@@ -605,14 +622,14 @@ const DetailItem = styled.div`
   margin-bottom: 16px;
 `;
 
-const ArrowIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 30px;
-  margin: 0 5px;
-`;
+// const ArrowIcon = styled.div`
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   width: 100%;
+//   max-width: 30px;
+//   margin: 0 5px;
+// `;
 
 const AddNewButton = styled.button`
   border: none;
