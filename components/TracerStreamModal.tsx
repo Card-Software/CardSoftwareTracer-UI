@@ -66,6 +66,14 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
     }));
   };
 
+  const handleTracerStreamChange = (id: string) => {
+    const newTracerStream = templates.find((template) => template.id === id);
+    if (!newTracerStream) return;
+
+    tracerStream.sections = newTracerStream.sections;
+    console.log(tracerStream.sections);
+  };
+
   const handleSave = async () => {
     try {
       onSave(tracerStream);
@@ -75,8 +83,8 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
   };
 
   const isFormValid = () => {
-    const { friendlyName, quantity, product, name } = tracerStream;
-    return friendlyName && quantity > 0 && product && (mode === 'edit' || name);
+    const { friendlyName, quantity, product } = tracerStream;
+    return friendlyName && quantity > 0 && product;
   };
 
   return (
@@ -95,13 +103,13 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
             <>
               <label>Tracer Stream Template</label>
               <select
-                value={tracerStream.name}
-                onChange={(e) => handleInputChange('name', e)}
+                value={tracerStream.id}
+                onChange={(e) => handleTracerStreamChange(e.target.value)}
                 className="tracer-stream-template"
               >
                 <option value="">Select Template</option>
                 {templates.map((template) => (
-                  <option key={template.id} value={template.name}>
+                  <option key={template.id} value={template.id}>
                     {template.name}
                   </option>
                 ))}

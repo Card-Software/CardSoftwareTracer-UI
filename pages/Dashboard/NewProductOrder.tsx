@@ -14,6 +14,7 @@ import { userAuthenticationService } from '@/services/UserAuthentication.service
 import TracerButton from '@/components/TracerButton';
 import TracerStreamModal from '@/components/TracerStreamModal'; // Ensure you import the modal component
 import withAuth from '@/hoc/auth';
+import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure you import the LoadingOverlay component
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -37,6 +38,7 @@ const NewProductOrder: React.FC = () => {
   const [isPoSelected, setIsPoSelected] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStream, setModalStream] = useState<TracerStream | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (searchTerm) {
@@ -51,13 +53,21 @@ const NewProductOrder: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const tracerStreams =
-        await orderManagementApiProxy.getAllTraceabilities();
-      const productOrders = await orderManagementApiProxy.getAllProductOrders();
-      const users = await organizationManagementProxy.GetAllUsers();
-      setAllTracerStreams(tracerStreams);
-      setAllProductOrders(productOrders);
-      setSampleUsers(users);
+      setIsLoading(true);
+      try {
+        const tracerStreams =
+          await orderManagementApiProxy.getAllTraceabilities();
+        const productOrders =
+          await orderManagementApiProxy.getAllProductOrders();
+        const users = await organizationManagementProxy.GetAllUsers();
+        setAllTracerStreams(tracerStreams);
+        setAllProductOrders(productOrders);
+        setSampleUsers(users);
+      } catch (error) {
+        console.error('Failed to fetch data', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
@@ -85,6 +95,7 @@ const NewProductOrder: React.FC = () => {
       console.error('Owner not found');
       return;
     }
+    setIsLoading(true);
     const newProductOrder: ProductOrder = {
       productOrderNumber: poNumber,
       owner: owner,
@@ -102,12 +113,12 @@ const NewProductOrder: React.FC = () => {
 
     try {
       await orderManagementApiProxy.createProductOrder(newProductOrder);
-      // Redirect or show success message as needed
       alert('Product Order saved successfully!');
       router.push(`/Dashboard/po/${poNumber}`);
     } catch (error) {
       console.error('Failed to save Product Order', error);
-      // Handle error as needed
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -123,6 +134,7 @@ const NewProductOrder: React.FC = () => {
 
   return (
     <Layout>
+      <LoadingOverlay show={isLoading} />
       <div className="mb-4">
         <Link
           href="/Dashboard"

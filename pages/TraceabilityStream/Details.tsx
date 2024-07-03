@@ -269,7 +269,9 @@ const Details = () => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className="mb-4 flex justify-between rounded-lg bg-gray-200 p-4"
+                          className={`mb-4 flex justify-between rounded-lg p-4 ${
+                            section.isRequired ? 'bg-green-200' : 'bg-gray-200'
+                          }`}
                         >
                           <div>
                             <p className="font-bold">{section.sectionName}</p>
