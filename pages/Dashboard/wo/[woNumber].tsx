@@ -11,7 +11,8 @@ const WholesaleOrderPage: React.FC = () => {
 
   return (
     <Layout>
-      <Container>
+      Our Wholesale Order Page is under construction.
+      {/* <Container>
         <div>
           <Link
             href="/Dashboard"
@@ -25,7 +26,7 @@ const WholesaleOrderPage: React.FC = () => {
           <SectionTitle className="flex justify-center">
             Whole Sale Order: {woNumber}
           </SectionTitle>
-          {/* <CardContainer>
+          <CardContainer>
             <ProdcutOrder
               poNumber={'PO002'}
               progress={3}
@@ -45,9 +46,9 @@ const WholesaleOrderPage: React.FC = () => {
               assignedTo={'Zane Sorensen'}
               dueDate={'08/11/2024'}
             />
-          </CardContainer> */}
+          </CardContainer>
         </Section>
-      </Container>
+      </Container> */}
     </Layout>
   );
 };
