@@ -39,7 +39,7 @@ class OrderManagementApiProxy {
     const response = await fetch(
       `${this.deployedUrl}TracerStreams/UpdateStream/${nameEncoded}`,
       {
-        method: 'Patch',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
