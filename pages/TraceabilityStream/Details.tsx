@@ -167,10 +167,6 @@ const Details = () => {
 
     try {
       if (isEditing && query.id) {
-        // Update existing traceability
-        console.log('tracerStream', tracerStream);
-        tracerStream.owner = organization;
-
         const result = await orderManagementApiProxy.updateTraceability(
           originalTracerStream?.name || '',
           tracerStream,
