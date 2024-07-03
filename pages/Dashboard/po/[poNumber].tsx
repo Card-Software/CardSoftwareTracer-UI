@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import '../../../styles/dashboard.css';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 import {
   FaExclamationCircle,
   FaArrowRight,
@@ -137,6 +138,10 @@ const PurchaseOrderPage: React.FC = () => {
     section: SectionModel,
     stream: TracerStreamExtended,
   ) => {
+    if (section.position === 0) {
+      section.position = stream.sections.length + 1;
+      stream.sections.push(section);
+    }
     setSelectedSection(section);
     setSelectedStream(stream);
     setIsSectionModalOpen(true);
@@ -371,6 +376,7 @@ const PurchaseOrderPage: React.FC = () => {
                       <React.Fragment key={section.sectionId}>
                         <SectionCard
                           onClick={() => handleSectionClick(section, stream)}
+                          isRequired={section.isRequired}
                         >
                           <CardTitle>
                             {section.sectionName}
@@ -421,11 +427,12 @@ const PurchaseOrderPage: React.FC = () => {
                       <FaArrowRight size={24} />
                     </ArrowIcon>
                     <SectionCard
+                      isRequired={false}
                       onClick={() => {
                         if (!user || !organization) return;
                         handleSectionClick(
                           {
-                            sectionId: '',
+                            sectionId: uuidv4(),
                             sectionName: '',
                             sectionDescription: '',
                             assignedUser: user,
@@ -583,12 +590,14 @@ const SectionContainer = styled.div`
   align-items: center;
 `;
 
-const SectionCard = styled(Card)`
+const SectionCard = styled(Card)<{ isRequired: boolean }>`
   flex: 1 1 calc(25% - 20px); /* Adjust the percentage to fit 4 cards per row with gaps */
   min-width: 250px;
   max-width: 300px;
   margin-bottom: 20px;
   word-wrap: break-word; /* Ensure long content wraps within the card */
+  background-color: ${(props) =>
+    props.isRequired ? '#fff' : '#e5e7eb'}; /* bg-gray-200 */
 `;
 
 const ArrowIcon = styled.div`
