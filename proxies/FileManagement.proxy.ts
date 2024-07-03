@@ -45,7 +45,22 @@ class FileManagementProxy {
       throw new Error('Failed to upload file');
     }
 
-    return await response.json();
+    return await response;
+  }
+
+  async DeleteFile(bucketName: string, key: string): Promise<any> {
+    const response = await fetch(
+      `${this.deployedUrl}File/delete?bucketName=${bucketName}&key=${key}`,
+      {
+        method: 'DELETE',
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to delete file');
+    }
+
+    return await response;
   }
 
   async getAllFiles(

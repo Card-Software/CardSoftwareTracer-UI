@@ -6,6 +6,7 @@ import { S3ObjectDto } from '@/models/S3ObjectDto';
 import Link from 'next/link';
 import { FaTimes } from 'react-icons/fa';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import LoadingOverlay from './LoadingOverlay';
 
 interface SectionModalProps {
   productOrder?: string;
@@ -28,12 +29,40 @@ const SectionModal: React.FC<SectionModalProps> = ({
     originalSection || ({} as Section),
   );
   const [newNote, setNewNote] = useState('');
+  const [loading, setLoading] = useState(false);
   const [tracerStreamName, setTracerStreamName] = useState(
     tracerStreamId || '',
   );
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input element
   const bucketName = userAuthenticationService.getOrganization()?.s3BucketName;
   const prefix = `${productOrder}/${tracerStreamId}/${section.sectionId}`;
+
+  const handleRedirect = (url: string) => {
+    window.open(url, '_blank');
+  };
+
+  const handleFileDelete = async (s3Object: S3ObjectDto) => {
+    //show model to doubel chekc if they want to delte
+    //if yes then delete
+    //if no then do nothing
+    const action = confirm('Are you sure you want to delete this file?');
+    if (action) {
+      const response = await fileManagementApiProxy.DeleteFile(
+        bucketName!,
+        s3Object.name!,
+      );
+
+      if (response.ok) {
+        const allFiles = await fileManagementApiProxy.getAllFiles(
+          bucketName!,
+          prefix,
+        );
+        setSection((section) => ({ ...section, files: allFiles }));
+      } else {
+        console.error('Failed to delete file');
+      }
+    }
+  };
 
   const handleSectionChange = (
     property: string,
@@ -53,6 +82,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
     if (mode === 'edit') {
       const fetchFiles = async () => {
         if (bucketName) {
+          setLoading(true);
           try {
             const files = await fileManagementApiProxy.getAllFiles(
               bucketName,
@@ -61,6 +91,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
             setSection((section) => ({ ...section, files }));
           } catch (error) {
             console.error('Error fetching files:', error);
+          } finally {
+            setLoading(false);
           }
         }
       };
@@ -76,6 +108,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
           console.error('Bucket name not found');
           return;
         }
+        setLoading(true);
         const response = await fileManagementApiProxy.UploadFile(
           bucketName,
           productOrder!,
@@ -95,6 +128,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
         }
       } catch (error) {
         console.error('Error uploading file:', error);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -132,6 +167,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
 
   return (
     <ModalWrapper className="open">
+      <LoadingOverlay show={loading} />
       <ModalOverlay onClick={onClose} />
       <ModalContent>
         <ModalHeader>
@@ -154,7 +190,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
             />
             Is Required
           </label>
-          <br></br>
+          <br />
           <label>Section Name</label>
           <input
             type="text"
@@ -170,46 +206,51 @@ const SectionModal: React.FC<SectionModalProps> = ({
             placeholder="Section Description"
             className="section-description"
           />
-          {/* TODO: FORCE THEM TO USE DRAGGABLE FOR THE MOMENT */}
-          {/* <label>Position</label>
-          <input
-            type="number"
-            value={section.position}
-            onChange={(e) => handleSectionChange('position', e)}
-            placeholder="Position"
-            className="tracer-stream-name"
-          ></input> */}
           {mode !== 'sectionCreation' && (
             <>
-              {/*             TODO: ADD NOTE MODAL
-              <h3>Notes:</h3>
-              <ul>
-                {section?.notes.map((note: any) => (
-                  <li key={note.id}>{note.content}</li>
-                ))}
-              </ul>
-              <TextArea
-                value={newNote}
-                onChange={handleNoteChange}
-                placeholder="Add a new note"
-              />
-              <Button onClick={handleAddNote}>Add Note</Button> */}
               <h3>Files:</h3>
-              <ul>
-                {section.files?.map((s3Object: S3ObjectDto, index: number) => (
-                  <FileItem key={index}>
-                    {getOnlyFileName(s3Object.name || '')}
-                    <Link
-                      className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
-                      href={s3Object.presignedUrl || ''}
-                      target="_blank"
-                    >
-                      View
-                    </Link>
-                    <Button>Delete</Button>
-                  </FileItem>
-                ))}
-              </ul>
+              <div style={{ overflow: 'hidden' }}>
+                <ul>
+                  {section.files?.map(
+                    (s3Object: S3ObjectDto, index: number) => (
+                      <FileItem
+                        key={index}
+                        style={{ display: 'flex', alignItems: 'center' }}
+                      >
+                        <span
+                          style={{
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '60%', // Adjust the max-width as needed
+                            display: 'inline-block',
+                          }}
+                        >
+                          {getOnlyFileName(s3Object.name || '')}
+                        </span>
+                        <div>
+                          <Button
+                            style={{ marginRight: '10px' }}
+                            onClick={() => {
+                              handleRedirect(s3Object.presignedUrl || '');
+                            }}
+                          >
+                            View
+                          </Button>
+                          <CancelButton
+                            onClick={() => {
+                              handleFileDelete(s3Object);
+                            }}
+                          >
+                            Delete
+                          </CancelButton>
+                        </div>
+                      </FileItem>
+                    ),
+                  )}
+                </ul>
+              </div>
+
               <DragAndDropArea
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
@@ -229,7 +270,12 @@ const SectionModal: React.FC<SectionModalProps> = ({
         </ModalBody>
         <ModalFooter>
           <Button onClick={() => onSave(section)}>Save</Button>
-          <Button onClick={onClose}>Close</Button>
+          <CancelButton
+            className="bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+            onClick={onClose}
+          >
+            Close
+          </CancelButton>
         </ModalFooter>
       </ModalContent>
     </ModalWrapper>
@@ -249,7 +295,7 @@ const ModalWrapper = styled.div`
   z-index: 1000;
 
   &.open {
-    width: 50%;
+    width: 40%;
   }
 `;
 
@@ -269,7 +315,6 @@ const ModalContent = styled.div`
   right: 0;
   height: 100%;
   width: 100%;
-  max-width: 500px;
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -343,24 +388,42 @@ const ModalBody = styled.div`
 
 const ModalFooter = styled.div`
   padding: 20px;
-
   background: #2d3748;
   text-align: right;
   border-bottom-left-radius: 8px;
 
-  button {
-    background: rgb(15 118 110);
-    margin-left: 2rem;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
+  button:not(:last-child) {
+    margin-right: 10px;
+  }
+`;
 
-    &:hover {
-      background: rgb(13 148 136);
-    }
+const Button = styled.button`
+  background: rgb(15 118 110);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+
+  &:hover {
+    background: rgb(13 148 136);
+  }
+`;
+
+const CancelButton = styled.button`
+  background: #6b7280; /* bg-gray-500 */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+
+  &:hover {
+    background: #4b5563; /* hover:bg-gray-600 */
   }
 `;
 
@@ -372,21 +435,6 @@ const TextArea = styled.textarea`
   font-size: 16px;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
-`;
-
-const Button = styled.button`
-  background: #3182ce;
-  border: none;
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 10px;
-
-  &:hover {
-    background: #2b6cb0;
-  }
 `;
 
 const FileItem = styled.li`
@@ -404,7 +452,7 @@ const FileItem = styled.li`
   }
 
   button {
-    background: #e53e3e;
+    background: rgb(15 118 110);
     border: none;
     color: #fff;
     padding: 5px 10px;
@@ -413,7 +461,7 @@ const FileItem = styled.li`
     transition: background 0.3s;
 
     &:hover {
-      background: #c53030;
+      background: rgb(13 148 136);
     }
   }
 `;
@@ -446,7 +494,7 @@ const DragAndDropArea = styled.div`
   }
 
   button {
-    background-color: #3182ce;
+    background-color: rgb(15 118 110);
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -455,7 +503,7 @@ const DragAndDropArea = styled.div`
     transition: background 0.3s;
 
     &:hover {
-      background-color: #2b6cb0;
+      background-color: rgb(13 148 136);
     }
   }
 `;

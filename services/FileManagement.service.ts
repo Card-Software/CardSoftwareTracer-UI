@@ -30,7 +30,10 @@ class FileManagementService {
     }
 
     const zip = new JSZip();
-    const folder = zip.folder(`P-0000${productOrder.productOrderNumber}`);
+    const productOrderNumber = productOrder.externalProductOrderNumber
+      ? productOrder.externalProductOrderNumber
+      : productOrder.productOrderNumber;
+    const folder = zip.folder(`P-0000${productOrderNumber}`);
 
     if (!folder) {
       throw new Error('Failed to create folder in zip file.');
@@ -47,11 +50,11 @@ class FileManagementService {
       const sectionId = file.name.split('/')[2];
       const sectionName = sectionNames[sectionId];
       const fileExtension = file.name.split('.').pop();
-      let fileName = `P-0000${productOrder.productOrderNumber}_${sectionName}.${fileExtension}`;
+      let fileName = `P-0000${productOrderNumber}_${sectionName}.${fileExtension}`;
 
       let counter = 1;
       while (folder.file(fileName)) {
-        fileName = `P-0000${productOrder.productOrderNumber}_${sectionName}${counter}.${fileExtension}`;
+        fileName = `P-0000${productOrderNumber}_${sectionName}${counter}.${fileExtension}`;
         counter++;
       }
 
@@ -65,7 +68,7 @@ class FileManagementService {
     }
 
     const content = await zip.generateAsync({ type: 'blob' });
-    saveAs(content, `P-0000${productOrder.productOrderNumber}.zip`);
+    saveAs(content, `P-0000${productOrderNumber}.zip`);
   }
 
   private async fetchFileContent(url: string): Promise<ArrayBuffer> {

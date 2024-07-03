@@ -10,7 +10,7 @@ import { ProductOrder } from '@/models/ProductOrder';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
-  const [productOrders, setProductOrders] = useState<any[]>([]);
+  const [productOrders, setProductOrders] = useState<ProductOrder[]>([]);
 
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
@@ -20,18 +20,7 @@ const Dashboard: React.FC = () => {
     const fetchProductOrders = async () => {
       try {
         const orders = await orderManagementApiProxy.getAllProductOrders();
-        // Map the API response to include necessary fields for the component
-        const mappedOrders = orders.map((order) => ({
-          id: order.id,
-          poNumber: order.productOrderNumber,
-          progress: 3, // Manually setting progress, update this as needed
-          assignedTo: order.assignedUser
-            ? `${order.assignedUser.firstName} ${order.assignedUser.lastname}`
-            : 'Unassigned', // Check if assignedUser exists and concatenate firstName and lastName
-          dueDate: new Date(order.createdDate).toLocaleDateString(), // Format the date as needed
-          ...order, // Include other fields
-        }));
-        setProductOrders(mappedOrders);
+        setProductOrders(orders);
       } catch (error) {
         console.error('Failed to fetch product orders:', error);
       }
@@ -59,8 +48,8 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-3 gap-4">
         {productOrders.length > 0 ? (
           productOrders.map((order) => (
-            <div key={order.poNumber}>
-              <ProductOrderItem {...order} />
+            <div key={order.productOrderNumber}>
+              <ProductOrderItem productOrder={order} />
             </div>
           ))
         ) : (

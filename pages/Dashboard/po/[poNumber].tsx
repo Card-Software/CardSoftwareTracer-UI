@@ -30,9 +30,9 @@ const PurchaseOrderPage: React.FC = () => {
   const { poNumber } = router.query;
   const user = userAuthenticationService.getUser();
   const organization = userAuthenticationService.getOrganization();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [allClients, setAllClients] = useState<string[]>([]);
 
   const [originalProductOrder, setOriginalProductOrder] =
     useState<ProductOrder | null>(null);
@@ -57,9 +57,11 @@ const PurchaseOrderPage: React.FC = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       if (poNumber) {
+        setIsLoading(true);
         const order = await orderManagementApiProxy.getProductOrder(
           poNumber as string,
         );
+        setIsLoading(false);
         setOriginalProductOrder(order);
         setProductOrder(order);
 
@@ -78,8 +80,10 @@ const PurchaseOrderPage: React.FC = () => {
     };
 
     const fetchTracerStreams = async () => {
+      setIsLoading(true);
       const tracerStreams =
         await orderManagementApiProxy.getAllTraceabilities();
+      setIsLoading(false);
       setAllTracerStreams(tracerStreams);
     };
 
@@ -181,15 +185,19 @@ const PurchaseOrderPage: React.FC = () => {
   const handleSave = async () => {
     if (productOrder) {
       try {
+        setIsLoading(true);
         const response =
           await orderManagementApiProxy.updateProductOrder(productOrder);
         if (response.status === 204) {
-          alert('Product Order updated successfully!');
+          setIsLoading(false);
           router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
+          alert('Product Order updated successfully!');
         } else {
+          setIsLoading(false);
           alert(`Failed to save Product Order. Status: ${response.status}`);
         }
       } catch (error) {
+        setIsLoading(false);
         console.error('Failed to save Product Order', error);
         alert('Failed to save Product Order');
       }
@@ -206,6 +214,7 @@ const PurchaseOrderPage: React.FC = () => {
 
   return (
     <Layout>
+      <LoadingOverlay show={isLoading} />
       <Container>
         <div>
           <Link

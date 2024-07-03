@@ -157,7 +157,7 @@ const ModalWrapper = styled.div`
   z-index: 1000;
 
   &.open {
-    width: 50%;
+    width: 40%;
   }
 `;
 
@@ -177,7 +177,6 @@ const ModalContent = styled.div`
   right: 0;
   height: 100%;
   width: 100%;
-  max-width: 500px;
   background: #fff;
   display: flex;
   flex-direction: column;
