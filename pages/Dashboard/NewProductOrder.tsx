@@ -4,13 +4,13 @@ import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
 import Link from 'next/link';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
-import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
 import { User } from '@/models/User';
 import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
 import { ObjectId } from 'bson';
 import { useRouter } from 'next/router';
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -79,10 +79,16 @@ const NewProductOrder: React.FC = () => {
     setIsPoSelected(false);
   };
 
+  const owner = userAuthenticationService.getOrganization();
+
   const handleSave = async () => {
+    if (owner === null) {
+      console.error('Owner not found');
+      return;
+    }
     const newProductOrder: ProductOrder = {
       productOrderNumber: poNumber,
-      owner: userAuthorizationService.organization,
+      owner: owner,
       description: description,
       notes: [], // Add relevant notes if applicable
       assignedUser: sampleUsers.find((user) => user.id === assignedUser)!,

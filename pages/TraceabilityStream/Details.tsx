@@ -14,9 +14,9 @@ import { TracerStream } from '@/models/TracerStream';
 import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
 import { Organization } from '@/models/Organization';
-import { userAuthorizationService } from '@/services/UserAuthorization.service';
 import SectionModal from '@/components/SectionModal';
 import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure the path is correct
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
 
 interface SectionWithId extends Section {
   id: string;
@@ -58,7 +58,7 @@ const Details = () => {
     name: '',
     description: '',
     notes: [],
-    owner: userAuthorizationService.organization,
+    owner: userAuthenticationService.getOrganization() as Organization,
     sections: [],
   });
 
@@ -71,7 +71,8 @@ const Details = () => {
     });
   };
 
-  const organization: Organization = userAuthorizationService.organization;
+  const organization: Organization =
+    userAuthenticationService.getOrganization() as Organization;
 
   const isEditing = !!query.id;
 
