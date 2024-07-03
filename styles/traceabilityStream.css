@@ -1,8 +1,8 @@
 .stream-footer {
   position: fixed;
-  bottom: 30px;
+  bottom: 0px;
   height: 4rem;
-  margin-left: -16px;
+  margin-left: -18px;
   width: 100%;
   align-items: center;
   padding-left: 1rem;

@@ -50,7 +50,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
   };
 
   useEffect(() => {
-    if (mode === 'edit' || mode === 'sectionCreationOnExistingTracer') {
+    if (mode === 'edit') {
       const fetchFiles = async () => {
         if (bucketName) {
           try {
@@ -58,7 +58,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
               bucketName,
               prefix,
             );
-            setSection((prevSection) => ({ ...prevSection, files }));
+            setSection((section) => ({ ...section, files }));
           } catch (error) {
             console.error('Error fetching files:', error);
           }
@@ -89,7 +89,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
             bucketName,
             prefix,
           );
-          setSection((prevSection) => ({ ...prevSection, files: allFiles }));
+          setSection((section) => ({ ...section, files: allFiles }));
         } else {
           console.error('Failed to upload file');
         }
@@ -141,18 +141,28 @@ const SectionModal: React.FC<SectionModalProps> = ({
           </button>
         </ModalHeader>
         <ModalBody>
-          {mode !== 'edit' && (
-            <>
-              <label>Section Name</label>
-              <input
-                type="text"
-                value={section.sectionName}
-                onChange={(e) => handleSectionChange('sectionName', e)}
-                placeholder="Section Name"
-                className="tracer-stream-name"
-              />
-            </>
-          )}
+          <label>
+            <input
+              type="checkbox"
+              checked={section.isRequired}
+              onChange={(e) =>
+                setSection((prevSection) => ({
+                  ...prevSection,
+                  isRequired: e.target.checked,
+                }))
+              }
+            />
+            Is Required
+          </label>
+          <br></br>
+          <label>Section Name</label>
+          <input
+            type="text"
+            value={section.sectionName}
+            onChange={(e) => handleSectionChange('sectionName', e)}
+            placeholder="Section Name"
+            className="tracer-stream-name"
+          />
           <label>Description</label>
           <textarea
             value={section.sectionDescription}
@@ -160,14 +170,15 @@ const SectionModal: React.FC<SectionModalProps> = ({
             placeholder="Section Description"
             className="section-description"
           />
-          <label>Position</label>
+          {/* TODO: FORCE THEM TO USE DRAGGABLE FOR THE MOMENT */}
+          {/* <label>Position</label>
           <input
             type="number"
             value={section.position}
             onChange={(e) => handleSectionChange('position', e)}
             placeholder="Position"
             className="tracer-stream-name"
-          ></input>
+          ></input> */}
           {mode !== 'sectionCreation' && (
             <>
               <h3>Notes:</h3>
@@ -337,17 +348,17 @@ const ModalFooter = styled.div`
   border-bottom-left-radius: 8px;
 
   button {
-    background: white;
+    background: rgb(15 118 110);
     margin-left: 2rem;
     border: none;
-    color: #fff;
+    color: white;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.3s;
 
     &:hover {
-      background: #1a202c;
+      background: rgb(13 148 136);
     }
   }
 `;
