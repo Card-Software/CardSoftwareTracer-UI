@@ -32,7 +32,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
     tracerStreamId || '',
   );
   const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input element
-  const bucketName = userAuthenticationService.getOrganization()?.id;
+  const bucketName = userAuthenticationService.getOrganization()?.s3BucketName;
   const prefix = `${productOrder}/${tracerStreamId}/${section.sectionId}`;
 
   const handleSectionChange = (
