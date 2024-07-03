@@ -10,6 +10,7 @@ import {
   FaCheckCircle,
   FaFileExport,
   FaPencilAlt,
+  FaTrash,
 } from 'react-icons/fa';
 import SectionModal from '@/components/SectionModal';
 import TracerStreamModal from '@/components/TracerStreamModal';
@@ -147,6 +148,18 @@ const PurchaseOrderPage: React.FC = () => {
     setIsSectionModalOpen(true);
   };
 
+  const handleDeleteStream = (streamToDelete: TracerStreamExtended) => {
+    if (productOrder) {
+      const updatedStreams = productOrder.childrenTracerStreams.filter(
+        (stream) => stream.id !== streamToDelete.id,
+      );
+      setProductOrder({
+        ...productOrder,
+        childrenTracerStreams: updatedStreams,
+      });
+    }
+  };
+
   const handleStreamClick = (
     stream: TracerStreamExtended,
     mode: 'edit' | 'add',
@@ -163,6 +176,29 @@ const PurchaseOrderPage: React.FC = () => {
     );
     //then check that all required sections have files
     return requiredSections.every((section) => section.files.length > 0);
+  };
+
+  const handleDeleteSection = (
+    stream: TracerStreamExtended,
+    section: SectionModel,
+  ) => {
+    if (productOrder) {
+      const updatedStreams = productOrder.childrenTracerStreams.map((str) => {
+        if (str.id === stream.id) {
+          return {
+            ...str,
+            sections: str.sections.filter(
+              (sec) => sec.sectionId !== section.sectionId,
+            ),
+          };
+        }
+        return str;
+      });
+      setProductOrder({
+        ...productOrder,
+        childrenTracerStreams: updatedStreams,
+      });
+    }
   };
 
   const handleCloseSectionModal = () => {
@@ -348,14 +384,11 @@ const PurchaseOrderPage: React.FC = () => {
                       </div>
                       <div className="flex">
                         <button
-                          className={`rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600 ${!isExportEnabled(stream) && 'cursor-not-allowed opacity-50'}`}
+                          className={`ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (isExportEnabled(stream)) {
-                              handleExportButton(stream);
-                            }
+                            handleExportButton(stream);
                           }}
-                          disabled={!isExportEnabled(stream)}
                         >
                           <FaFileExport />
                         </button>
@@ -368,6 +401,15 @@ const PurchaseOrderPage: React.FC = () => {
                         >
                           <FaPencilAlt />
                         </button>
+                        <button
+                          className="ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteStream(stream);
+                          }}
+                        >
+                          <FaTrash />
+                        </button>
                       </div>
                     </div>
                   </CardTitle>
@@ -378,7 +420,7 @@ const PurchaseOrderPage: React.FC = () => {
                           onClick={() => handleSectionClick(section, stream)}
                           isRequired={section.isRequired}
                         >
-                          <CardTitle>
+                          <CardTitle className="w-full">
                             {section.sectionName}
                             {section.files.length > 0 ? (
                               <FaCheckCircle
@@ -391,6 +433,15 @@ const PurchaseOrderPage: React.FC = () => {
                                 style={{ marginLeft: '10px' }}
                               />
                             )}
+                            <DeleteButton
+                              className="flex justify-end"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevents parent click event from firing
+                                handleDeleteSection(stream, section); // Call delete function
+                              }}
+                            >
+                              <FaTrash />
+                            </DeleteButton>
                           </CardTitle>
                           <CardDetails>
                             <DetailItem>
@@ -657,4 +708,14 @@ const ReferenceCard = styled(Card)`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const DeleteButton = styled.button`
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 5px; /* Adjust margin as needed */
+  cursor: pointer;
+  font-size: 16px;
+  color: #f56565; /* Adjust color as needed */
 `;
