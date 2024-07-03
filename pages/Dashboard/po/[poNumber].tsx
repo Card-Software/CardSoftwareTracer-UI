@@ -16,6 +16,7 @@ import { User } from '@/models/User';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
 import { fileManagementService } from '@/services/FileManagement.service';
+import AddTracerStreamModal from '@/components/AddTracerStreamModal';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -154,6 +155,10 @@ const PurchaseOrderPage: React.FC = () => {
     setFilteredProductOrders([]);
   };
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
   const handleSave = async () => {
     if (productOrder) {
       try {
@@ -195,11 +200,26 @@ const PurchaseOrderPage: React.FC = () => {
             </div>
             <div className="flex gap-5">
               <div>
-                <TracerButton
-                  name="Add Tracer Stream"
-                  icon={<HiPlus />}
-                  onClick={() => router.push('/Dashboard/NewProductOrder')}
-                />
+                <button
+                  className="rounded-md bg-teal-700 p-3 text-white hover:bg-teal-600"
+                  onClick={handleOpenModal}
+                >
+                  Add Tracer Stream
+                </button>
+                {isModalOpen && (
+                  <AddTracerStreamModal
+                    onClose={handleCloseModal}
+                    onSubmit={handleAddTracerStream}
+                    newTracerStreamId={newTracerStreamId}
+                    setNewTracerStreamId={setNewTracerStreamId}
+                    newTracerStreamProduct={newTracerStreamProduct}
+                    setNewTracerStreamProduct={setNewTracerStreamProduct}
+                    newTracerStreamName={newTracerStreamName}
+                    setNewTracerStreamName={setNewTracerStreamName}
+                    newTracerStreamQuantity={newTracerStreamQuantity}
+                    setNewTracerStreamQuantity={setNewTracerStreamQuantity}
+                  />
+                )}
               </div>
               {/* <div>
                 <TracerButton
