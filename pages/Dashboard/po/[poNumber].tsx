@@ -358,7 +358,7 @@ const PurchaseOrderPage: React.FC = () => {
                         )
                       }
                     >
-                      <AddNewButton className="rounded bg-teal-500 px-4 py-2 text-white hover:bg-teal-600">
+                      <AddNewButton className="rounded bg-teal-700 px-4 py-2 text-white hover:bg-teal-600">
                         Add New Section
                       </AddNewButton>
                     </SectionCard>
@@ -631,7 +631,6 @@ const ArrowIcon = styled.div`
 `;
 
 const AddNewButton = styled.button`
-  background-color: #38b2ac;
   border: none;
   color: white;
   padding: 10px 20px;
