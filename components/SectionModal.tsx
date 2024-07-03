@@ -177,9 +177,10 @@ const SectionModal: React.FC<SectionModalProps> = ({
           </button>
         </ModalHeader>
         <ModalBody>
-          <label>
+          <label className="flex items-center space-x-2">
             <input
               type="checkbox"
+              className="peer hidden"
               checked={section.isRequired}
               onChange={(e) =>
                 setSection((prevSection) => ({
@@ -187,9 +188,33 @@ const SectionModal: React.FC<SectionModalProps> = ({
                   isRequired: e.target.checked,
                 }))
               }
+              id="custom-checkbox"
             />
-            Is Required
+            <span
+              className={`h-5 w-5 rounded border-2 border-gray-400 ${
+                section.isRequired ? 'bg-teal-600' : 'bg-white'
+              } flex items-center justify-center peer-checked:bg-teal-600`}
+            >
+              {section.isRequired && (
+                <svg
+                  className="h-3 w-3 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+              )}
+            </span>
+            <span>Is Required</span>
           </label>
+
           <br />
           <label>Section Name</label>
           <input
@@ -238,6 +263,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
                             View
                           </Button>
                           <CancelButton
+                            className="border-r-md border border-red-600 bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white"
                             onClick={() => {
                               handleFileDelete(s3Object);
                             }}

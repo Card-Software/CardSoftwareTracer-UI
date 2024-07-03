@@ -137,7 +137,7 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
           <Button onClick={handleSave} disabled={!isFormValid()}>
             Save
           </Button>
-          <Button onClick={onClose}>Close</Button>
+          <ButtonClose onClick={onClose}>Close</ButtonClose>
         </ModalFooter>
       </ModalContent>
     </ModalWrapper>
@@ -236,29 +236,31 @@ const ModalFooter = styled.div`
   text-align: right;
   border-bottom-left-radius: 8px;
 
-  button {
-    background: rgb(15 118 110);
-    margin-left: 2rem;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s;
-
-    &:hover {
-      background: rgb(13 148 136);
-    }
-
-    &:disabled {
-      background: gray;
-      cursor: not-allowed;
-    }
   }
 `;
 
 const Button = styled.button`
-  background: #3182ce;
+  background: rgb(15 118 110);
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+  margin-right: 16px;
+
+  &:hover {
+    background: rgb(13 148 136);
+  }
+
+  &:disabled {
+    background: gray;
+    cursor: not-allowed;
+  }
+`;
+const ButtonClose = styled.button`
+  background: rgb(107 114 128);
   border: none;
   color: #fff;
   padding: 10px 20px;
@@ -268,7 +270,7 @@ const Button = styled.button`
   margin-top: 10px;
 
   &:hover {
-    background: #2b6cb0;
+    background: #4b5563;
   }
 
   &:disabled {
