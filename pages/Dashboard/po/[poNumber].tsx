@@ -358,9 +358,11 @@ const PurchaseOrderPage: React.FC = () => {
                         )
                       }
                     >
-                      <AddNewButton className="rounded bg-teal-700 px-4 py-2 text-white hover:bg-teal-600">
-                        Add New Section
-                      </AddNewButton>
+                      <div className="flex h-full w-full items-center justify-center">
+                        <AddNewButton className="rounded bg-teal-700 px-4 py-2 text-white hover:bg-teal-600">
+                          Add New Section
+                        </AddNewButton>
+                      </div>
                     </SectionCard>
                   </SectionContainer>
                 </Card>
@@ -600,7 +602,7 @@ const Card = styled.div`
 `;
 
 const SectionCard = styled(Card)`
-  flex: 1 1 calc(50% - 20px); /* Two columns with a gap of 20px */
+  flex: 1 1 calc(33.333% - 20px); /* Three columns with a gap of 20px */
   margin-bottom: 20px;
   min-width: 0;
 `;
