@@ -107,23 +107,31 @@ const TraceabilityStream = () => {
           </div>
         </div> */}
         <div className="mx-8 w-full overflow-auto">
-          <table className="w-full table-auto border-collapse border border-gray-400">
+          <table className="w-full border-collapse border border-teal-600">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 p-2">Name</th>
-                <th className="border border-gray-300 p-2">Description</th>
+              <tr className="bg-teal-600 text-white">
+                <th className="border border-teal-600 px-4 py-2">Name</th>
+                <th className="border border-teal-600 px-4 py-2">Details</th>
               </tr>
             </thead>
             <tbody>
               {filteredStreams.map((stream) => (
                 <tr
                   key={stream.id}
-                  className="hover:bg-gray-100"
-                  onClick={handleTracerClick(stream.name)}
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={handleTracerClick(stream.name || '')}
                 >
-                  <td className="border border-gray-300 p-2">{stream.name}</td>
-                  <td className="border border-gray-300 p-2">
-                    {stream.description}
+                  <td className="border border-teal-600 px-4 py-2">
+                    {stream.name}
+                  </td>
+                  <td className="border border-teal-600 px-4 py-2">
+                    {/* Example detail content */}
+
+                    <span className="mt-1 block text-sm text-gray-500">
+                      {stream.sections
+                        .map((section) => section.sectionName)
+                        .join(', ')}
+                    </span>
                   </td>
                 </tr>
               ))}
