@@ -149,7 +149,10 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const handleDeleteStream = (streamToDelete: TracerStreamExtended) => {
-    if (productOrder) {
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this stream?',
+    );
+    if (confirmDelete && productOrder) {
       const updatedStreams = productOrder.childrenTracerStreams.filter(
         (stream) => stream.id !== streamToDelete.id,
       );
@@ -182,7 +185,10 @@ const PurchaseOrderPage: React.FC = () => {
     stream: TracerStreamExtended,
     section: SectionModel,
   ) => {
-    if (productOrder) {
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this section?',
+    );
+    if (confirmDelete && productOrder) {
       const updatedStreams = productOrder.childrenTracerStreams.map((str) => {
         if (str.id === stream.id) {
           return {
