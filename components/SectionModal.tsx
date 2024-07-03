@@ -181,6 +181,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
           ></input> */}
           {mode !== 'sectionCreation' && (
             <>
+              {/*             TODO: ADD NOTE MODAL
               <h3>Notes:</h3>
               <ul>
                 {section?.notes.map((note: any) => (
@@ -192,7 +193,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
                 onChange={handleNoteChange}
                 placeholder="Add a new note"
               />
-              <Button onClick={handleAddNote}>Add Note</Button>
+              <Button onClick={handleAddNote}>Add Note</Button> */}
               <h3>Files:</h3>
               <ul>
                 {section.files?.map((s3Object: S3ObjectDto, index: number) => (
