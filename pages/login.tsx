@@ -8,6 +8,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   //check if the user is logged in
   useEffect(() => {
@@ -21,7 +22,7 @@ const Login = () => {
     setLoading(true); // Set loading to true
     // Call the authentication service
     const logginStatus = await userAuthenticationService.login(
-      username,
+      username.trim(),
       password,
     );
     setLoading(false); // Set loading to false
@@ -38,6 +39,10 @@ const Login = () => {
     if (event.key === 'Enter') {
       handleLogin();
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -57,24 +62,24 @@ const Login = () => {
           <h1 className="mb-8 text-center text-3xl font-bold">Login</h1>
           <div className="mb-4">
             <label htmlFor="username" className="block text-gray-700">
-              Username:
+              Email:
             </label>
             <input
               type="text"
               id="username"
               name="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.trim())}
               onKeyDown={handleKeyDown}
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-teal-600 focus:outline-none"
             />
           </div>
-          <div className="mb-4">
+          <div className="relative mb-4">
             <label htmlFor="password" className="block text-gray-700">
               Password:
             </label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               name="password"
               value={password}
@@ -82,6 +87,13 @@ const Login = () => {
               onKeyDown={handleKeyDown}
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-teal-600 focus:outline-none"
             />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-3 top-8 text-gray-700"
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
           </div>
           <button
             onClick={handleLogin}
