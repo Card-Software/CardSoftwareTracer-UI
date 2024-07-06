@@ -35,6 +35,7 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
       notes: [],
       sections: [],
       owner: owner as Organization,
+      tracerStreamReference: '',
     },
   );
   const [templates, setTemplates] = useState<TracerStream[]>([]);
@@ -72,10 +73,14 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
     const newTracerStream = templates.find((template) => template.id === id);
     if (!newTracerStream) return;
 
-    tracerStream.sections = newTracerStream.sections;
-    tracerStream.description = newTracerStream.description;
-    tracerStream.name = newTracerStream.name;
-    tracerStream.id = new ObjectId().toString();
+    setTracerStream((prevStream) => ({
+      ...prevStream,
+      sections: newTracerStream.sections,
+      description: newTracerStream.description,
+      name: newTracerStream.name,
+      tracerStreamReference: newTracerStream.id as string,
+      id: new ObjectId().toString(),
+    }));
   };
 
   const handleSave = async () => {
@@ -107,7 +112,7 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
             <>
               <label>Tracer Stream Template</label>
               <select
-                value={tracerStream.id}
+                value={tracerStream.tracerStreamReference}
                 onChange={(e) => handleTracerStreamChange(e.target.value)}
                 className="tracer-stream-template"
               >

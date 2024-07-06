@@ -12,6 +12,7 @@ export interface TracerStream {
 }
 
 export interface TracerStreamExtended extends TracerStream {
+  tracerStreamReference: string;
   friendlyName: string; //default to Product Name
   quantity: number;
   product: string;
