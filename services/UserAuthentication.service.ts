@@ -51,7 +51,6 @@ class UserAuthenticationService {
       ]);
 
       this.user = userResponse;
-      organizationResponse.users = [];
       this.organization = organizationResponse;
 
       localStorage.setItem('CSTracerUser', JSON.stringify(this.user));

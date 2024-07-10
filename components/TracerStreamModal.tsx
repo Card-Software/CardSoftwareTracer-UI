@@ -24,6 +24,10 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
   onSave,
   mode,
 }) => {
+  const userOwner = userAuthenticationService.getOrganization();
+  if (!userOwner) {
+    throw new Error('User organization is not set.');
+  }
   const [tracerStream, setTracerStream] = useState<TracerStreamExtended>(
     originalTracerStream || {
       id: new ObjectId().toString(),
@@ -34,7 +38,7 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
       description: '',
       notes: [],
       sections: [],
-      owner: owner as Organization,
+      ownerRef: userOwner.id,
       tracerStreamReference: '',
     },
   );

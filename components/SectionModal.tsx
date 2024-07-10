@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { FaTimes } from 'react-icons/fa';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import LoadingOverlay from './LoadingOverlay';
+import { teamLabelProxy } from '@/proxies/TeamLabel.proxy';
+import { TeamLabel } from '@/models/TeamLabel';
 
 interface SectionModalProps {
   productOrder?: string;
@@ -28,7 +30,9 @@ const SectionModal: React.FC<SectionModalProps> = ({
   const [section, setSection] = useState<Section>(
     originalSection || ({} as Section),
   );
+  const organization = userAuthenticationService.getOrganization();
   const [newNote, setNewNote] = useState('');
+  const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
   const [loading, setLoading] = useState(false);
   const [tracerStreamName, setTracerStreamName] = useState(
     tracerStreamId || '',
@@ -42,9 +46,6 @@ const SectionModal: React.FC<SectionModalProps> = ({
   };
 
   const handleFileDelete = async (s3Object: S3ObjectDto) => {
-    //show model to doubel chekc if they want to delte
-    //if yes then delete
-    //if no then do nothing
     const action = confirm('Are you sure you want to delete this file?');
     if (action) {
       const response = await fileManagementApiProxy.DeleteFile(
@@ -78,6 +79,28 @@ const SectionModal: React.FC<SectionModalProps> = ({
     setNewNote(event.target.value);
   };
 
+  const handleTagSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedTag = teamLabels.find(
+      (label) => label.id === event.target.value,
+    );
+    if (
+      selectedTag &&
+      !section.teamLabels.some((label) => label.id === selectedTag.id)
+    ) {
+      setSection((prevSection) => ({
+        ...prevSection,
+        teamLabels: [...prevSection.teamLabels, selectedTag],
+      }));
+    }
+  };
+
+  const handleDeleteTag = (tagId: string) => {
+    setSection((prevSection) => ({
+      ...prevSection,
+      teamLabels: prevSection.teamLabels.filter((label) => label.id !== tagId),
+    }));
+  };
+
   useEffect(() => {
     if (mode === 'edit') {
       const fetchFiles = async () => {
@@ -100,6 +123,18 @@ const SectionModal: React.FC<SectionModalProps> = ({
       fetchFiles();
     }
   }, [bucketName, prefix, mode]);
+
+  useEffect(() => {
+    const fetchTeamLabels = async () => {
+      if (!organization?.name) return;
+      const teamLabels = await teamLabelProxy.getTeamLabelsByOrganizationName(
+        organization?.name,
+      );
+      setTeamLabels(teamLabels);
+    };
+
+    fetchTeamLabels();
+  }, [organization]);
 
   const uploadFile = async (file: File) => {
     if (file) {
@@ -231,6 +266,42 @@ const SectionModal: React.FC<SectionModalProps> = ({
             placeholder="Section Description"
             className="section-description"
           />
+          <div className="mb-6">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Tags
+            </label>
+            <div className="inline-block">
+              <select
+                onChange={handleTagSelect}
+                className="block w-auto max-w-fit rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">Select a tag</option>
+                {teamLabels.map((teamLabel) => (
+                  <option key={teamLabel.id} value={teamLabel.id}>
+                    {teamLabel.labelName}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {section.teamLabels.map((label) => (
+                <div
+                  key={label.id}
+                  className="flex items-center space-x-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700"
+                >
+                  <span>{label.labelName}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTag(label.id)}
+                    className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-700 text-white hover:bg-blue-800"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {mode !== 'sectionCreation' && (
             <>
               <h3>Files:</h3>

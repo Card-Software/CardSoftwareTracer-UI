@@ -59,7 +59,7 @@ const Details = () => {
     name: '',
     description: '',
     notes: [],
-    owner: userAuthenticationService.getOrganization() as Organization,
+    ownerRef: userAuthenticationService.getOrganization()?.id || '',
     sections: [],
   });
 
@@ -135,7 +135,8 @@ const Details = () => {
       files: [],
       fileNameOnExport: '',
       isRequired: true,
-      owner: organization,
+      ownerRef: organization.id,
+      teamLabels: [],
     });
   };
 

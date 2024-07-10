@@ -1,17 +1,20 @@
 import { ProductOrder } from '@/models/ProductOrder';
 import { TracerStream } from '@/models/TracerStream';
+import { Section } from '@/models/Section';
 import { userAuthenticationService } from './UserAuthentication.service';
 import { fileManagementApiProxy } from '@/proxies/FileManagement.proxy';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { S3ObjectDto } from '@/models/S3ObjectDto';
+
 class FileManagementService {
   organization = userAuthenticationService.getOrganization();
 
   async downloadFilesFromS3Bucket(
     tracerStream: TracerStream,
     productOrder: ProductOrder,
-  ): Promise<void> {
+    includeSections: Section[], // New parameter to include sections
+  ): Promise<boolean> {
     if (!tracerStream || !productOrder || !this.organization?.s3BucketName) {
       throw new Error(
         'Missing required parameters or organization information.',
@@ -26,7 +29,7 @@ class FileManagementService {
 
     if (!response || response.length === 0) {
       console.warn('No files found for the given prefix.');
-      return;
+      return false;
     }
 
     const zip = new JSZip();
@@ -41,7 +44,20 @@ class FileManagementService {
 
     const sectionNames = this.getSectionNames(response, tracerStream);
 
-    for (const file of response) {
+    // Filter the files based on the included sections
+    const includedSectionIds = includeSections.map(
+      (section) => section.sectionId,
+    );
+    const filteredFiles = response.filter((file) => {
+      if (!file.name) {
+        console.warn('File name is missing.');
+        return false;
+      }
+      const sectionId = file.name.split('/')[2];
+      return includedSectionIds.includes(sectionId);
+    });
+
+    for (const file of filteredFiles) {
       if (!file.name) {
         console.warn('File name is missing.');
         continue;
@@ -68,7 +84,9 @@ class FileManagementService {
     }
 
     const content = await zip.generateAsync({ type: 'blob' });
+
     saveAs(content, `P-0000${productOrderNumber}.zip`);
+    return true;
   }
 
   private async fetchFileContent(url: string): Promise<ArrayBuffer> {

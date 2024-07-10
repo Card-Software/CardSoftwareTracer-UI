@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import '../../../styles/dashboard.css';
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
 import {
   FaExclamationCircle,
   FaArrowRight,
@@ -19,7 +18,6 @@ import { ProductOrder } from '@/models/ProductOrder';
 import Link from 'next/link';
 import { Section as SectionModel } from '@/models/Section';
 import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
-import { ObjectId } from 'bson';
 import { User } from '@/models/User';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus } from 'react-icons/hi';
@@ -27,6 +25,11 @@ import { fileManagementService } from '@/services/FileManagement.service';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import withAuth from '@/hoc/auth';
+import TeamStatuses from '@/components/TeamStatuses'; // Import TeamStatuses
+import { Status } from '@/models/Status'; // Import Status
+import { v4 as uuidv4 } from 'uuid';
+import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
+import ExportModal from '@/components/ExportModal';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -34,11 +37,7 @@ const PurchaseOrderPage: React.FC = () => {
   const user = userAuthenticationService.getUser();
   const organization = userAuthenticationService.getOrganization();
   const [isLoading, setIsLoading] = useState(false);
-
   const [allUsers, setAllUsers] = useState<User[]>([]);
-
-  const [originalProductOrder, setOriginalProductOrder] =
-    useState<ProductOrder | null>(null);
   const [productOrder, setProductOrder] = useState<ProductOrder | null>(null);
   const [linkedOrders, setLinkedOrders] = useState<ProductOrder[]>([]);
   const [selectedSection, setSelectedSection] = useState<SectionModel | null>(
@@ -49,14 +48,10 @@ const PurchaseOrderPage: React.FC = () => {
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
   const [isStreamModalOpen, setIsStreamModalOpen] = useState(false);
   const [streamModalMode, setStreamModalMode] = useState<'edit' | 'add'>('add');
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredProductOrders, setFilteredProductOrders] = useState<
-    ProductOrder[]
-  >([]);
-  const [connectedPOs, setConnectedPOs] = useState<ProductOrder[]>([]);
-  const [allTracerStreams, setAllTracerStreams] = useState<TracerStream[]>([]);
-
+  const [statuses, setStatuses] = useState<Status[]>([]); // New state for statuses
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false); // State for export modal
+  const [streamToExport, setStreamToExport] =
+    useState<TracerStreamExtended | null>(null);
   useEffect(() => {
     const fetchOrderDetails = async () => {
       if (poNumber) {
@@ -65,8 +60,8 @@ const PurchaseOrderPage: React.FC = () => {
           poNumber as string,
         );
         setIsLoading(false);
-        setOriginalProductOrder(order);
         setProductOrder(order);
+        setStatuses(order.statuses || []); // Set initial statuses
 
         if (
           order.childrenPosReferences &&
@@ -82,33 +77,17 @@ const PurchaseOrderPage: React.FC = () => {
       }
     };
 
-    const fetchTracerStreams = async () => {
-      setIsLoading(true);
-      const tracerStreams =
-        await orderManagementApiProxy.getAllTraceabilities();
-      setIsLoading(false);
-      setAllTracerStreams(tracerStreams);
-    };
-
     fetchOrderDetails();
-    fetchTracerStreams();
   }, [poNumber]);
 
   useEffect(() => {
-    const users = userAuthenticationService.getOrganization()?.users || [];
-    setAllUsers(users);
-  }, [user, organization]);
+    const fetchUsers = async () => {
+      const users = await organizationManagementProxy.GetAllUsers();
+      setAllUsers(users);
+    };
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = linkedOrders.filter((po) =>
-        po.productOrderNumber.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-      setFilteredProductOrders(filtered);
-    } else {
-      setFilteredProductOrders([]);
-    }
-  }, [searchTerm, linkedOrders]);
+    fetchUsers();
+  }, [user, organization]);
 
   const handleProductOrderChange = (
     e: React.ChangeEvent<
@@ -135,14 +114,17 @@ const PurchaseOrderPage: React.FC = () => {
     }
   };
 
+  const handleStatusChange = (newStatuses: Status[]) => {
+    setStatuses(newStatuses);
+    if (productOrder) {
+      setProductOrder({ ...productOrder, statuses: newStatuses });
+    }
+  };
+
   const handleSectionClick = (
     section: SectionModel,
     stream: TracerStreamExtended,
   ) => {
-    if (section.position === 0) {
-      section.position = stream.sections.length + 1;
-      stream.sections.push(section);
-    }
     setSelectedSection(section);
     setSelectedStream(stream);
     setIsSectionModalOpen(true);
@@ -173,11 +155,9 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const isExportEnabled = (stream: TracerStreamExtended) => {
-    //firts filter all sections that are required
     const requiredSections = stream.sections.filter(
       (section) => section.isRequired,
     );
-    //then check that all required sections have files
     return requiredSections.every((section) => section.files.length > 0);
   };
 
@@ -218,16 +198,29 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const handleExportButton = (stream: TracerStreamExtended) => {
-    if (!productOrder) return;
-    fileManagementService.downloadFilesFromS3Bucket(stream, productOrder);
+    setStreamToExport(stream);
+    setIsExportModalOpen(true);
+    // if (!productOrder) return;
+    // fileManagementService.downloadFilesFromS3Bucket(stream, productOrder);
   };
 
-  const handleAddPOReference = (po: ProductOrder) => {
-    if (!connectedPOs.some((connectedPo) => connectedPo.id === po.id)) {
-      setConnectedPOs([...connectedPOs, po]);
+  const exportStream = async (
+    stream: TracerStreamExtended,
+    includedSections: SectionModel[],
+  ) => {
+    if (!productOrder) return;
+    const result = await fileManagementService.downloadFilesFromS3Bucket(
+      stream,
+      productOrder,
+      includedSections,
+    );
+
+    if (result) {
+      alert('Files downloaded successfully!');
+    } else {
+      alert('Failed to download files.');
     }
-    setSearchTerm('');
-    setFilteredProductOrders([]);
+    setIsLoading(false);
   };
 
   const handleSave = async () => {
@@ -236,12 +229,11 @@ const PurchaseOrderPage: React.FC = () => {
         setIsLoading(true);
         const response =
           await orderManagementApiProxy.updateProductOrder(productOrder);
+        setIsLoading(false);
         if (response.status === 204) {
-          setIsLoading(false);
           router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
         } else {
-          setIsLoading(false);
           alert(`Failed to save Product Order. Status: ${response.status}`);
         }
       } catch (error) {
@@ -279,15 +271,13 @@ const PurchaseOrderPage: React.FC = () => {
               <h1 className="text-2xl font-bold">Product Order Details</h1>
             </div>
             <div className="flex gap-5">
-              <div>
-                <TracerButton
-                  name="Add Tracer Stream"
-                  icon={<HiPlus />}
-                  onClick={() =>
-                    handleStreamClick({} as TracerStreamExtended, 'add')
-                  }
-                />
-              </div>
+              <TracerButton
+                name="Add Tracer Stream"
+                icon={<HiPlus />}
+                onClick={() =>
+                  handleStreamClick({} as TracerStreamExtended, 'add')
+                }
+              />
             </div>
           </div>
 
@@ -311,7 +301,7 @@ const PurchaseOrderPage: React.FC = () => {
           <DetailItem className="mb-4">
             <strong>Assigned to:</strong>
             <select
-              value={productOrder.assignedUser.id}
+              value={productOrder.assignedUser?.id}
               onChange={handleAssignedUserChange}
               className="w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
@@ -371,6 +361,11 @@ const PurchaseOrderPage: React.FC = () => {
             />
           </DetailItem>
 
+          <TeamStatuses
+            originalStatus={statuses}
+            onChange={handleStatusChange}
+          />
+
           <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>
@@ -390,22 +385,13 @@ const PurchaseOrderPage: React.FC = () => {
                       </div>
                       <div className="flex">
                         <button
-                          className={`ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600`}
+                          className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleExportButton(stream);
                           }}
                         >
                           <FaFileExport />
-                        </button>
-                        <button
-                          className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStreamClick(stream, 'edit');
-                          }}
-                        >
-                          <FaPencilAlt />
                         </button>
                         <button
                           className="ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
@@ -471,6 +457,22 @@ const PurchaseOrderPage: React.FC = () => {
                                 </ul>
                               </DetailItem>
                             )}
+                            {section.teamLabels &&
+                              section.teamLabels.length > 0 && (
+                                <DetailItem>
+                                  <strong>Team Labels:</strong>
+                                  <ul className="flex gap-2">
+                                    {section.teamLabels.map((label) => (
+                                      <li
+                                        key={label.id}
+                                        className="rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
+                                      >
+                                        {label.labelName}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </DetailItem>
+                              )}
                           </CardDetails>
                         </SectionCard>
                         {secIndex < stream.sections.length - 1 && (
@@ -498,7 +500,8 @@ const PurchaseOrderPage: React.FC = () => {
                             fileNameOnExport: '',
                             files: [],
                             isRequired: true,
-                            owner: organization,
+                            ownerRef: organization.id || '',
+                            teamLabels: [],
                           },
                           stream,
                         );
@@ -597,6 +600,18 @@ const PurchaseOrderPage: React.FC = () => {
           mode={streamModalMode}
         />
       )}
+      {isExportModalOpen && streamToExport && (
+        <ExportModal
+          stream={streamToExport}
+          onClose={() => {
+            setIsExportModalOpen(false);
+            setStreamToExport(null);
+          }}
+          onExport={(includedSections) => {
+            exportStream(streamToExport, includedSections);
+          }}
+        />
+      )}
     </Layout>
   );
 };
@@ -648,29 +663,22 @@ const SectionContainer = styled.div`
 `;
 
 const SectionCard = styled(Card)<{ isRequired: boolean }>`
-  flex: 1 1 calc(25% - 20px); /* Adjust the percentage to fit 4 cards per row with gaps */
+  flex: 1 1 calc(25% - 20px);
   min-width: 250px;
   max-width: 300px;
   margin-bottom: 20px;
-  word-wrap: break-word; /* Ensure long content wraps within the card */
-  background-color: ${(props) =>
-    props.isRequired ? '#fff' : '#e5e7eb'}; /* bg-gray-200 */
+  word-wrap: break-word;
+  background-color: ${(props) => (props.isRequired ? '#fff' : '#e5e7eb')};
 `;
 
 const ArrowIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px; /* Width of the arrow icon */
+  width: 24px;
   font-size: 24px;
   color: gray;
 `;
-
-// const SectionCard = styled(Card)`
-//   flex: 1 1 calc(33.333% - 20px); /* Three columns with a gap of 20px */
-//   margin-bottom: 20px;
-//   min-width: 0;
-// `;
 
 const CardTitle = styled.h3`
   display: flex;
@@ -688,15 +696,6 @@ const DetailItem = styled.div`
   margin-bottom: 16px;
 `;
 
-// const ArrowIcon = styled.div`
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   width: 100%;
-//   max-width: 30px;
-//   margin: 0 5px;
-// `;
-
 const AddNewButton = styled.button`
   border: none;
   color: white;
@@ -709,19 +708,12 @@ const AddNewButton = styled.button`
   }
 `;
 
-const ReferenceCard = styled(Card)`
-  cursor: pointer;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 const DeleteButton = styled.button`
   background-color: transparent;
   border: none;
   padding: 0;
-  margin-left: 5px; /* Adjust margin as needed */
+  margin-left: 5px;
   cursor: pointer;
   font-size: 16px;
-  color: #f56565; /* Adjust color as needed */
+  color: #f56565;
 `;

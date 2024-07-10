@@ -50,9 +50,6 @@ class OrderManagementApiProxy {
   }
 
   async getAllTraceabilities(): Promise<TracerStream[]> {
-    console.log('this is the base url ');
-    console.log(this.deployedUrl);
-    console.log(process.env.NEXT_PUBLIC_ANOTHER);
     const response = await fetch(
       `${this.deployedUrl}TracerStreams/GetAllTracerStreams`,
     );
@@ -73,7 +70,7 @@ class OrderManagementApiProxy {
         body: JSON.stringify(productOrder),
       },
     );
-    return await response.json();
+    return (await response) ? response.json() : null;
   }
 
   async getProductOrder(id: string): Promise<ProductOrder> {

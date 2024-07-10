@@ -8,10 +8,13 @@ import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
 import withAuth from '@/hoc/auth';
+import LoadingOverlay from '@/components/LoadingOverlay';
+import { set } from 'react-hook-form';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const [productOrders, setProductOrders] = useState<ProductOrder[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
@@ -20,10 +23,13 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchProductOrders = async () => {
       try {
+        setIsLoading(true);
         const orders = await orderManagementApiProxy.getAllProductOrders();
+        setIsLoading(false);
         setProductOrders(orders);
       } catch (error) {
         console.error('Failed to fetch product orders:', error);
+        setIsLoading(false);
       }
     };
 
@@ -32,6 +38,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Layout>
+      <LoadingOverlay show={isLoading} />
       <div className="flex flex-row items-center">
         <div className="me-8 text-xl">
           <h1>File Upload</h1>
