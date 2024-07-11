@@ -305,9 +305,7 @@ const PurchaseOrderPage: React.FC = () => {
               onChange={handleAssignedUserChange}
               className="w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              <option value="" disabled>
-                Select an associate
-              </option>
+              <option value="">Select an associate</option>
               {allUsers.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.firstName} {user.lastname}
