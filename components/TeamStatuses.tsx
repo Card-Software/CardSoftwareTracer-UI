@@ -17,9 +17,9 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
   useEffect(() => {
     if (status.length === 0) {
       setStatus([
-        { team: 'NT', teamStatus: Statuses.Pending, feedback: '' },
         { team: 'Planning', teamStatus: Statuses.Pending, feedback: '' },
         { team: 'SAC', teamStatus: Statuses.Pending, feedback: '' },
+        { team: 'NT', teamStatus: Statuses.Pending, feedback: '' },
       ]);
     }
   }, [status]);

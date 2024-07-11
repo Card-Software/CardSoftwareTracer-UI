@@ -19,6 +19,7 @@ import { teamLabelProxy } from '@/proxies/TeamLabel.proxy';
 import { useForm, Controller } from 'react-hook-form';
 import TeamStatuses from '@/components/TeamStatuses'; // Import the TeamStatuses component
 import { Status } from '@/models/Status';
+import { Site } from '@/models/Site';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -35,6 +36,7 @@ const NewProductOrder: React.FC = () => {
   const [allProductOrders, setAllProductOrders] = useState<ProductOrder[]>([]);
   const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
   const [sampleUsers, setSampleUsers] = useState<User[]>([]);
+  const [allSites, setAllSites] = useState<Site[]>([]);
   const [connectedPOs, setConnectedPOs] = useState<ProductOrder[]>([]);
   const [connectedTracerStreams, setConnectedTracerStreams] = useState<
     TracerStreamExtended[]
@@ -53,6 +55,8 @@ const NewProductOrder: React.FC = () => {
           console.error('Organization not found');
           return;
         }
+
+        setAllSites(organization.sites || []);
 
         const productOrders =
           await orderManagementApiProxy.getAllProductOrders();
@@ -84,6 +88,10 @@ const NewProductOrder: React.FC = () => {
         message: 'This field is required',
       });
     }
+  };
+
+  const handleSiteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setValue('siteRef', e.target.value);
   };
 
   const handleStatusChange = (newStatuses: Status[]) => {
@@ -211,6 +219,25 @@ const NewProductOrder: React.FC = () => {
           </div>
         </div>
         <div className="space-between mb-4 flex gap-5">
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Site
+            </label>
+            <select
+              onChange={handleSiteChange}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">Select an site</option>
+              {allSites.map((site) => (
+                <option key={site.id} value={site.id}>
+                  {site.name}
+                </option>
+              ))}
+            </select>
+            {errors.assignedUser && (
+              <p className="text-sm text-red-500">This field is required</p>
+            )}
+          </div>
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
               Quantity

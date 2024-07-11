@@ -30,6 +30,7 @@ import { Status } from '@/models/Status'; // Import Status
 import { v4 as uuidv4 } from 'uuid';
 import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
 import ExportModal from '@/components/ExportModal';
+import { Site } from '@/models/Site';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -45,6 +46,7 @@ const PurchaseOrderPage: React.FC = () => {
   );
   const [selectedStream, setSelectedStream] =
     useState<TracerStreamExtended | null>(null);
+  const [allSites, setAllSites] = useState<Site[]>([]);
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
   const [isStreamModalOpen, setIsStreamModalOpen] = useState(false);
   const [streamModalMode, setStreamModalMode] = useState<'edit' | 'add'>('add');
@@ -59,6 +61,14 @@ const PurchaseOrderPage: React.FC = () => {
         const order = await orderManagementApiProxy.getProductOrder(
           poNumber as string,
         );
+        if (order.statuses.length === 0) {
+          order.statuses = [
+            { team: 'Planning', teamStatus: 'Pending', feedback: '' },
+            { team: 'SAC', teamStatus: 'Pending', feedback: '' },
+            { team: 'NT', teamStatus: 'Pending', feedback: '' },
+          ];
+        }
+        setAllSites(userAuthenticationService.getOrganization()?.sites || []);
         setIsLoading(false);
         setProductOrder(order);
         setStatuses(order.statuses || []); // Set initial statuses
@@ -114,6 +124,13 @@ const PurchaseOrderPage: React.FC = () => {
     }
   };
 
+  const handleSiteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const siteRef = e.target.value;
+    setProductOrder((prevOrder) => ({
+      ...prevOrder!,
+      siteRef: siteRef,
+    }));
+  };
   const handleStatusChange = (newStatuses: Status[]) => {
     setStatuses(newStatuses);
     if (productOrder) {
@@ -209,12 +226,14 @@ const PurchaseOrderPage: React.FC = () => {
     includedSections: SectionModel[],
   ) => {
     if (!productOrder) return;
+    setIsLoading(true);
     const result = await fileManagementService.downloadFilesFromS3Bucket(
       stream,
       productOrder,
       includedSections,
     );
 
+    setIsExportModalOpen(false);
     if (result) {
       alert('Files downloaded successfully!');
     } else {
@@ -281,95 +300,114 @@ const PurchaseOrderPage: React.FC = () => {
             </div>
           </div>
 
-          <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2 w-40 truncate text-right">
-              PO Number:
-            </strong>
-            <span className="flex-grow">{productOrder.productOrderNumber}</span>
-          </DetailItem>
+          <div className="space-between mb-4 flex gap-5">
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                PO Number
+              </label>
+              <span className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900">
+                {productOrder.productOrderNumber}
+              </span>
+            </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                External PO Number
+              </label>
+              <input
+                type="text"
+                id="externalProductOrderNumber"
+                name="externalProductOrderNumber"
+                value={productOrder.externalProductOrderNumber}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Client
+              </label>
+              <input
+                type="text"
+                id="client"
+                name="client"
+                value={productOrder.client}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
 
-          <DetailItem className="mb-4 flex items-center">
-            <strong className="w-50 mr-2 truncate text-right">
-              External PO Number:
-            </strong>
-            <input
-              type="text"
-              id="externalProductOrderNumber"
-              name="externalProductOrderNumber"
-              value={productOrder.externalProductOrderNumber}
-              onChange={handleProductOrderChange}
-              className="w-60 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
-            />
-          </DetailItem>
+          <div className="space-between mb-4 flex gap-5">
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Site
+              </label>
+              <select
+                value={productOrder.siteRef}
+                onChange={handleSiteChange}
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">Select an site</option>
+                {allSites.map((site) => (
+                  <option key={site.id} value={site.id}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Assigned to
+              </label>
+              <select
+                value={productOrder.assignedUser?.id}
+                onChange={handleAssignedUserChange}
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">Select an associate</option>
+                {allUsers.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.firstName} {user.lastname}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Quantity
+              </label>
+              <input
+                type="number"
+                id="quantity"
+                name="quantity"
+                value={productOrder.quantity}
+                onChange={(e) =>
+                  setProductOrder({
+                    ...productOrder,
+                    quantity: Number(e.target.value),
+                  })
+                }
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
 
-          <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2 w-40 truncate text-right">
-              Assigned to:
-            </strong>
-            <select
-              value={productOrder.assignedUser?.id}
-              onChange={handleAssignedUserChange}
-              className="w-60 rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">Select an associate</option>
-              {allUsers.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastname}
-                </option>
-              ))}
-            </select>
-          </DetailItem>
+          <div className="space-between mb-4 flex gap-5">
+            <div className="form-box w-full">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Description
+              </label>
+              <textarea
+                placeholder="Provide Description"
+                id="description"
+                name="description"
+                value={productOrder.description}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
 
-          <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2 w-40 truncate text-right">Client:</strong>
-            <input
-              type="text"
-              id="client"
-              name="client"
-              value={productOrder.client}
-              onChange={handleProductOrderChange}
-              className="w-60 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
-            />
-          </DetailItem>
-
-          <DetailItem className="mb-4 flex items-center">
-            <label
-              htmlFor="quantity"
-              className="mr-2 block w-40 truncate text-right"
-            >
-              <strong>Quantity:</strong>
-            </label>
-            <input
-              type="number"
-              id="quantity"
-              name="quantity"
-              value={productOrder.quantity}
-              onChange={(e) =>
-                setProductOrder({
-                  ...productOrder,
-                  quantity: Number(e.target.value),
-                })
-              }
-              className="w-60 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
-            />
-          </DetailItem>
-
-          <DetailItem className="mb-4 flex items-center">
-            <label
-              htmlFor="description"
-              className="mr-2 block w-40 truncate text-right"
-            >
-              <strong>Description:</strong>
-            </label>
-            <textarea
-              placeholder="Provide Description"
-              id="description"
-              name="description"
-              value={productOrder.description}
-              onChange={handleProductOrderChange}
-              className="w-80 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
-            />
-          </DetailItem>
           <div className="my-6">
             <TeamStatuses
               originalStatus={statuses}
@@ -481,7 +519,7 @@ const PurchaseOrderPage: React.FC = () => {
                             {section.teamLabels &&
                               section.teamLabels.length > 0 && (
                                 <DetailItem>
-                                  <strong>Team Labels:</strong>
+                                  <strong>Labels:</strong>
                                   <ul className="flex gap-2">
                                     {section.teamLabels.map((label) => (
                                       <li

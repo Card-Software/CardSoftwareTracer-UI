@@ -62,7 +62,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const handleExport = () => {
-    setLoading(true);
+    setLoading(false);
     onExport(selectedSections);
   };
 
@@ -113,7 +113,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
             )}
           </div>
           <div className="mt-4">
-            <h3>Team Labels</h3>
+            <h3>Labels</h3>
             {teamLabels.map((label) => (
               <div key={label.id} className="flex items-center space-x-2">
                 <input
