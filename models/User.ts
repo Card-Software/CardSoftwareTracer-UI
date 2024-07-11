@@ -11,7 +11,7 @@ export interface User {
   id?: string;
   email?: string;
   password?: string;
-  organization: Organization[]; // Organization type is assumed to be defined elsewhere
+  organizationRef: string; // Organization type is assumed to be defined elsewhere
   roles: Dictionary; // Dictionary type is defined below
   firstName: string;
   lastname: string;

@@ -55,11 +55,12 @@ const Details = () => {
   const [currentProcess, setCurrentProcess] = useState<Section | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
   const [tracerStream, setTracerStream] = useState<TracerStream>({
     name: '',
     description: '',
     notes: [],
-    owner: userAuthenticationService.getOrganization() as Organization,
+    ownerRef: userAuthenticationService.getOrganization()?.id || '',
     sections: [],
   });
 
@@ -135,7 +136,8 @@ const Details = () => {
       files: [],
       fileNameOnExport: '',
       isRequired: true,
-      owner: organization,
+      ownerRef: organization.id,
+      teamLabels: [],
     });
   };
 
@@ -143,11 +145,13 @@ const Details = () => {
     setModalTitle(title);
     setCurrentProcess(section);
     setIsModalOpen(true);
+    setScrollPosition(window.scrollY); // Save the scroll position
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentProcess(null);
+    window.scrollTo(0, scrollPosition); // Restore the scroll position
   };
 
   const saveSection = (data: Section) => {
@@ -281,6 +285,21 @@ const Details = () => {
                             <p className="text-sm text-gray-500">
                               Position: {section.position}
                             </p>
+                            {section.teamLabels.length > 0 && (
+                              <div>
+                                <p className="text-sm text-gray-500">Labels:</p>
+                                <div className="flex space-x-2">
+                                  {section.teamLabels.map((label) => (
+                                    <span
+                                      key={label.id}
+                                      className="rounded-full bg-white px-3 py-1 text-sm text-gray-700"
+                                    >
+                                      {label.labelName}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center space-x-2">
                             <button

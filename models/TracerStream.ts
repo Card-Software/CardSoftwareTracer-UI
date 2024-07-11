@@ -8,7 +8,7 @@ export interface TracerStream {
   description: string;
   notes: Note[];
   sections: Section[];
-  owner: Organization;
+  ownerRef: string;
 }
 
 export interface TracerStreamExtended extends TracerStream {
