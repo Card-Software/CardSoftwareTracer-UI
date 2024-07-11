@@ -41,30 +41,32 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
   };
 
   return (
-    <div className="flex flex-row gap-4">
+    <div className="rounded-lg border bg-white p-6 shadow-lg">
       {status.map((s) => (
-        <div key={s.team} className="flex items-center gap-4">
-          <label className="font-semibold text-gray-700">{s.team}</label>
-          <select
-            value={s.teamStatus}
-            onChange={(e) => handleStatusChange(s.team, e.target.value)}
-            className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            {Object.values(Statuses).map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-          {s.teamStatus === Statuses.Returned && (
-            <textarea
-              placeholder="Provide feedback"
-              value={s.feedback}
-              onChange={(e) => handleFeedbackChange(s.team, e.target.value)}
-              required
-              className="ml-4 rounded-md border border-gray-300 p-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            ></textarea>
-          )}
+        <div key={s.team} className="mb-6">
+          <div className="flex flex-col gap-2">
+            <label className="font-semibold text-gray-800">{s.team}</label>
+            <select
+              value={s.teamStatus}
+              onChange={(e) => handleStatusChange(s.team, e.target.value)}
+              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              {Object.values(Statuses).map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+            {s.teamStatus === Statuses.Returned && (
+              <textarea
+                placeholder="Provide feedback"
+                value={s.feedback}
+                onChange={(e) => handleFeedbackChange(s.team, e.target.value)}
+                required
+                className="mt-4 rounded-md border border-gray-300 p-4 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              ></textarea>
+            )}
+          </div>
         </div>
       ))}
     </div>

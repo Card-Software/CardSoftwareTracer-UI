@@ -282,28 +282,28 @@ const PurchaseOrderPage: React.FC = () => {
           </div>
 
           <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2">PO Number:</strong>
-            <span>{productOrder.productOrderNumber}</span>
+            <strong className="mr-2 w-40 truncate">PO Number:</strong>
+            <span className="flex-grow">{productOrder.productOrderNumber}</span>
           </DetailItem>
 
           <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2">External PO Number:</strong>
+            <strong className="w-50 mr-2 truncate">External PO Number:</strong>
             <input
               type="text"
               id="externalProductOrderNumber"
               name="externalProductOrderNumber"
               value={productOrder.externalProductOrderNumber}
               onChange={handleProductOrderChange}
-              className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
+              className="w-60 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
             />
           </DetailItem>
 
-          <DetailItem className="mb-4">
-            <strong>Assigned to:</strong>
+          <DetailItem className="mb-4 flex items-center">
+            <strong className="mr-2 w-40 truncate">Assigned to:</strong>
             <select
               value={productOrder.assignedUser?.id}
               onChange={handleAssignedUserChange}
-              className="w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-60 rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">Select an associate</option>
               {allUsers.map((user) => (
@@ -314,20 +314,20 @@ const PurchaseOrderPage: React.FC = () => {
             </select>
           </DetailItem>
 
-          <DetailItem className="mb-4">
-            <strong>Client:</strong>
+          <DetailItem className="mb-4 flex items-center">
+            <strong className="mr-2 w-40 truncate">Client:</strong>
             <input
               type="text"
               id="client"
               name="client"
               value={productOrder.client}
               onChange={handleProductOrderChange}
-              className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
+              className="w-60 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
             />
           </DetailItem>
 
           <DetailItem className="mb-4 flex items-center">
-            <label htmlFor="quantity" className="mr-2 block">
+            <label htmlFor="quantity" className="mr-2 block w-40 truncate">
               <strong>Quantity:</strong>
             </label>
             <input
@@ -341,12 +341,12 @@ const PurchaseOrderPage: React.FC = () => {
                   quantity: Number(e.target.value),
                 })
               }
-              className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
+              className="w-60 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
             />
           </DetailItem>
 
-          <DetailItem className="mb-4">
-            <label htmlFor="description" className="block">
+          <DetailItem className="mb-4 flex items-center">
+            <label htmlFor="description" className="mr-2 block w-40 truncate">
               <strong>Description:</strong>
             </label>
             <input
@@ -355,14 +355,15 @@ const PurchaseOrderPage: React.FC = () => {
               name="description"
               value={productOrder.description}
               onChange={handleProductOrderChange}
-              className="w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
+              className="w-80 rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-teal-600 focus:ring-teal-600"
             />
           </DetailItem>
-
-          <TeamStatuses
-            originalStatus={statuses}
-            onChange={handleStatusChange}
-          />
+          <div className="my-6">
+            <TeamStatuses
+              originalStatus={statuses}
+              onChange={handleStatusChange}
+            />
+          </div>
 
           <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
