@@ -282,12 +282,16 @@ const PurchaseOrderPage: React.FC = () => {
           </div>
 
           <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2 w-40 truncate">PO Number:</strong>
+            <strong className="mr-2 w-40 truncate text-right">
+              PO Number:
+            </strong>
             <span className="flex-grow">{productOrder.productOrderNumber}</span>
           </DetailItem>
 
           <DetailItem className="mb-4 flex items-center">
-            <strong className="w-50 mr-2 truncate">External PO Number:</strong>
+            <strong className="w-50 mr-2 truncate text-right">
+              External PO Number:
+            </strong>
             <input
               type="text"
               id="externalProductOrderNumber"
@@ -299,7 +303,9 @@ const PurchaseOrderPage: React.FC = () => {
           </DetailItem>
 
           <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2 w-40 truncate">Assigned to:</strong>
+            <strong className="mr-2 w-40 truncate text-right">
+              Assigned to:
+            </strong>
             <select
               value={productOrder.assignedUser?.id}
               onChange={handleAssignedUserChange}
@@ -315,7 +321,7 @@ const PurchaseOrderPage: React.FC = () => {
           </DetailItem>
 
           <DetailItem className="mb-4 flex items-center">
-            <strong className="mr-2 w-40 truncate">Client:</strong>
+            <strong className="mr-2 w-40 truncate text-right">Client:</strong>
             <input
               type="text"
               id="client"
@@ -327,7 +333,10 @@ const PurchaseOrderPage: React.FC = () => {
           </DetailItem>
 
           <DetailItem className="mb-4 flex items-center">
-            <label htmlFor="quantity" className="mr-2 block w-40 truncate">
+            <label
+              htmlFor="quantity"
+              className="mr-2 block w-40 truncate text-right"
+            >
               <strong>Quantity:</strong>
             </label>
             <input
@@ -346,11 +355,14 @@ const PurchaseOrderPage: React.FC = () => {
           </DetailItem>
 
           <DetailItem className="mb-4 flex items-center">
-            <label htmlFor="description" className="mr-2 block w-40 truncate">
+            <label
+              htmlFor="description"
+              className="mr-2 block w-40 truncate text-right"
+            >
               <strong>Description:</strong>
             </label>
-            <input
-              type="text"
+            <textarea
+              placeholder="Provide Description"
               id="description"
               name="description"
               value={productOrder.description}

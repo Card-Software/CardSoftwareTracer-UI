@@ -41,7 +41,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
   };
 
   return (
-    <div className="rounded-lg border bg-white p-6 shadow-lg">
+    <div className="flex flex-row justify-between rounded-lg border bg-white p-6 shadow-lg">
       {status.map((s) => (
         <div key={s.team} className="mb-6">
           <div className="flex flex-col gap-2">
@@ -49,7 +49,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
             <select
               value={s.teamStatus}
               onChange={(e) => handleStatusChange(s.team, e.target.value)}
-              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-48 rounded-md border border-gray-300 px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               {Object.values(Statuses).map((status) => (
                 <option key={status} value={status}>
@@ -63,7 +63,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
                 value={s.feedback}
                 onChange={(e) => handleFeedbackChange(s.team, e.target.value)}
                 required
-                className="mt-4 rounded-md border border-gray-300 p-4 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-4 w-64 rounded-md border border-gray-300 p-4 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               ></textarea>
             )}
           </div>
