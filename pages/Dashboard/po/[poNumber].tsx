@@ -524,7 +524,7 @@ const PurchaseOrderPage: React.FC = () => {
                                     {section.teamLabels.map((label) => (
                                       <li
                                         key={label.id}
-                                        className="rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
+                                        className="max-w-[115px] truncate rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
                                       >
                                         {label.labelName}
                                       </li>

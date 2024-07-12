@@ -26,6 +26,18 @@ const Dashboard: React.FC = () => {
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
+
+  const [filterInputs, setFilterInputs] = useState<PoSearchFilters>({
+    productOrderNumber: '',
+    externalPoNumber: '',
+    startDate: null,
+    endDate: null,
+    siteRef: '',
+    planningStatus: '',
+    ntStatus: '',
+    sacStatus: '',
+  });
+
   const [filterValues, setFilterValues] = useState<PoSearchFilters>({
     productOrderNumber: '',
     externalPoNumber: '',
@@ -85,30 +97,22 @@ const Dashboard: React.FC = () => {
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFilterValues({
-      ...filterValues,
+    setFilterInputs({
+      ...filterInputs,
       [e.target.name]: e.target.value,
     });
   };
 
   const handleDateChange = (name: string, date: Date | null) => {
-    setFilterValues({
-      ...filterValues,
+    setFilterInputs({
+      ...filterInputs,
       [name]: date ? moment(date) : null,
     });
   };
 
-  const applyFilters = async () => {
+  const applyFilters = () => {
+    setFilterValues(filterInputs);
     setPageNumber(1); // Reset to first page when applying filters
-    const response: AllResponse =
-      await orderManagementApiProxy.searchProductOrdersByFilters(
-        filterValues,
-        1,
-        pageSize,
-      );
-    setProductOrders(response.results);
-    setFilteredProductOrders(response.results);
-    setTotalResults(response.totalResults);
   };
 
   const handlePageChange = (newPageNumber: number) => {
@@ -153,7 +157,7 @@ const Dashboard: React.FC = () => {
                 type="text"
                 name="productOrderNumber"
                 id="productOrderName"
-                value={filterValues.productOrderNumber || ''}
+                value={filterInputs.productOrderNumber || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
@@ -169,7 +173,7 @@ const Dashboard: React.FC = () => {
                 type="text"
                 name="externalPoNumber"
                 id="externalPoNumber"
-                value={filterValues.externalPoNumber || ''}
+                value={filterInputs.externalPoNumber || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
@@ -184,8 +188,8 @@ const Dashboard: React.FC = () => {
               </label>
               <DatePicker
                 selected={
-                  filterValues.startDate
-                    ? filterValues.startDate.toDate()
+                  filterInputs.startDate
+                    ? filterInputs.startDate.toDate()
                     : null
                 }
                 onChange={(date) => handleDateChange('startDate', date)}
@@ -202,7 +206,7 @@ const Dashboard: React.FC = () => {
               </label>
               <DatePicker
                 selected={
-                  filterValues.endDate ? filterValues.endDate.toDate() : null
+                  filterInputs.endDate ? filterInputs.endDate.toDate() : null
                 }
                 onChange={(date) => handleDateChange('endDate', date)}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
@@ -240,7 +244,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="planningStatus"
                 id="planningStatus"
-                value={filterValues.planningStatus || ''}
+                value={filterInputs.planningStatus || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
@@ -262,7 +266,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="ntStatus"
                 id="ntStatus"
-                value={filterValues.ntStatus || ''}
+                value={filterInputs.ntStatus || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
@@ -284,7 +288,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="sacStatus"
                 id="sacStatus"
-                value={filterValues.sacStatus || ''}
+                value={filterInputs.sacStatus || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
