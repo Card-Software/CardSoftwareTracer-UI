@@ -10,6 +10,13 @@ import { ProductOrder } from '@/models/ProductOrder';
 import withAuth from '@/hoc/auth';
 import LoadingOverlay from '@/components/LoadingOverlay';
 import { AllResponse } from '@/models/AllResponse';
+import { PoSearchFilters } from '@/models/PoSearchFilters';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import moment from 'moment';
+import { Statuses } from '@/models/enum/statuses';
+import { Site } from '@/models/Site';
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -19,11 +26,12 @@ const Dashboard: React.FC = () => {
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
-  const [filterValues, setFilterValues] = useState({
-    productOrderName: '',
+  const [filterValues, setFilterValues] = useState<PoSearchFilters>({
+    productOrderNumber: '',
     externalPoNumber: '',
-    dateRange: '',
-    site: '',
+    startDate: null,
+    endDate: null,
+    siteRef: '',
     planningStatus: '',
     ntStatus: '',
     sacStatus: '',
@@ -32,17 +40,28 @@ const Dashboard: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(50);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
+  const [allSites, setAllSites] = useState<Site[]>([]);
 
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
   };
+
+  // get all sites
+  useEffect(() => {
+    const organization = userAuthenticationService.getOrganization();
+    if (!organization) {
+      return;
+    }
+    setAllSites(organization.sites || []);
+  }, []);
 
   useEffect(() => {
     const fetchProductOrders = async () => {
       try {
         setIsLoading(true);
         const response: AllResponse =
-          await orderManagementApiProxy.getAllProductOrders(
+          await orderManagementApiProxy.searchProductOrdersByFilters(
+            filterValues,
             pageNumber,
             pageSize,
           );
@@ -57,7 +76,7 @@ const Dashboard: React.FC = () => {
     };
 
     fetchProductOrders();
-  }, [pageNumber, pageSize]);
+  }, [filterValues, pageNumber, pageSize]);
 
   const toggleFilterVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
@@ -72,19 +91,24 @@ const Dashboard: React.FC = () => {
     });
   };
 
-  const applyFilters = () => {
-    const filteredOrders = productOrders.filter((order) => {
-      const productOrderMatch = order.productOrderNumber
-        .toLowerCase()
-        .includes(filterValues.productOrderName.toLowerCase());
-      const externalOrderMatch = (order?.externalProductOrderNumber ?? '')
-        .toLowerCase()
-        .includes(filterValues.externalPoNumber.toLowerCase());
-
-      return productOrderMatch && externalOrderMatch;
+  const handleDateChange = (name: string, date: Date | null) => {
+    setFilterValues({
+      ...filterValues,
+      [name]: date ? moment(date) : null,
     });
+  };
 
-    setFilteredProductOrders(filteredOrders);
+  const applyFilters = async () => {
+    setPageNumber(1); // Reset to first page when applying filters
+    const response: AllResponse =
+      await orderManagementApiProxy.searchProductOrdersByFilters(
+        filterValues,
+        1,
+        pageSize,
+      );
+    setProductOrders(response.results);
+    setFilteredProductOrders(response.results);
+    setTotalResults(response.totalResults);
   };
 
   const handlePageChange = (newPageNumber: number) => {
@@ -127,9 +151,9 @@ const Dashboard: React.FC = () => {
               </label>
               <input
                 type="text"
-                name="productOrderName"
+                name="productOrderNumber"
                 id="productOrderName"
-                value={filterValues.productOrderName}
+                value={filterValues.productOrderNumber || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
@@ -145,12 +169,133 @@ const Dashboard: React.FC = () => {
                 type="text"
                 name="externalPoNumber"
                 id="externalPoNumber"
-                value={filterValues.externalPoNumber}
+                value={filterValues.externalPoNumber || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
-            {/* Other filter fields here */}
+            <div></div>
+            <div>
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Start Date
+              </label>
+              <DatePicker
+                selected={
+                  filterValues.startDate
+                    ? filterValues.startDate.toDate()
+                    : null
+                }
+                onChange={(date) => handleDateChange('startDate', date)}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                dateFormat="yyyy/MM/dd"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="endDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                End Date
+              </label>
+              <DatePicker
+                selected={
+                  filterValues.endDate ? filterValues.endDate.toDate() : null
+                }
+                onChange={(date) => handleDateChange('endDate', date)}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                dateFormat="yyyy/MM/dd"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="siteRef"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Site
+              </label>
+              <select
+                name="siteRef"
+                id="siteRef"
+                onChange={handleFilterChange}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select an site</option>
+                {allSites.map((site) => (
+                  <option key={site.id} value={site.id}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="planningStatus"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Planning Status
+              </label>
+              <select
+                name="planningStatus"
+                id="planningStatus"
+                value={filterValues.planningStatus || ''}
+                onChange={handleFilterChange}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select Status</option>
+                {Object.values(Statuses).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="ntStatus"
+                className="block text-sm font-medium text-gray-700"
+              >
+                NT Status
+              </label>
+              <select
+                name="ntStatus"
+                id="ntStatus"
+                value={filterValues.ntStatus || ''}
+                onChange={handleFilterChange}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select Status</option>
+                {Object.values(Statuses).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="sacStatus"
+                className="block text-sm font-medium text-gray-700"
+              >
+                SAC Status
+              </label>
+              <select
+                name="sacStatus"
+                id="sacStatus"
+                value={filterValues.sacStatus || ''}
+                onChange={handleFilterChange}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select Status</option>
+                {Object.values(Statuses).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="col-span-3 flex justify-end">
               <button
                 onClick={applyFilters}
