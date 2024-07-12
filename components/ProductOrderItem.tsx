@@ -10,13 +10,14 @@ interface ProductOrderProps {
 
 const ProductOrderItem: React.FC<ProductOrderProps> = ({ productOrder }) => {
   const poNumber = productOrder.productOrderNumber;
+  const poNumberUri = encodeURIComponent(poNumber);
   const assignedTo = productOrder.assignedUser
     ? `${productOrder.assignedUser.firstName} ${productOrder.assignedUser.lastname}`
     : 'Unassigned';
-  const dueDate = new Date(productOrder.createdDate).toLocaleDateString();
+  const dateCreated = new Date(productOrder.createdDate).toLocaleDateString();
 
   return (
-    <Link href={`Dashboard/po/${poNumber}`}>
+    <Link href={`Dashboard/po/${poNumberUri}`}>
       <div className="mb-8 max-w-72 rounded border border-black p-4">
         <h2>PO {poNumber}</h2>
         <ProgressBar productOrder={productOrder} />
@@ -24,7 +25,7 @@ const ProductOrderItem: React.FC<ProductOrderProps> = ({ productOrder }) => {
           Assigned to: <HiUser className="ml-2" />
           <span>{assignedTo}</span>
         </div>
-        <div className="mt-2">Due Date: {dueDate}</div>
+        <div className="mt-2">Date Created: {dateCreated}</div>
       </div>
     </Link>
   );

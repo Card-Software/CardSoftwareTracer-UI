@@ -9,6 +9,7 @@ import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
 import withAuth from '@/hoc/auth';
 import LoadingOverlay from '@/components/LoadingOverlay';
+import { AllResponse } from '@/models/AllResponse';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -28,6 +29,10 @@ const Dashboard: React.FC = () => {
     sacStatus: '',
   });
 
+  const [pageSize, setPageSize] = useState<number>(50);
+  const [pageNumber, setPageNumber] = useState<number>(1);
+  const [totalResults, setTotalResults] = useState<number>(0);
+
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
   };
@@ -36,9 +41,14 @@ const Dashboard: React.FC = () => {
     const fetchProductOrders = async () => {
       try {
         setIsLoading(true);
-        const orders = await orderManagementApiProxy.getAllProductOrders();
-        setProductOrders(orders);
-        setFilteredProductOrders(orders);
+        const response: AllResponse =
+          await orderManagementApiProxy.getAllProductOrders(
+            pageNumber,
+            pageSize,
+          );
+        setProductOrders(response.results);
+        setFilteredProductOrders(response.results);
+        setTotalResults(response.totalResults);
       } catch (error) {
         console.error('Failed to fetch product orders:', error);
       } finally {
@@ -47,7 +57,7 @@ const Dashboard: React.FC = () => {
     };
 
     fetchProductOrders();
-  }, []);
+  }, [pageNumber, pageSize]);
 
   const toggleFilterVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
@@ -63,12 +73,22 @@ const Dashboard: React.FC = () => {
   };
 
   const applyFilters = () => {
-    const filteredOrders = productOrders.filter((order) =>
-      order.productOrderNumber
+    const filteredOrders = productOrders.filter((order) => {
+      const productOrderMatch = order.productOrderNumber
         .toLowerCase()
-        .includes(filterValues.productOrderName.toLowerCase()),
-    );
+        .includes(filterValues.productOrderName.toLowerCase());
+      const externalOrderMatch = (order?.externalProductOrderNumber ?? '')
+        .toLowerCase()
+        .includes(filterValues.externalPoNumber.toLowerCase());
+
+      return productOrderMatch && externalOrderMatch;
+    });
+
     setFilteredProductOrders(filteredOrders);
+  };
+
+  const handlePageChange = (newPageNumber: number) => {
+    setPageNumber(newPageNumber);
   };
 
   return (
@@ -86,13 +106,13 @@ const Dashboard: React.FC = () => {
           />
         </div>
         <div className="ml-auto">
-          {/* <button
+          <button
             onClick={toggleFilterVisibility}
             className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
           >
             <HiFilter className="mr-2 inline-block" />
             Filter
-          </button> */}
+          </button>
         </div>
       </div>
       {isFilterVisible && (
@@ -110,6 +130,22 @@ const Dashboard: React.FC = () => {
                 name="productOrderName"
                 id="productOrderName"
                 value={filterValues.productOrderName}
+                onChange={handleFilterChange}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="externalPoNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
+                External Product Order
+              </label>
+              <input
+                type="text"
+                name="externalPoNumber"
+                id="externalPoNumber"
+                value={filterValues.externalPoNumber}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
@@ -138,6 +174,26 @@ const Dashboard: React.FC = () => {
           <p>No product orders available.</p>
         )}
       </div>
+      <footer className="footer-class sticky bottom-0 mb-2 flex items-center justify-between bg-gray-800 p-4">
+        <span className="text-white">Total Results: {totalResults}</span>
+        <div>
+          <button
+            onClick={() => handlePageChange(pageNumber - 1)}
+            disabled={pageNumber === 1}
+            className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="mx-4 text-white">Page {pageNumber}</span>
+          <button
+            onClick={() => handlePageChange(pageNumber + 1)}
+            disabled={pageNumber * pageSize >= totalResults}
+            className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      </footer>
     </Layout>
   );
 };

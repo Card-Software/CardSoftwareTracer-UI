@@ -1,4 +1,5 @@
 import ProdcutOrder from '@/components/ProductOrderItem';
+import { AllResponse } from '@/models/AllResponse';
 import { ProductOrder } from '@/models/ProductOrder';
 import { TracerStream } from '@/models/TracerStream';
 import { WholeSaleOrder } from '@/models/WholeSaleOrder';
@@ -74,8 +75,9 @@ class OrderManagementApiProxy {
   }
 
   async getProductOrder(id: string): Promise<ProductOrder> {
+    const encoedUri = encodeURIComponent(id);
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/get/${id}`,
+      `${this.deployedUrl}ProductOrderController/get/${encoedUri}`,
     );
     return await response.json();
   }
@@ -104,9 +106,12 @@ class OrderManagementApiProxy {
     });
   }
 
-  async getAllProductOrders(): Promise<ProductOrder[]> {
+  async getAllProductOrders(
+    pageNumber: number = 1,
+    pageSize: number = 50,
+  ): Promise<AllResponse> {
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/all`,
+      `${this.deployedUrl}ProductOrderController/all?pageNumber=${pageNumber}&pageSize=${pageSize}`,
     );
     return await response.json();
   }

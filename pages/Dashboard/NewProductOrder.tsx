@@ -58,13 +58,13 @@ const NewProductOrder: React.FC = () => {
 
         setAllSites(organization.sites || []);
 
-        const productOrders =
-          await orderManagementApiProxy.getAllProductOrders();
+        // const productOrders =
+        //   await orderManagementApiProxy.getAllProductOrders();
         const users = await organizationManagementProxy.GetAllUsers();
         const teamLabels = await teamLabelProxy.getTeamLabelsByOrganizationName(
           organization.name,
         );
-        setAllProductOrders(productOrders);
+        // setAllProductOrders(productOrders);
         setSampleUsers(users);
         setTeamLabels(teamLabels);
       } catch (error) {
