@@ -17,6 +17,7 @@ import moment from 'moment';
 import { Statuses } from '@/models/enum/statuses';
 import { Site } from '@/models/Site';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import { User } from '@/models/User';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -36,6 +37,7 @@ const Dashboard: React.FC = () => {
     planningStatus: '',
     ntStatus: '',
     sacStatus: '',
+    assignedUserRef: '',
   });
 
   const [filterValues, setFilterValues] = useState<PoSearchFilters>({
@@ -47,12 +49,14 @@ const Dashboard: React.FC = () => {
     planningStatus: '',
     ntStatus: '',
     sacStatus: '',
+    assignedUserRef: '',
   });
 
   const [pageSize, setPageSize] = useState<number>(50);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
   const [allSites, setAllSites] = useState<Site[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
@@ -65,6 +69,7 @@ const Dashboard: React.FC = () => {
       return;
     }
     setAllSites(organization.sites || []);
+    setAllUsers(organization.users || []);
   }, []);
 
   useEffect(() => {
@@ -108,6 +113,16 @@ const Dashboard: React.FC = () => {
       ...filterInputs,
       [name]: date ? moment(date) : null,
     });
+  };
+
+  const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const user = allUsers.find((u) => u.id === e.target.value);
+    if (user) {
+      setFilterInputs({
+        ...filterInputs,
+        assignedUserRef: user.id || '',
+      });
+    }
   };
 
   const applyFilters = () => {
@@ -178,7 +193,27 @@ const Dashboard: React.FC = () => {
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
-            <div></div>
+            <div>
+              <label
+                htmlFor="assignedUserRef"
+                className="block text-sm font-medium text-gray-700"
+              >
+                User
+              </label>
+              <select
+                name="assignedUserRef"
+                id="assignedUserRef"
+                onChange={handleUserChange}
+                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select an associate</option>
+                {allUsers.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.firstName} {user.lastname}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <label
                 htmlFor="startDate"

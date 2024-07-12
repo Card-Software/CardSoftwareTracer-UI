@@ -7,4 +7,5 @@ export interface PoSearchFilters {
   planningStatus: string | null;
   ntStatus: string | null;
   sacStatus: string | null;
+  assignedUserRef: string | null;
 }
