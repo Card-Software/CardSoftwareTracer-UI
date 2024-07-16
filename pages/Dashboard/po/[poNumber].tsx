@@ -54,13 +54,21 @@ const PurchaseOrderPage: React.FC = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false); // State for export modal
   const [streamToExport, setStreamToExport] =
     useState<TracerStreamExtended | null>(null);
+  const [childrenPos, SetChildrenPos] = useState<ProductOrder[]>([]);
+
   useEffect(() => {
     const fetchOrderDetails = async () => {
       if (poNumber) {
         setIsLoading(true);
+
         const order = await orderManagementApiProxy.getProductOrder(
           poNumber as string,
         );
+
+        if (order.childrenPosReferences.length > 0) {
+          getChildrenPos(order.childrenPosReferences);
+        }
+
         if (order.statuses.length === 0) {
           order.statuses = [
             { team: 'Planning', teamStatus: 'Pending', feedback: '' },
@@ -131,6 +139,16 @@ const PurchaseOrderPage: React.FC = () => {
       siteRef: siteRef,
     }));
   };
+
+  const getChildrenPos = async (productOrderNumbers: string[]) => {
+    const childrenPos = await Promise.all(
+      productOrderNumbers.map((ref) =>
+        orderManagementApiProxy.getProductOrder(ref),
+      ),
+    );
+    SetChildrenPos(childrenPos);
+  };
+
   const handleStatusChange = (newStatuses: Status[]) => {
     setStatuses(newStatuses);
     if (productOrder) {
@@ -343,7 +361,7 @@ const PurchaseOrderPage: React.FC = () => {
                 Site
               </label>
               <select
-                value={productOrder.siteRef}
+                value={productOrder.siteRef || ''}
                 onChange={handleSiteChange}
                 className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
@@ -469,7 +487,7 @@ const PurchaseOrderPage: React.FC = () => {
                       <React.Fragment key={section.sectionId}>
                         <SectionCard
                           onClick={() => handleSectionClick(section, stream)}
-                          isRequired={section.isRequired}
+                          $isrequired={section.isRequired}
                         >
                           <CardTitle className="w-full">
                             {section.sectionName}
@@ -545,7 +563,7 @@ const PurchaseOrderPage: React.FC = () => {
                       <FaArrowRight size={24} />
                     </ArrowIcon>
                     <SectionCard
-                      isRequired={false}
+                      $isrequired={false}
                       onClick={() => {
                         if (!user || !organization) return;
                         handleSectionClick(
@@ -577,6 +595,27 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
           </CardContainer>
+          {childrenPos.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-bold">Linked Product Orders</h2>
+              <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {childrenPos.map((po) => (
+                  <div
+                    key={po.productOrderNumber}
+                    className="rounded-lg bg-white p-6 shadow-lg"
+                  >
+                    <h3 className="text-lg font-bold">
+                      {po.productOrderNumber} - {po.client}
+                    </h3>
+                    <p className="text-sm text-gray-500">{po.description}</p>
+                    <Link href={`/Dashboard/po/${po.productOrderNumber}`}>
+                      <p className="">View Details</p>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </Section>
       </Container>
       <footer className="stream-footer flex bg-gray-200 p-4">
@@ -608,11 +647,16 @@ const PurchaseOrderPage: React.FC = () => {
                   stream.id === selectedStream.id
                     ? {
                         ...stream,
-                        sections: stream.sections.map((section) =>
-                          section.sectionId === updatedSection.sectionId
-                            ? updatedSection
-                            : section,
-                        ),
+                        sections: stream.sections.some(
+                          (section) =>
+                            section.sectionId === updatedSection.sectionId,
+                        )
+                          ? stream.sections.map((section) =>
+                              section.sectionId === updatedSection.sectionId
+                                ? updatedSection
+                                : section,
+                            )
+                          : [...stream.sections, updatedSection],
                       }
                     : stream,
               );
@@ -721,13 +765,22 @@ const SectionContainer = styled.div`
   align-items: center;
 `;
 
-const SectionCard = styled(Card)<{ isRequired: boolean }>`
+const SectionCard = styled.div<{ $isrequired: boolean }>`
   flex: 1 1 calc(25% - 20px);
   min-width: 250px;
   max-width: 300px;
   margin-bottom: 20px;
   word-wrap: break-word;
-  background-color: ${(props) => (props.isRequired ? '#fff' : '#e5e7eb')};
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  background-color: ${(props) => (props.$isrequired ? '#fff' : '#e5e7eb')};
 `;
 
 const ArrowIcon = styled.div`

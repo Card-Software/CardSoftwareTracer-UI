@@ -3,7 +3,6 @@ import Layout from '@/app/layout';
 import '../../styles/dashboard.css';
 import TracerButton from '@/components/TracerButton';
 import { HiPlus, HiFilter } from 'react-icons/hi';
-import ProductOrderItem from '@/components/ProductOrderItem';
 import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
@@ -18,8 +17,9 @@ import { Statuses } from '@/models/enum/statuses';
 import { Site } from '@/models/Site';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import { User } from '@/models/User';
+import { reportsService } from '@/services/Reports.service';
 
-const Dashboard: React.FC = () => {
+const ManagerDashboard: React.FC = () => {
   const router = useRouter();
   const [productOrders, setProductOrders] = useState<ProductOrder[]>([]);
   const [filteredProductOrders, setFilteredProductOrders] = useState<
@@ -139,12 +139,28 @@ const Dashboard: React.FC = () => {
     setPageNumber(newPageNumber);
   };
 
+  const handleRowClick = (productOrderNumber: string) => {
+    router.push(`/Dashboard/po/${productOrderNumber}`);
+  };
+
+  const convertDateToInternationalDateString = (date: string | Date) => {
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    if (!(parsedDate instanceof Date) || isNaN(parsedDate.getTime())) {
+      throw new Error('Invalid date');
+    }
+    return parsedDate.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
       <div className="flex flex-row items-center">
         <div className="me-8 text-xl">
-          <h1>Dashboard</h1>
+          <h1>Managers Dashboard</h1>
         </div>
         <div>
           <TracerButton
@@ -352,16 +368,132 @@ const Dashboard: React.FC = () => {
         </div>
       )}
       <div className="my-8 w-full border-b-4 border-teal-700"></div>
-      <div className="grid grid-cols-3 gap-4">
-        {filteredProductOrders.length > 0 ? (
-          filteredProductOrders.map((order) => (
-            <div key={order.productOrderNumber}>
-              <ProductOrderItem productOrder={order} />
-            </div>
-          ))
-        ) : (
-          <p>No product orders available.</p>
-        )}
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                Product Order Number
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                External Product Order
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                Site
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                Date Created
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                Planning Completion
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                Planning Status
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                NT Completion
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                NT Status
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                SAC Completion
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                SAC Status
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {filteredProductOrders.length > 0 ? (
+              filteredProductOrders.map((order) => {
+                const progress = reportsService.getProgressPercentagesAllTeams(
+                  order.childrenTracerStreams[0],
+                );
+
+                return (
+                  <tr
+                    key={order.productOrderNumber}
+                    onClick={() => handleRowClick(order.productOrderNumber)}
+                  >
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {order.productOrderNumber}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {order.externalProductOrderNumber}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {allSites.find((site) => site.id === order.siteRef)?.name}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {convertDateToInternationalDateString(order.createdDate)}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {progress.planning}%
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {
+                        order.statuses.find((s) => s.team === 'Planning')
+                          ?.teamStatus
+                      }
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {progress.nt}%
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {order.statuses.find((s) => s.team === 'NT')?.teamStatus}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {progress.sac}%
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {order.statuses.find((s) => s.team === 'SAC')?.teamStatus}
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500"
+                >
+                  No product orders available.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
       <footer className="footer-class sticky bottom-0 mb-2 flex items-center justify-between bg-gray-800 p-4">
         <span className="text-white">Total Results: {totalResults}</span>
@@ -387,4 +519,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default withAuth(Dashboard);
+export default withAuth(ManagerDashboard);
