@@ -58,18 +58,12 @@ const Dashboard: React.FC = () => {
   const [allSites, setAllSites] = useState<Site[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
 
-  const handleNewProductOrder = () => {
-    router.push('/Dashboard/NewProductOrder');
-  };
-
-  // get all sites
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
-    if (!organization) {
-      return;
+    if (organization) {
+      setAllSites(organization.sites || []);
+      setAllUsers(organization.users || []);
     }
-    setAllSites(organization.sites || []);
-    setAllUsers(organization.users || []);
   }, []);
 
   useEffect(() => {
@@ -134,18 +128,44 @@ const Dashboard: React.FC = () => {
     setPageNumber(newPageNumber);
   };
 
+  const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this product order?',
+    );
+    if (confirmDelete) {
+      try {
+        setIsLoading(true);
+        await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
+        setProductOrders(
+          productOrders.filter((order) => order.id !== orderToDelete.id),
+        );
+        setFilteredProductOrders(
+          filteredProductOrders.filter(
+            (order) => order.id !== orderToDelete.id,
+          ),
+        );
+        alert('Product Order deleted successfully!');
+      } catch (error) {
+        console.error('Failed to delete Product Order', error);
+        alert('Failed to delete Product Order');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
       <div className="flex flex-row items-center">
         <div className="me-8 text-xl">
-          <h1>File Upload</h1>
+          <h1>Dashboard</h1>
         </div>
         <div>
           <TracerButton
             name="Add New PO"
             icon={<HiPlus />}
-            onClick={handleNewProductOrder}
+            onClick={() => router.push('/Dashboard/NewProductOrder')}
           />
         </div>
         <div className="ml-auto">
@@ -350,9 +370,11 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-3 gap-4">
         {filteredProductOrders.length > 0 ? (
           filteredProductOrders.map((order) => (
-            <div key={order.productOrderNumber}>
-              <ProductOrderItem productOrder={order} />
-            </div>
+            <ProductOrderItem
+              key={order.id}
+              productOrder={order}
+              handleDeleteProductOrder={handleDeleteProductOrder}
+            />
           ))
         ) : (
           <p>No product orders available.</p>
