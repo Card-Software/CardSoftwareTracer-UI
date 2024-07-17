@@ -23,6 +23,5 @@ export interface ProductOrder {
   quantity?: number; // this is the total quantity of the product in the PO. If 0, then we dont want to track quantity.
   childrenTracerStreams: TracerStreamExtended[]; // this will have the quantity of each tracer stream that should add to parent PO.
   childrenPosReferences: string[]; //both of this will have quanitities that should add to parent PO.
-  teamLabels: TeamLabel[];
   siteRef?: string;
 }

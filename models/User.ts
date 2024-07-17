@@ -1,5 +1,3 @@
-import { Organization } from './Organization';
-
 export enum Role {
   Manager = 1,
   User,
@@ -12,11 +10,7 @@ export interface User {
   email?: string;
   password?: string;
   organizationRef: string; // Organization type is assumed to be defined elsewhere
-  roles: Dictionary; // Dictionary type is defined below
+  roles: []; // Dictionary type is defined below
   firstName: string;
   lastname: string;
-}
-
-export interface Dictionary {
-  keyValuePairs: { [key: string]: Role };
 }
