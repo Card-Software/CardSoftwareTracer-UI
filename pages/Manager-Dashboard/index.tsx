@@ -18,6 +18,7 @@ import { Site } from '@/models/Site';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import { User } from '@/models/User';
 import { reportsService } from '@/services/Reports.service';
+import { FaFileExport } from 'react-icons/fa';
 
 const ManagerDashboard: React.FC = () => {
   const router = useRouter();
@@ -57,6 +58,10 @@ const ManagerDashboard: React.FC = () => {
   const [totalResults, setTotalResults] = useState<number>(0);
   const [allSites, setAllSites] = useState<Site[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: string;
+  } | null>(null);
 
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
@@ -155,6 +160,73 @@ const ManagerDashboard: React.FC = () => {
     });
   };
 
+  const handleExportToCsv = async () => {
+    try {
+      setIsLoading(true);
+      const blob =
+        await orderManagementApiProxy.convertSearchToCsv(filterValues);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      setIsLoading(false);
+      a.download = 'Report.csv';
+      a.click();
+    } catch (error) {
+      setIsLoading(false);
+      console.error('Failed to export to CSV:');
+    }
+  };
+
+  const handleSort = (key: string) => {
+    let direction = 'ascending';
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === 'ascending'
+    ) {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedProductOrders = React.useMemo(() => {
+    const sortKeys = [
+      'productOrderNumber',
+      'externalProductOrderNumber',
+      'siteRef',
+      'createdDate',
+      'planningCompletion',
+      'planningStatus',
+      'ntCompletion',
+      'ntStatus',
+      'sacCompletion',
+      'sacStatus',
+    ] as const;
+
+    type SortKey = (typeof sortKeys)[number];
+
+    function isSortKey(key: string): key is SortKey {
+      return sortKeys.includes(key as SortKey);
+    }
+
+    if (sortConfig !== null && isSortKey(sortConfig.key)) {
+      const sortedOrders = [...filteredProductOrders].sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof ProductOrder] ?? ''; // Add nullish coalescing operator
+        const bValue = b[sortConfig.key as keyof ProductOrder] ?? ''; // Add nullish coalescing operator
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+      return sortedOrders;
+    }
+    return filteredProductOrders;
+  }, [filteredProductOrders, sortConfig]);
+
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
@@ -162,11 +234,18 @@ const ManagerDashboard: React.FC = () => {
         <div className="me-8 text-xl">
           <h1>Managers Dashboard</h1>
         </div>
-        <div>
+        <div className="">
           <TracerButton
             name="Add New PO"
             icon={<HiPlus />}
             onClick={handleNewProductOrder}
+          />
+        </div>
+        <div className="ml-3">
+          <TracerButton
+            name="Export"
+            icon={<FaFileExport />}
+            onClick={handleExportToCsv}
           />
         </div>
         <div className="ml-auto">
@@ -374,69 +453,79 @@ const ManagerDashboard: React.FC = () => {
             <tr>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('productOrderNumber')}
               >
                 Product Order Number
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('externalProductOrderNumber')}
               >
                 External Product Order
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('siteRef')}
               >
                 Site
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('createdDate')}
               >
                 Date Created
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('planningCompletion')}
               >
                 Planning Completion
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('planningStatus')}
               >
                 Planning Status
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('ntCompletion')}
               >
                 NT Completion
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('ntStatus')}
               >
                 NT Status
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('sacCompletion')}
               >
                 SAC Completion
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('sacStatus')}
               >
                 SAC Status
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {filteredProductOrders.length > 0 ? (
-              filteredProductOrders.map((order) => {
+            {sortedProductOrders.length > 0 ? (
+              sortedProductOrders.map((order) => {
                 const progress = reportsService.getProgressPercentagesAllTeams(
                   order.childrenTracerStreams[0],
                 );

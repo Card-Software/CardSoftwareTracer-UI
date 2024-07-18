@@ -18,6 +18,7 @@ import SectionModal from '@/components/SectionModal';
 import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure the path is correct
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import withAuth from '@/hoc/auth';
+import { User } from '@/models/User';
 
 interface SectionWithId extends Section {
   id: string;
@@ -75,6 +76,10 @@ const Details = () => {
 
   const organization: Organization =
     userAuthenticationService.getOrganization() as Organization;
+
+  const user: User = userAuthenticationService.getUser() as User;
+
+  const IsAdmin = user.role.includes('Admin');
 
   const isEditing = !!query.id;
 
@@ -246,11 +251,13 @@ const Details = () => {
         </div>
 
         <div className="mb-4">
-          <TracerButton
-            name="Add New Section"
-            icon={<HiPlus />}
-            onClick={handleAddSection}
-          />
+          {IsAdmin && (
+            <TracerButton
+              name="Add New Section"
+              icon={<HiPlus />}
+              onClick={handleAddSection}
+            />
+          )}
           <p>
             Traceability stream starts from top to bottom. E.g., Position 1 is
             the first stage, and position n is the last stage.
@@ -344,12 +351,14 @@ const Details = () => {
           >
             Cancel
           </button>
-          <button
-            onClick={handleSave}
-            className="ml-3 rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
-            {isLoading ? 'Saving...' : 'Save'}
-          </button>
+          {IsAdmin && (
+            <button
+              onClick={handleSave}
+              className="ml-3 rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              {isLoading ? 'Saving...' : 'Save'}
+            </button>
+          )}
         </div>
       </footer>
     </Layout>

@@ -10,7 +10,7 @@ export interface User {
   email?: string;
   password?: string;
   organizationRef: string; // Organization type is assumed to be defined elsewhere
-  roles: []; // Dictionary type is defined below
+  role: string[];
   firstName: string;
   lastname: string;
 }

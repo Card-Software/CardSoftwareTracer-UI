@@ -10,6 +10,7 @@ import {
   FaFileExport,
   FaPencilAlt,
   FaTrash,
+  FaHistory,
 } from 'react-icons/fa';
 import SectionModal from '@/components/SectionModal';
 import TracerStreamModal from '@/components/TracerStreamModal';
@@ -31,6 +32,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
 import ExportModal from '@/components/ExportModal';
 import { Site } from '@/models/Site';
+import { activityLogProxy } from '@/proxies/ActivityLog.proxy';
+import { ActivityLog } from '@/models/ActivityLog';
+import ActivityLogModal from '@/components/ActivityLogModal';
+import { ActivityType } from '@/models/enum/activityType';
+import { userAuthenticationProxy } from '@/proxies/UserAuthentication.proxy';
+import { set } from 'react-hook-form';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -55,6 +62,16 @@ const PurchaseOrderPage: React.FC = () => {
   const [streamToExport, setStreamToExport] =
     useState<TracerStreamExtended | null>(null);
   const [childrenPos, SetChildrenPos] = useState<ProductOrder[]>([]);
+  const [originalProductOrder, setOriginalProductOrder] =
+    useState<ProductOrder | null>(null);
+  const [isActivityLogOpen, setIsActivityLogOpen] = useState(false);
+  const [activityLogsToDisplay, setActivityLogsToDisplay] = useState<
+    ActivityLog[]
+  >([]);
+  const [activityLogType, setActivityLogType] = useState<ActivityType>(
+    ActivityType.FileUpload,
+  );
+  const [allActivityLogs, setAllActivityLogs] = useState<ActivityLog[]>([]);
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -64,6 +81,8 @@ const PurchaseOrderPage: React.FC = () => {
         const order = await orderManagementApiProxy.getProductOrder(
           poNumber as string,
         );
+
+        setOriginalProductOrder(order);
 
         if (order.childrenPosReferences.length > 0) {
           getChildrenPos(order.childrenPosReferences);
@@ -80,6 +99,12 @@ const PurchaseOrderPage: React.FC = () => {
         setIsLoading(false);
         setProductOrder(order);
         setStatuses(order.statuses || []); // Set initial statuses
+
+        activityLogProxy
+          .getActivityLogByPo(order.productOrderNumber)
+          .then((logs) => {
+            setAllActivityLogs(logs);
+          });
 
         if (
           order.childrenPosReferences &&
@@ -117,6 +142,32 @@ const PurchaseOrderPage: React.FC = () => {
       ...prevOrder!,
       [name]: value,
     }));
+  };
+
+  const handleActivityLogClick = (
+    activityType: ActivityType,
+    tracerStreamId = '',
+  ) => {
+    if (activityType === ActivityType.StatusChange) {
+      setActivityLogsToDisplay(
+        allActivityLogs.filter((log) => log.activityType === activityType),
+      );
+    } else {
+      setActivityLogsToDisplay(
+        allActivityLogs.filter(
+          (log) =>
+            log.activityType === activityType &&
+            log.traceabilityStream === tracerStreamId,
+        ),
+      );
+    }
+    setActivityLogType(activityType);
+    setIsActivityLogOpen(true);
+  };
+
+  const handleActivityLogClose = () => {
+    setIsActivityLogOpen(false);
+    setActivityLogsToDisplay([]);
   };
 
   const handleAssignedUserChange = (
@@ -239,6 +290,11 @@ const PurchaseOrderPage: React.FC = () => {
     // fileManagementService.downloadFilesFromS3Bucket(stream, productOrder);
   };
 
+  const handleCloseActivityLogModal = () => {
+    setIsActivityLogOpen(false);
+    setActivityLogsToDisplay([]);
+  };
+
   const exportStream = async (
     stream: TracerStreamExtended,
     includedSections: SectionModel[],
@@ -260,6 +316,37 @@ const PurchaseOrderPage: React.FC = () => {
     setIsLoading(false);
   };
 
+  const getUpdatedLogs = (productOrderNumber: string) => {
+    activityLogProxy.getActivityLogByPo(productOrderNumber).then((logs) => {
+      setAllActivityLogs(logs);
+    });
+  };
+
+  const insertLogs = () => {
+    productOrder?.statuses.forEach((status) => {
+      const originalStatus = originalProductOrder?.statuses.find(
+        (s) => s.team === status.team,
+      );
+      if (originalStatus?.teamStatus !== status.teamStatus) {
+        const activityLog: ActivityLog = {
+          activityType: 'Status Change',
+          team: status.team,
+          teamStatus: status.teamStatus,
+          productOrderNumber: productOrder?.productOrderNumber || '',
+          userFirstName: user?.firstName || '',
+          userLastName: user?.lastname || '',
+          timeStamp: new Date(),
+          feedBack: status.teamStatus === 'Returned' ? status.feedback : '',
+        };
+        activityLogProxy.insertActivityLog(activityLog);
+      }
+    });
+
+    if (productOrder && originalProductOrder) {
+      originalProductOrder.statuses = productOrder.statuses;
+    }
+  };
+
   const handleSave = async () => {
     if (productOrder) {
       try {
@@ -268,6 +355,8 @@ const PurchaseOrderPage: React.FC = () => {
           await orderManagementApiProxy.updateProductOrder(productOrder);
         setIsLoading(false);
         if (response.status === 204) {
+          insertLogs();
+          getUpdatedLogs(productOrder.productOrderNumber);
           router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
         } else {
@@ -427,6 +516,14 @@ const PurchaseOrderPage: React.FC = () => {
           </div>
 
           <div className="my-6">
+            <button
+              className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+              onClick={(e) => {
+                handleActivityLogClick(ActivityType.StatusChange);
+              }}
+            >
+              <FaHistory />
+            </button>
             <TeamStatuses
               originalStatus={statuses}
               onChange={handleStatusChange}
@@ -450,7 +547,18 @@ const PurchaseOrderPage: React.FC = () => {
                           <strong>Quantity:</strong> {stream.quantity}
                         </p>
                       </div>
-                      <div className="flex">
+                      <div className="flex max-h-14">
+                        <button
+                          className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          onClick={(e) => {
+                            handleActivityLogClick(
+                              ActivityType.FileUpload,
+                              stream.id,
+                            );
+                          }}
+                        >
+                          <FaHistory />
+                        </button>
                         <button
                           className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
                           onClick={(e) => {
@@ -713,6 +821,13 @@ const PurchaseOrderPage: React.FC = () => {
           onExport={(includedSections) => {
             exportStream(streamToExport, includedSections);
           }}
+        />
+      )}
+      {isActivityLogOpen && (
+        <ActivityLogModal
+          activityLogs={activityLogsToDisplay}
+          displayType={activityLogType}
+          onClose={handleCloseActivityLogModal}
         />
       )}
     </Layout>

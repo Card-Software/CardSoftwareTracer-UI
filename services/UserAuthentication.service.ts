@@ -3,10 +3,13 @@ import { User } from '@/models/User';
 import { userAuthenticationProxy } from '@/proxies/UserAuthentication.proxy';
 import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
 import router, { NextRouter } from 'next/router';
+import { userAuthorizationProxy } from '@/proxies/UserAuthorizationProxy.proxy';
+import { Group } from '@/models/Group';
 
 class UserAuthenticationService {
   private user: User | null = null;
   private organization: Organization | null = null;
+  private IsAdmin = false;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -44,11 +47,19 @@ class UserAuthenticationService {
     const userId = decodedToken.UserId;
     const organizationId = decodedToken.OrganizationId;
 
+    userAuthorizationProxy.getAllGroups(organizationId).then((groups) => {
+      localStorage.setItem('CSTracerGroups', JSON.stringify(groups));
+    });
+
     try {
       const [userResponse, organizationResponse] = await Promise.all([
         organizationManagementProxy.GetUser(userId),
         organizationManagementProxy.GetOrganization(organizationId),
       ]);
+
+      if (userResponse.role.includes('Admin')) {
+        this.IsAdmin = true;
+      }
 
       this.user = userResponse;
       this.organization = organizationResponse;
@@ -110,6 +121,10 @@ class UserAuthenticationService {
   isLoggedIn(): boolean {
     if (typeof window === 'undefined') return false;
     return localStorage.getItem('CSTracerUserJWT') ? true : false;
+  }
+
+  getGroups(): Group[] {
+    return JSON.parse(localStorage.getItem('CSTracerGroups') || '[]');
   }
 
   getFirstName(): string {
