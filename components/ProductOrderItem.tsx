@@ -5,6 +5,8 @@ import ProgressBar from './ProgressBar';
 import Link from 'next/link';
 import { ProductOrder } from '@/models/ProductOrder';
 import styled from 'styled-components';
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import { User } from '@/models/User';
 
 interface ProductOrderItemProps {
   productOrder: ProductOrder;
@@ -21,21 +23,25 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
     ? `${productOrder.assignedUser.firstName} ${productOrder.assignedUser.lastname}`
     : 'Unassigned';
   const dateCreated = new Date(productOrder.createdDate).toLocaleDateString();
+  const user: User = userAuthenticationService.getUser() as User;
+  const isAdmin = user.role.includes('Admin');
 
   return (
     <Link href={`/Dashboard/po/${poNumberUri}`}>
       <Container>
         <Header>
           <h2>PO {poNumber}</h2>
-          <DeleteButton
-            onClick={(e) => {
-              e.preventDefault(); // Prevents navigation
-              e.stopPropagation(); // Prevents parent click event from firing
-              handleDeleteProductOrder(productOrder); // Call delete function
-            }}
-          >
-            <FaTrash />
-          </DeleteButton>
+          {isAdmin && (
+            <DeleteButton
+              onClick={(e) => {
+                e.preventDefault(); // Prevents navigation
+                e.stopPropagation(); // Prevents parent click event from firing
+                handleDeleteProductOrder(productOrder); // Call delete function
+              }}
+            >
+              <FaTrash />
+            </DeleteButton>
+          )}
         </Header>
         <ProgressBar productOrder={productOrder} />
         <Info>

@@ -11,7 +11,7 @@ import { teamLabelProxy } from '@/proxies/TeamLabel.proxy';
 import { TeamLabel } from '@/models/TeamLabel';
 import { activityLogProxy } from '@/proxies/ActivityLog.proxy';
 import { ActivityLog } from '@/models/ActivityLog';
-import { ActivityType } from '@/models/enum/activityType';
+import { ActivityType } from '@/models/enum/ActivityType';
 import { User } from '@/models/User';
 
 interface SectionModalProps {

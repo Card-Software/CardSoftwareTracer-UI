@@ -35,9 +35,11 @@ import { Site } from '@/models/Site';
 import { activityLogProxy } from '@/proxies/ActivityLog.proxy';
 import { ActivityLog } from '@/models/ActivityLog';
 import ActivityLogModal from '@/components/ActivityLogModal';
-import { ActivityType } from '@/models/enum/activityType';
+import { ActivityType } from '@/models/enum/ActivityType';
 import { userAuthenticationProxy } from '@/proxies/UserAuthentication.proxy';
 import { set } from 'react-hook-form';
+import { Group } from '@/models/Group';
+import { emailService } from '@/services/Email.service';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -72,6 +74,8 @@ const PurchaseOrderPage: React.FC = () => {
     ActivityType.FileUpload,
   );
   const [allActivityLogs, setAllActivityLogs] = useState<ActivityLog[]>([]);
+
+  const groups: Group[] = userAuthenticationService.getGroups();
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -322,6 +326,17 @@ const PurchaseOrderPage: React.FC = () => {
     });
   };
 
+  const sendEmailToGroupName = (groupName: string) => {
+    const group = groups.find((group) => group.name === groupName);
+    if (group) {
+      emailService.sendEmailToGroup(
+        group,
+        productOrder?.productOrderNumber || '',
+        'Jony',
+      );
+    }
+  };
+
   const insertLogs = () => {
     productOrder?.statuses.forEach((status) => {
       const originalStatus = originalProductOrder?.statuses.find(
@@ -339,6 +354,12 @@ const PurchaseOrderPage: React.FC = () => {
           feedBack: status.teamStatus === 'Returned' ? status.feedback : '',
         };
         activityLogProxy.insertActivityLog(activityLog);
+
+        if (status.team === 'Planning' && status.teamStatus === 'Completed') {
+          sendEmailToGroupName('SAC');
+        } else if (status.team === 'SAC' && status.teamStatus === 'Returned') {
+          sendEmailToGroupName('SAC');
+        }
       }
     });
 

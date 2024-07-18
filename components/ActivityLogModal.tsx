@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ActivityLog } from '@/models/ActivityLog';
-import { ActivityType } from '@/models/enum/activityType';
+import { ActivityType } from '@/models/enum/ActivityType';
 import { FaTimes } from 'react-icons/fa';
 
 interface ActivityLogModalProps {
