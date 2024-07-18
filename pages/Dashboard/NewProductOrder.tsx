@@ -265,6 +265,22 @@ const NewProductOrder: React.FC = () => {
             )}
           </div>
         </div>
+        <div className="space-between mb-4 flex gap-5">
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Date
+            </label>
+            <input
+              type="date"
+              {...register('createdDate', { required: true })}
+              defaultValue={new Date().toISOString().split('T')[0]} // Default to today's date
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+            {errors.createdDate && (
+              <p className="text-sm text-red-500">This field is required</p>
+            )}
+          </div>
+        </div>
         <div className="mb-6">
           <label className="mb-2 block text-sm font-bold text-gray-700">
             Description
