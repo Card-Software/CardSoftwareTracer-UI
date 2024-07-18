@@ -134,6 +134,10 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
+    if (!orderToDelete.id) {
+      return;
+    }
+
     const confirmDelete = window.confirm(
       'Are you sure you want to delete this product order?',
     );

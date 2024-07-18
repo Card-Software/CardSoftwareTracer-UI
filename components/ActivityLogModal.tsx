@@ -49,10 +49,14 @@ const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
                     {displayType === ActivityType.StatusChange && (
                       <div className="mr-2 text-sm font-normal text-gray-500 dark:text-gray-300">
                         {log.userFirstName} {log.userLastName} updated status to{' '}
-                        "{log.teamStatus}".
+                        {'"'}
+                        {log.teamStatus}
+                        {'"'}.
                         {log.feedBack && (
                           <div className="mt-2 text-xs font-normal italic text-gray-500 dark:text-gray-300">
-                            Feedback: "{log.feedBack}"
+                            Feedback: {'"'}
+                            {log.feedBack}
+                            {'"'}
                           </div>
                         )}
                       </div>
