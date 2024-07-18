@@ -142,6 +142,27 @@ class OrderManagementApiProxy {
     );
     return await response.json();
   }
+
+  async convertSearchToCsv(filter: PoSearchFilters): Promise<Blob> {
+    const response = await fetch(
+      `${this.deployedUrl}ProductOrderController/csv`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(filter),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const blob = await response.blob();
+    return blob;
+  }
+
   //#endregion
 
   //#region

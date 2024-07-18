@@ -10,6 +10,7 @@ import {
   FaFileExport,
   FaPencilAlt,
   FaTrash,
+  FaHistory,
 } from 'react-icons/fa';
 import SectionModal from '@/components/SectionModal';
 import TracerStreamModal from '@/components/TracerStreamModal';
@@ -31,6 +32,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
 import ExportModal from '@/components/ExportModal';
 import { Site } from '@/models/Site';
+import { activityLogProxy } from '@/proxies/ActivityLog.proxy';
+import { ActivityLog } from '@/models/ActivityLog';
+import ActivityLogModal from '@/components/ActivityLogModal';
+import { ActivityType } from '@/models/enum/ActivityType';
+import { userAuthenticationProxy } from '@/proxies/UserAuthentication.proxy';
+import { set } from 'react-hook-form';
+import { Group } from '@/models/Group';
+import { emailService } from '@/services/Email.service';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -54,13 +63,35 @@ const PurchaseOrderPage: React.FC = () => {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false); // State for export modal
   const [streamToExport, setStreamToExport] =
     useState<TracerStreamExtended | null>(null);
+  const [childrenPos, SetChildrenPos] = useState<ProductOrder[]>([]);
+  const [originalProductOrder, setOriginalProductOrder] =
+    useState<ProductOrder | null>(null);
+  const [isActivityLogOpen, setIsActivityLogOpen] = useState(false);
+  const [activityLogsToDisplay, setActivityLogsToDisplay] = useState<
+    ActivityLog[]
+  >([]);
+  const [activityLogType, setActivityLogType] = useState<ActivityType>(
+    ActivityType.FileUpload,
+  );
+  const [allActivityLogs, setAllActivityLogs] = useState<ActivityLog[]>([]);
+
+  const groups: Group[] = userAuthenticationService.getGroups();
+
   useEffect(() => {
     const fetchOrderDetails = async () => {
       if (poNumber) {
         setIsLoading(true);
+
         const order = await orderManagementApiProxy.getProductOrder(
           poNumber as string,
         );
+
+        setOriginalProductOrder(order);
+
+        if (order.childrenPosReferences.length > 0) {
+          getChildrenPos(order.childrenPosReferences);
+        }
+
         if (order.statuses.length === 0) {
           order.statuses = [
             { team: 'Planning', teamStatus: 'Pending', feedback: '' },
@@ -72,6 +103,12 @@ const PurchaseOrderPage: React.FC = () => {
         setIsLoading(false);
         setProductOrder(order);
         setStatuses(order.statuses || []); // Set initial statuses
+
+        activityLogProxy
+          .getActivityLogByPo(order.productOrderNumber)
+          .then((logs) => {
+            setAllActivityLogs(logs);
+          });
 
         if (
           order.childrenPosReferences &&
@@ -111,6 +148,32 @@ const PurchaseOrderPage: React.FC = () => {
     }));
   };
 
+  const handleActivityLogClick = (
+    activityType: ActivityType,
+    tracerStreamId = '',
+  ) => {
+    if (activityType === ActivityType.StatusChange) {
+      setActivityLogsToDisplay(
+        allActivityLogs.filter((log) => log.activityType === activityType),
+      );
+    } else {
+      setActivityLogsToDisplay(
+        allActivityLogs.filter(
+          (log) =>
+            log.activityType === activityType &&
+            log.traceabilityStream === tracerStreamId,
+        ),
+      );
+    }
+    setActivityLogType(activityType);
+    setIsActivityLogOpen(true);
+  };
+
+  const handleActivityLogClose = () => {
+    setIsActivityLogOpen(false);
+    setActivityLogsToDisplay([]);
+  };
+
   const handleAssignedUserChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
@@ -131,6 +194,16 @@ const PurchaseOrderPage: React.FC = () => {
       siteRef: siteRef,
     }));
   };
+
+  const getChildrenPos = async (productOrderNumbers: string[]) => {
+    const childrenPos = await Promise.all(
+      productOrderNumbers.map((ref) =>
+        orderManagementApiProxy.getProductOrder(ref),
+      ),
+    );
+    SetChildrenPos(childrenPos);
+  };
+
   const handleStatusChange = (newStatuses: Status[]) => {
     setStatuses(newStatuses);
     if (productOrder) {
@@ -221,6 +294,11 @@ const PurchaseOrderPage: React.FC = () => {
     // fileManagementService.downloadFilesFromS3Bucket(stream, productOrder);
   };
 
+  const handleCloseActivityLogModal = () => {
+    setIsActivityLogOpen(false);
+    setActivityLogsToDisplay([]);
+  };
+
   const exportStream = async (
     stream: TracerStreamExtended,
     includedSections: SectionModel[],
@@ -242,6 +320,54 @@ const PurchaseOrderPage: React.FC = () => {
     setIsLoading(false);
   };
 
+  const getUpdatedLogs = (productOrderNumber: string) => {
+    activityLogProxy.getActivityLogByPo(productOrderNumber).then((logs) => {
+      setAllActivityLogs(logs);
+    });
+  };
+
+  const sendEmailToGroupName = (groupName: string) => {
+    const group = groups.find((group) => group.name === groupName);
+    if (group) {
+      emailService.sendEmailToGroup(
+        group,
+        productOrder?.productOrderNumber || '',
+        'Jony',
+      );
+    }
+  };
+
+  const insertLogs = () => {
+    productOrder?.statuses.forEach((status) => {
+      const originalStatus = originalProductOrder?.statuses.find(
+        (s) => s.team === status.team,
+      );
+      if (originalStatus?.teamStatus !== status.teamStatus) {
+        const activityLog: ActivityLog = {
+          activityType: 'Status Change',
+          team: status.team,
+          teamStatus: status.teamStatus,
+          productOrderNumber: productOrder?.productOrderNumber || '',
+          userFirstName: user?.firstName || '',
+          userLastName: user?.lastname || '',
+          timeStamp: new Date(),
+          feedBack: status.teamStatus === 'Returned' ? status.feedback : '',
+        };
+        activityLogProxy.insertActivityLog(activityLog);
+
+        if (status.team === 'Planning' && status.teamStatus === 'Completed') {
+          sendEmailToGroupName('SAC');
+        } else if (status.team === 'SAC' && status.teamStatus === 'Returned') {
+          sendEmailToGroupName('SAC');
+        }
+      }
+    });
+
+    if (productOrder && originalProductOrder) {
+      originalProductOrder.statuses = productOrder.statuses;
+    }
+  };
+
   const handleSave = async () => {
     if (productOrder) {
       try {
@@ -250,6 +376,8 @@ const PurchaseOrderPage: React.FC = () => {
           await orderManagementApiProxy.updateProductOrder(productOrder);
         setIsLoading(false);
         if (response.status === 204) {
+          insertLogs();
+          getUpdatedLogs(productOrder.productOrderNumber);
           router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
         } else {
@@ -343,7 +471,7 @@ const PurchaseOrderPage: React.FC = () => {
                 Site
               </label>
               <select
-                value={productOrder.siteRef}
+                value={productOrder.siteRef || ''}
                 onChange={handleSiteChange}
                 className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
@@ -409,6 +537,14 @@ const PurchaseOrderPage: React.FC = () => {
           </div>
 
           <div className="my-6">
+            <button
+              className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+              onClick={(e) => {
+                handleActivityLogClick(ActivityType.StatusChange);
+              }}
+            >
+              <FaHistory />
+            </button>
             <TeamStatuses
               originalStatus={statuses}
               onChange={handleStatusChange}
@@ -432,7 +568,18 @@ const PurchaseOrderPage: React.FC = () => {
                           <strong>Quantity:</strong> {stream.quantity}
                         </p>
                       </div>
-                      <div className="flex">
+                      <div className="flex max-h-14">
+                        <button
+                          className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          onClick={(e) => {
+                            handleActivityLogClick(
+                              ActivityType.FileUpload,
+                              stream.id,
+                            );
+                          }}
+                        >
+                          <FaHistory />
+                        </button>
                         <button
                           className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
                           onClick={(e) => {
@@ -469,7 +616,7 @@ const PurchaseOrderPage: React.FC = () => {
                       <React.Fragment key={section.sectionId}>
                         <SectionCard
                           onClick={() => handleSectionClick(section, stream)}
-                          isRequired={section.isRequired}
+                          $isrequired={section.isRequired}
                         >
                           <CardTitle className="w-full">
                             {section.sectionName}
@@ -545,7 +692,7 @@ const PurchaseOrderPage: React.FC = () => {
                       <FaArrowRight size={24} />
                     </ArrowIcon>
                     <SectionCard
-                      isRequired={false}
+                      $isrequired={false}
                       onClick={() => {
                         if (!user || !organization) return;
                         handleSectionClick(
@@ -577,6 +724,27 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
           </CardContainer>
+          {childrenPos.length > 0 && (
+            <div className="mt-8">
+              <h2 className="text-xl font-bold">Linked Product Orders</h2>
+              <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {childrenPos.map((po) => (
+                  <div
+                    key={po.productOrderNumber}
+                    className="rounded-lg bg-white p-6 shadow-lg"
+                  >
+                    <h3 className="text-lg font-bold">
+                      {po.productOrderNumber} - {po.client}
+                    </h3>
+                    <p className="text-sm text-gray-500">{po.description}</p>
+                    <Link href={`/Dashboard/po/${po.productOrderNumber}`}>
+                      <p className="">View Details</p>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </Section>
       </Container>
       <footer className="stream-footer flex bg-gray-200 p-4">
@@ -608,11 +776,16 @@ const PurchaseOrderPage: React.FC = () => {
                   stream.id === selectedStream.id
                     ? {
                         ...stream,
-                        sections: stream.sections.map((section) =>
-                          section.sectionId === updatedSection.sectionId
-                            ? updatedSection
-                            : section,
-                        ),
+                        sections: stream.sections.some(
+                          (section) =>
+                            section.sectionId === updatedSection.sectionId,
+                        )
+                          ? stream.sections.map((section) =>
+                              section.sectionId === updatedSection.sectionId
+                                ? updatedSection
+                                : section,
+                            )
+                          : [...stream.sections, updatedSection],
                       }
                     : stream,
               );
@@ -671,6 +844,13 @@ const PurchaseOrderPage: React.FC = () => {
           }}
         />
       )}
+      {isActivityLogOpen && (
+        <ActivityLogModal
+          activityLogs={activityLogsToDisplay}
+          displayType={activityLogType}
+          onClose={handleCloseActivityLogModal}
+        />
+      )}
     </Layout>
   );
 };
@@ -721,13 +901,22 @@ const SectionContainer = styled.div`
   align-items: center;
 `;
 
-const SectionCard = styled(Card)<{ isRequired: boolean }>`
+const SectionCard = styled.div<{ $isrequired: boolean }>`
   flex: 1 1 calc(25% - 20px);
   min-width: 250px;
   max-width: 300px;
   margin-bottom: 20px;
   word-wrap: break-word;
-  background-color: ${(props) => (props.isRequired ? '#fff' : '#e5e7eb')};
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  background-color: ${(props) => (props.$isrequired ? '#fff' : '#e5e7eb')};
 `;
 
 const ArrowIcon = styled.div`

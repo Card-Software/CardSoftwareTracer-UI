@@ -9,6 +9,10 @@ import { userAuthenticationService } from '@/services/UserAuthentication.service
 import LoadingOverlay from './LoadingOverlay';
 import { teamLabelProxy } from '@/proxies/TeamLabel.proxy';
 import { TeamLabel } from '@/models/TeamLabel';
+import { activityLogProxy } from '@/proxies/ActivityLog.proxy';
+import { ActivityLog } from '@/models/ActivityLog';
+import { ActivityType } from '@/models/enum/ActivityType';
+import { User } from '@/models/User';
 
 interface SectionModalProps {
   productOrder?: string;
@@ -44,6 +48,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
   const handleRedirect = (url: string) => {
     window.open(url, '_blank');
   };
+
+  const user: User = userAuthenticationService.getUser() as User;
 
   const handleFileDelete = async (s3Object: S3ObjectDto) => {
     const action = confirm('Are you sure you want to delete this file?');
@@ -136,6 +142,20 @@ const SectionModal: React.FC<SectionModalProps> = ({
     fetchTeamLabels();
   }, [organization]);
 
+  const insertLogs = (fileName: string, section: string) => {
+    const activityLog: ActivityLog = {
+      activityType: ActivityType.FileUpload,
+      fileName: fileName,
+      section: section,
+      productOrderNumber: productOrder || '',
+      userFirstName: user?.firstName || '',
+      userLastName: user?.lastname || '',
+      timeStamp: new Date(),
+      traceabilityStream: tracerStreamId || '',
+    };
+    activityLogProxy.insertActivityLog(activityLog);
+  };
+
   const uploadFile = async (file: File) => {
     if (file) {
       try {
@@ -157,6 +177,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
             bucketName,
             prefix,
           );
+          insertLogs(file.name, section.sectionName);
           setSection((section) => ({ ...section, files: allFiles }));
         } else {
           console.error('Failed to upload file');

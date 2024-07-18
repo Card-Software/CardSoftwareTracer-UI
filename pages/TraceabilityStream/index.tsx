@@ -9,6 +9,8 @@ import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { TracerStream } from '@/models/TracerStream';
 import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure the path is correct
 import withAuth from '@/hoc/auth';
+import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import { User } from '@/models/User';
 
 const TraceabilityStream = () => {
   const router = useRouter();
@@ -51,6 +53,10 @@ const TraceabilityStream = () => {
     router.push('/TraceabilityStream/Details');
   };
 
+  const user: User = userAuthenticationService.getUser() as User;
+
+  const IsAdmin = user.role.includes('Admin');
+
   const handleClear = () => {
     setName('');
     setClients('');
@@ -65,7 +71,13 @@ const TraceabilityStream = () => {
           <h1>Traceability Stream</h1>
         </div>
         <div>
-          <TracerButton name="Add" icon={<HiPlus />} onClick={handleRedirect} />
+          {IsAdmin && (
+            <TracerButton
+              name="Add"
+              icon={<HiPlus />}
+              onClick={handleRedirect}
+            />
+          )}
         </div>
       </div>
       <div className="flex flex-row items-start justify-start">
