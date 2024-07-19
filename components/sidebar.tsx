@@ -27,17 +27,10 @@ const Sidebar: React.FC = () => {
     setPathname(highestHierarchy);
   }, [fullPath]);
 
-  const user: User = userAuthenticationService.getUser() as User;
-
-  const isAdmin = user.role.includes('Admin');
-
   return (
     <aside className="sidebar flex h-full min-h-screen w-44 flex-col border-e-2 border-white bg-gray-100 text-teal-700">
       <div className="flex flex-grow flex-col items-end">
         {menuItems.map((menu) => {
-          if (menu.id === 4 && !isAdmin) {
-            return null; // Hide the 'Man. Dashboard' item if the user is not an admin
-          }
           const isActive = highestHierarchyPath === menu.link;
           return (
             <Link key={menu.id} href={menu.link} style={{ width: '100%' }}>
