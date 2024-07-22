@@ -151,7 +151,7 @@ const ManagerDashboard: React.FC = () => {
   const convertDateToInternationalDateString = (date: string | Date) => {
     const parsedDate = typeof date === 'string' ? new Date(date) : date;
     if (!(parsedDate instanceof Date) || isNaN(parsedDate.getTime())) {
-      throw new Error('Invalid date');
+      return '';
     }
     return parsedDate.toLocaleDateString('en-GB', {
       day: '2-digit',
