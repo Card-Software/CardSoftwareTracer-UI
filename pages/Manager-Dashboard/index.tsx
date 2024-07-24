@@ -19,12 +19,16 @@ import { userAuthenticationService } from '@/services/UserAuthentication.service
 import { User } from '@/models/User';
 import { reportsService } from '@/services/Reports.service';
 import { FaFileExport } from 'react-icons/fa';
+import { ProductOrderSnapshot } from '@/models/ProductOrderSnapshot';
+import { SnapshotPaginatedResult } from '@/models/SnapshotPaginatedResult';
 
 const ManagerDashboard: React.FC = () => {
   const router = useRouter();
-  const [productOrders, setProductOrders] = useState<ProductOrder[]>([]);
+  const [productOrders, setProductOrders] = useState<ProductOrderSnapshot[]>(
+    [],
+  );
   const [filteredProductOrders, setFilteredProductOrders] = useState<
-    ProductOrder[]
+    ProductOrderSnapshot[]
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
@@ -67,6 +71,36 @@ const ManagerDashboard: React.FC = () => {
     router.push('/Dashboard/NewProductOrder');
   };
 
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { query } = router;
+
+    const getStringValue = (value: string | string[] | undefined): string => {
+      if (Array.isArray(value)) {
+        return value[0] || '';
+      }
+      return value || '';
+    };
+
+    const initialFilters = {
+      productOrderNumber: getStringValue(query.productOrderNumber),
+      externalPoNumber: getStringValue(query.externalPoNumber),
+      startDate: query.startDate
+        ? moment(getStringValue(query.startDate))
+        : null,
+      endDate: query.endDate ? moment(getStringValue(query.endDate)) : null,
+      siteRef: getStringValue(query.siteRef),
+      planningStatus: getStringValue(query.planningStatus),
+      ntStatus: getStringValue(query.ntStatus),
+      sacStatus: getStringValue(query.sacStatus),
+      assignedUserRef: getStringValue(query.assignedUserRef),
+    };
+
+    setFilterInputs(initialFilters);
+    setFilterValues(initialFilters);
+    fetchProductOrders(initialFilters);
+  }, [router.query]);
+
   // get all sites
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
@@ -77,16 +111,21 @@ const ManagerDashboard: React.FC = () => {
     setAllUsers(organization.users || []);
   }, []);
 
-  useEffect(() => {
+  const fetchProductOrders = (filters: PoSearchFilters) => {
     const fetchProductOrders = async () => {
       try {
         setIsLoading(true);
-        const response: AllResponse =
-          await orderManagementApiProxy.searchProductOrdersByFilters(
-            filterValues,
-            pageNumber,
-            pageSize,
-          );
+        const response: SnapshotPaginatedResult =
+          await orderManagementApiProxy.searchProductOrdersSnapshots(filters);
+        response.results.sort((a, b) => {
+          if (a.createdDate < b.createdDate) {
+            return 1;
+          }
+          if (a.createdDate > b.createdDate) {
+            return -1;
+          }
+          return 0; // Add default return value of 0
+        });
         setProductOrders(response.results);
         setFilteredProductOrders(response.results);
         setTotalResults(response.totalResults);
@@ -98,7 +137,7 @@ const ManagerDashboard: React.FC = () => {
     };
 
     fetchProductOrders();
-  }, [filterValues, pageNumber, pageSize]);
+  };
 
   const toggleFilterVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
@@ -135,7 +174,68 @@ const ManagerDashboard: React.FC = () => {
     }
   };
 
+  const clearFilters = () => {
+    setFilterValues({
+      productOrderNumber: '',
+      externalPoNumber: '',
+      startDate: null,
+      endDate: null,
+      siteRef: '',
+      planningStatus: '',
+      ntStatus: '',
+      sacStatus: '',
+      assignedUserRef: '',
+    });
+
+    setFilterInputs({
+      productOrderNumber: '',
+      externalPoNumber: '',
+      startDate: null,
+      endDate: null,
+      siteRef: '',
+      planningStatus: '',
+      ntStatus: '',
+      sacStatus: '',
+      assignedUserRef: '',
+    });
+    //clear query params
+    router.push(
+      {
+        pathname: router.pathname,
+        query: {},
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
+
   const applyFilters = () => {
+    const usedFilters = Object.entries(filterInputs)
+      .filter(([key, value]) => value !== '' && value !== null)
+      .reduce((acc: { [key: string]: any }, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+
+    const query = {
+      ...usedFilters,
+      startDate: filterInputs.startDate
+        ? filterInputs.startDate.format('YYYY-MM-DD')
+        : '',
+      endDate: filterInputs.endDate
+        ? filterInputs.endDate.format('YYYY-MM-DD')
+        : '',
+    };
+
+    router.push(
+      {
+        pathname: router.pathname,
+        query,
+      },
+      undefined,
+      { shallow: true },
+    );
+
     setFilterValues(filterInputs);
     setPageNumber(1); // Reset to first page when applying filters
   };
@@ -211,8 +311,8 @@ const ManagerDashboard: React.FC = () => {
 
     if (sortConfig !== null && isSortKey(sortConfig.key)) {
       const sortedOrders = [...filteredProductOrders].sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof ProductOrder] ?? ''; // Add nullish coalescing operator
-        const bValue = b[sortConfig.key as keyof ProductOrder] ?? ''; // Add nullish coalescing operator
+        const aValue = a[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
+        const bValue = b[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
 
         if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -303,6 +403,7 @@ const ManagerDashboard: React.FC = () => {
               <select
                 name="assignedUserRef"
                 id="assignedUserRef"
+                value={filterInputs.assignedUserRef || ''}
                 onChange={handleUserChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
@@ -358,6 +459,7 @@ const ManagerDashboard: React.FC = () => {
               <select
                 name="siteRef"
                 id="siteRef"
+                value={filterInputs.siteRef || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
@@ -435,7 +537,13 @@ const ManagerDashboard: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="col-span-3 flex justify-end">
+            <div className="col-span-3 flex justify-end gap-2">
+              <button
+                onClick={clearFilters}
+                className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+              >
+                Clear
+              </button>
               <button
                 onClick={applyFilters}
                 className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
@@ -468,6 +576,12 @@ const ManagerDashboard: React.FC = () => {
               <th
                 scope="col"
                 className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+              >
+                User
+              </th>
+              <th
+                scope="col"
+                className=" px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 onClick={() => handleSort('siteRef')}
               >
                 Site
@@ -478,6 +592,13 @@ const ManagerDashboard: React.FC = () => {
                 onClick={() => handleSort('createdDate')}
               >
                 Date Created
+              </th>
+              <th
+                scope="col"
+                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                onClick={() => handleSort('createdDate')}
+              >
+                Invoice Date
               </th>
               <th
                 scope="col"
@@ -523,23 +644,27 @@ const ManagerDashboard: React.FC = () => {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className=" cursor-pointer divide-y divide-gray-200 bg-white">
             {sortedProductOrders.length > 0 ? (
               sortedProductOrders.map((order) => {
-                const progress = reportsService.getProgressPercentagesAllTeams(
-                  order.childrenTracerStreams[0],
-                );
-
                 return (
                   <tr
                     key={order.productOrderNumber}
                     onClick={() => handleRowClick(order.productOrderNumber)}
                   >
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className=" whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {order.productOrderNumber}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {order.externalProductOrderNumber}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {allUsers.find(
+                        (user) => user.id === order.assignedUserRef,
+                      )
+                        ? `${allUsers.find((user) => user.id === order.assignedUserRef)?.firstName} 
+                        ${allUsers.find((user) => user.id === order.assignedUserRef)?.lastname}`
+                        : ''}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {allSites.find((site) => site.id === order.siteRef)?.name}
@@ -548,25 +673,27 @@ const ManagerDashboard: React.FC = () => {
                       {convertDateToInternationalDateString(order.createdDate)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {progress.planning}%
+                      {convertDateToInternationalDateString(
+                        order.invoiceDate || '',
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {
-                        order.statuses.find((s) => s.team === 'Planning')
-                          ?.teamStatus
-                      }
+                      {order.planningCompletion}%
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {progress.nt}%
+                      {order.planningStatus}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.statuses.find((s) => s.team === 'NT')?.teamStatus}
+                      {order.ntCompletion}%
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {progress.sac}%
+                      {order.ntStatus}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.statuses.find((s) => s.team === 'SAC')?.teamStatus}
+                      {order.sacCompletion}%
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      {order.sacStatus}
                     </td>
                   </tr>
                 );
@@ -586,7 +713,7 @@ const ManagerDashboard: React.FC = () => {
       </div>
       <footer className="footer-class sticky bottom-0 mb-2 flex items-center justify-between bg-gray-800 p-4">
         <span className="text-white">Total Results: {totalResults}</span>
-        <div>
+        {/* <div>
           <button
             onClick={() => handlePageChange(pageNumber - 1)}
             disabled={pageNumber === 1}
@@ -602,7 +729,7 @@ const ManagerDashboard: React.FC = () => {
           >
             Next
           </button>
-        </div>
+        </div> */}
       </footer>
     </Layout>
   );

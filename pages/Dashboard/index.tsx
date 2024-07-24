@@ -67,6 +67,35 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (!router.isReady) return;
+    const { query } = router;
+
+    const getStringValue = (value: string | string[] | undefined): string => {
+      if (Array.isArray(value)) {
+        return value[0] || '';
+      }
+      return value || '';
+    };
+
+    const initialFilters = {
+      productOrderNumber: getStringValue(query.productOrderNumber),
+      externalPoNumber: getStringValue(query.externalPoNumber),
+      startDate: query.startDate
+        ? moment(getStringValue(query.startDate))
+        : null,
+      endDate: query.endDate ? moment(getStringValue(query.endDate)) : null,
+      siteRef: getStringValue(query.siteRef),
+      planningStatus: getStringValue(query.planningStatus),
+      ntStatus: getStringValue(query.ntStatus),
+      sacStatus: getStringValue(query.sacStatus),
+      assignedUserRef: getStringValue(query.assignedUserRef),
+    };
+
+    setFilterInputs(initialFilters);
+    setFilterValues(initialFilters);
+  }, [router.query]);
+
+  useEffect(() => {
     const fetchProductOrders = async () => {
       try {
         setIsLoading(true);
@@ -124,7 +153,68 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const clearFilters = () => {
+    setFilterValues({
+      productOrderNumber: '',
+      externalPoNumber: '',
+      startDate: null,
+      endDate: null,
+      siteRef: '',
+      planningStatus: '',
+      ntStatus: '',
+      sacStatus: '',
+      assignedUserRef: '',
+    });
+
+    setFilterInputs({
+      productOrderNumber: '',
+      externalPoNumber: '',
+      startDate: null,
+      endDate: null,
+      siteRef: '',
+      planningStatus: '',
+      ntStatus: '',
+      sacStatus: '',
+      assignedUserRef: '',
+    });
+    // Clear query params
+    router.push(
+      {
+        pathname: router.pathname,
+        query: {},
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
+
   const applyFilters = () => {
+    const usedFilters = Object.entries(filterInputs)
+      .filter(([key, value]) => value !== '' && value !== null)
+      .reduce((acc: { [key: string]: any }, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+
+    const query = {
+      ...usedFilters,
+      startDate: filterInputs.startDate
+        ? filterInputs.startDate.format('YYYY-MM-DD')
+        : '',
+      endDate: filterInputs.endDate
+        ? filterInputs.endDate.format('YYYY-MM-DD')
+        : '',
+    };
+
+    router.push(
+      {
+        pathname: router.pathname,
+        query,
+      },
+      undefined,
+      { shallow: true },
+    );
+
     setFilterValues(filterInputs);
     setPageNumber(1); // Reset to first page when applying filters
   };
@@ -232,6 +322,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="assignedUserRef"
                 id="assignedUserRef"
+                value={filterInputs.assignedUserRef || ''}
                 onChange={handleUserChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
@@ -287,6 +378,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="siteRef"
                 id="siteRef"
+                value={filterInputs.siteRef || ''}
                 onChange={handleFilterChange}
                 className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
@@ -364,7 +456,13 @@ const Dashboard: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="col-span-3 flex justify-end">
+            <div className="col-span-3 flex justify-end gap-2">
+              <button
+                onClick={clearFilters}
+                className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+              >
+                Clear
+              </button>
               <button
                 onClick={applyFilters}
                 className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"

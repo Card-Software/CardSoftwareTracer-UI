@@ -36,8 +36,8 @@ import { activityLogProxy } from '@/proxies/ActivityLog.proxy';
 import { ActivityLog } from '@/models/ActivityLog';
 import ActivityLogModal from '@/components/ActivityLogModal';
 import { ActivityType } from '@/models/enum/ActivityType';
-import { userAuthenticationProxy } from '@/proxies/UserAuthentication.proxy';
-import { set } from 'react-hook-form';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Group } from '@/models/Group';
 import { emailService } from '@/services/Email.service';
 
@@ -413,11 +413,11 @@ const PurchaseOrderPage: React.FC = () => {
           <span className="text-sm text-gray-500"> &gt; PO Details</span>
         </div>
         <Section>
-          <div className="align-center my-2 mb-8 flex gap-5">
-            <div>
-              <h1 className="text-2xl font-bold">Product Order Details</h1>
+          <div className="mb-5 flex flex-row items-center">
+            <div className="me-8 text-xl">
+              <h1>Product Order Details</h1>
             </div>
-            <div className="flex gap-5">
+            <div>
               <TracerButton
                 name="Add Tracer Stream"
                 icon={<HiPlus />}
@@ -431,7 +431,7 @@ const PurchaseOrderPage: React.FC = () => {
           <div className="space-between mb-4 flex gap-5">
             <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
-                PO Number
+                Product Order
               </label>
               <span className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900">
                 {productOrder.productOrderNumber}
@@ -439,26 +439,39 @@ const PurchaseOrderPage: React.FC = () => {
             </div>
             <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
-                External PO Number
+                Reference
               </label>
               <input
                 type="text"
-                id="externalProductOrderNumber"
-                name="externalProductOrderNumber"
-                value={productOrder.externalProductOrderNumber}
+                id="referenceNumber"
+                name="referenceNumber"
+                value={productOrder.referenceNumber}
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
-                Client
+                Lot
               </label>
               <input
                 type="text"
-                id="client"
-                name="client"
-                value={productOrder.client}
+                id="lot"
+                name="lot"
+                value={productOrder.lot}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                External Product Order
+              </label>
+              <input
+                type="text"
+                id="externalProductOrderNumber"
+                name="externalProductOrderNumber"
+                value={productOrder.externalProductOrderNumber}
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
@@ -483,6 +496,35 @@ const PurchaseOrderPage: React.FC = () => {
                 ))}
               </select>
             </div>
+
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Provider
+              </label>
+              <input
+                type="text"
+                id="provider"
+                name="provider"
+                value={productOrder.provider}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Client
+              </label>
+              <input
+                type="text"
+                id="client"
+                name="client"
+                value={productOrder.client}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div className="space-between mb-4 flex gap-5">
             <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Assigned to
@@ -500,6 +542,42 @@ const PurchaseOrderPage: React.FC = () => {
                 ))}
               </select>
             </div>
+            <div>
+              <label
+                htmlFor="createdDate"
+                className="mb-2 block text-sm font-bold text-gray-700"
+              >
+                Date Created
+              </label>
+              <DatePicker
+                id="createdDate"
+                name="createdDate"
+                selected={productOrder.createdDate}
+                onChange={(e) =>
+                  setProductOrder({ ...productOrder, createdDate: e as Date })
+                }
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                dateFormat="dd/MM/yyyy"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="invoiceDate"
+                className="mb-2 block text-sm font-bold text-gray-700"
+              >
+                Invoice Date
+              </label>
+              <DatePicker
+                selected={productOrder.invoiceDate}
+                onChange={(e) =>
+                  setProductOrder({ ...productOrder, invoiceDate: e as Date })
+                }
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                dateFormat="dd/MM/yyyy"
+              />
+            </div>
+          </div>
+          <div className="space-between mb-4 flex gap-5">
             <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Quantity
@@ -518,8 +596,20 @@ const PurchaseOrderPage: React.FC = () => {
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Product
+              </label>
+              <input
+                type="text"
+                id="product"
+                name="product"
+                value={productOrder.product}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
           </div>
-
           <div className="space-between mb-4 flex gap-5">
             <div className="form-box w-full">
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -858,7 +948,7 @@ const PurchaseOrderPage: React.FC = () => {
 export default withAuth(PurchaseOrderPage);
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 10px;
 `;
 
 const Section = styled.section`
