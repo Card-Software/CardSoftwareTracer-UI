@@ -148,6 +148,27 @@ const PurchaseOrderPage: React.FC = () => {
     }));
   };
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (name === 'createdDate') {
+      // Convert the date string to a Date object
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        // Check if the date is valid
+        setProductOrder((prevOrder) => ({
+          ...prevOrder!,
+          createdDate: date,
+        }));
+      }
+    } else {
+      setProductOrder((prevOrder) => ({
+        ...prevOrder!,
+        [name]: value,
+      }));
+    }
+  };
+
   const handleActivityLogClick = (
     activityType: ActivityType,
     tracerStreamId = '',
@@ -516,6 +537,26 @@ const PurchaseOrderPage: React.FC = () => {
                   })
                 }
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="space-between mb-4 flex gap-5">
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Date
+              </label>
+              <input
+                type="date"
+                name="createdDate"
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                value={
+                  productOrder?.createdDate instanceof Date &&
+                  !isNaN(productOrder.createdDate.getTime())
+                    ? productOrder.createdDate.toISOString().split('T')[0]
+                    : ''
+                }
+                onChange={handleDateChange}
               />
             </div>
           </div>
