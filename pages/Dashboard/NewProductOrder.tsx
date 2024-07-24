@@ -248,6 +248,29 @@ const NewProductOrder: React.FC = () => {
               ))}
             </select>
           </div>
+
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Provider
+            </label>
+            <input
+              type="text"
+              {...register('provider')}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Client
+            </label>
+            <input
+              type="text"
+              {...register('client')}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+        <div className="space-between mb-4 flex gap-5">
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
               Assign To
@@ -264,18 +287,6 @@ const NewProductOrder: React.FC = () => {
               ))}
             </select>
           </div>
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Client
-            </label>
-            <input
-              type="text"
-              {...register('client')}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-        <div className="space-between mb-4 flex gap-5">
           <div>
             <label
               htmlFor="createdDate"

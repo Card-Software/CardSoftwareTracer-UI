@@ -496,6 +496,35 @@ const PurchaseOrderPage: React.FC = () => {
                 ))}
               </select>
             </div>
+
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Provider
+              </label>
+              <input
+                type="text"
+                id="provider"
+                name="provider"
+                value={productOrder.provider}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <div className="form-box">
+              <label className="mb-2 block text-sm font-bold text-gray-700">
+                Client
+              </label>
+              <input
+                type="text"
+                id="client"
+                name="client"
+                value={productOrder.client}
+                onChange={handleProductOrderChange}
+                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          <div className="space-between mb-4 flex gap-5">
             <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Assigned to
@@ -513,21 +542,6 @@ const PurchaseOrderPage: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Client
-              </label>
-              <input
-                type="text"
-                id="client"
-                name="client"
-                value={productOrder.client}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="space-between mb-4 flex gap-5">
             <div>
               <label
                 htmlFor="createdDate"

@@ -27,4 +27,5 @@ export interface ProductOrder {
   lot?: string;
   referenceNumber?: string;
   invoiceDate?: Date;
+  provider?: string;
 }
