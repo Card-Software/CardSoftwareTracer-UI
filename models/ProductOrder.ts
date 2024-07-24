@@ -24,4 +24,7 @@ export interface ProductOrder {
   childrenTracerStreams: TracerStreamExtended[]; // this will have the quantity of each tracer stream that should add to parent PO.
   childrenPosReferences: string[]; //both of this will have quanitities that should add to parent PO.
   siteRef?: string;
+  lot?: string;
+  referenceNumber?: string;
+  invoiceDate?: Date;
 }

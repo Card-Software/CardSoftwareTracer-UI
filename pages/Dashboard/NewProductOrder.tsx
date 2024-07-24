@@ -16,10 +16,12 @@ import withAuth from '@/hoc/auth';
 import LoadingOverlay from '@/components/LoadingOverlay'; // Ensure you import the LoadingOverlay component
 import { TeamLabel } from '@/models/TeamLabel';
 import { teamLabelProxy } from '@/proxies/TeamLabel.proxy';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, set } from 'react-hook-form';
 import TeamStatuses from '@/components/TeamStatuses'; // Import the TeamStatuses component
 import { Status } from '@/models/Status';
 import { Site } from '@/models/Site';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -45,6 +47,14 @@ const NewProductOrder: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [statuses, setStatuses] = useState<Status[]>([]);
+  const [createdDate, setCreatedDate] = useState<Date>(new Date());
+  const [invoiceDate, setInvoiceDate] = useState<Date>();
+
+  useEffect(() => {
+    // Set the default value for the date input in the form
+    setValue('createdDate', new Date());
+    setValue('quantity', 0);
+  }, [setValue]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,16 +87,21 @@ const NewProductOrder: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleDateChange = (name: string, date: Date | null) => {
+    if (name === 'invoiceDate' && date) {
+      setValue('invoiceDate', date);
+      setInvoiceDate(date);
+    }
+    if (name === 'createdDate' && date) {
+      setValue('createdDate', date);
+      setCreatedDate(date);
+    }
+  };
+
   const handleAssignUser = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedUser = sampleUsers.find((user) => user.id === e.target.value);
     if (selectedUser) {
       setValue('assignedUser', selectedUser);
-      clearErrors('assignedUser');
-    } else {
-      setError('assignedUser', {
-        type: 'required',
-        message: 'This field is required',
-      });
     }
   };
 
@@ -174,7 +189,7 @@ const NewProductOrder: React.FC = () => {
         <div className="space-between mb-4 flex gap-5">
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
-              PO #
+              Product Order
             </label>
             <input
               type="text"
@@ -187,35 +202,33 @@ const NewProductOrder: React.FC = () => {
           </div>
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
-              Assign To
-            </label>
-            <select
-              onChange={handleAssignUser}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">Select an associate</option>
-              {sampleUsers.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastname}
-                </option>
-              ))}
-            </select>
-            {errors.assignedUser && (
-              <p className="text-sm text-red-500">This field is required</p>
-            )}
-          </div>
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Client
+              Reference
             </label>
             <input
               type="text"
-              {...register('client', { required: true })}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              {...register('referenceNumber')}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
-            {errors.client && (
-              <p className="text-sm text-red-500">This field is required</p>
-            )}
+          </div>
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Lot
+            </label>
+            <input
+              type="text"
+              {...register('lot')}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              External Product Order
+            </label>
+            <input
+              type="text"
+              {...register('externalProductOrderNumber')}
+              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
         </div>
         <div className="space-between mb-4 flex gap-5">
@@ -234,22 +247,74 @@ const NewProductOrder: React.FC = () => {
                 </option>
               ))}
             </select>
-            {errors.assignedUser && (
-              <p className="text-sm text-red-500">This field is required</p>
-            )}
           </div>
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Assign To
+            </label>
+            <select
+              onChange={handleAssignUser}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">Select an associate</option>
+              {sampleUsers.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.firstName} {user.lastname}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-box">
+            <label className="mb-2 block text-sm font-bold text-gray-700">
+              Client
+            </label>
+            <input
+              type="text"
+              {...register('client')}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+        <div className="space-between mb-4 flex gap-5">
+          <div>
+            <label
+              htmlFor="createdDate"
+              className="mb-2 block text-sm font-bold text-gray-700"
+            >
+              Date Created
+            </label>
+            <DatePicker
+              selected={createdDate}
+              onChange={(date) => handleDateChange('createdDate', date)}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              dateFormat="dd/MM/yyyy"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="invoiceDate"
+              className="mb-2 block text-sm font-bold text-gray-700"
+            >
+              Invoice Date
+            </label>
+            <DatePicker
+              selected={invoiceDate}
+              onChange={(date) => handleDateChange('invoiceDate', date)}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              dateFormat="dd/MM/yyyy"
+            />
+          </div>
+        </div>
+        <div className="space-between mb-4 flex gap-5">
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
               Quantity
             </label>
             <input
               type="number"
-              {...register('quantity', { required: true })}
+              {...register('quantity')}
               className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
-            {errors.quantity && (
-              <p className="text-sm text-red-500">This field is required</p>
-            )}
           </div>
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -257,12 +322,9 @@ const NewProductOrder: React.FC = () => {
             </label>
             <input
               type="text"
-              {...register('product', { required: true })}
+              {...register('product')}
               className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
-            {errors.product && (
-              <p className="text-sm text-red-500">This field is required</p>
-            )}
           </div>
         </div>
         <div className="mb-6">
@@ -270,12 +332,9 @@ const NewProductOrder: React.FC = () => {
             Description
           </label>
           <textarea
-            {...register('description', { required: true })}
+            {...register('description')}
             className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
           />
-          {errors.description && (
-            <p className="text-sm text-red-500">This field is required</p>
-          )}
         </div>
         <div className="mb-6">
           <TeamStatuses
