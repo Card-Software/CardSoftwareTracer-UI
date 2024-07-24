@@ -124,7 +124,9 @@ const NewProductOrder: React.FC = () => {
         return;
       }
 
-      router.push(`/Dashboard/po/${data.productOrderNumber}`);
+      alert('PO successfully created');
+
+      router.push(`/Dashboard`);
     } catch (error) {
       console.error('Failed to save Product Order', error);
     } finally {
