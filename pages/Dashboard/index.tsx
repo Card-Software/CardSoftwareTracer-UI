@@ -131,6 +131,20 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  const clearAllFilters = () => {
+    setFilterInputs({
+      productOrderNumber: '',
+      externalPoNumber: '',
+      assignedUserRef: '',
+      startDate: null,
+      endDate: null,
+      siteRef: '',
+      planningStatus: '',
+      ntStatus: '',
+      sacStatus: '',
+    });
+  };
+
   const handleDateChange = (name: string, date: Date | null) => {
     setFilterInputs({
       ...filterInputs,
@@ -278,12 +292,12 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       {isFilterVisible && (
-        <div className="my-4 rounded-md border border-gray-300 bg-gray-100 p-4">
-          <div className="grid grid-cols-3 gap-4">
+        <div className="my-6 rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <label
                 htmlFor="productOrderName"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 Product Order Name
               </label>
@@ -293,13 +307,13 @@ const Dashboard: React.FC = () => {
                 id="productOrderName"
                 value={filterInputs.productOrderNumber || ''}
                 onChange={handleFilterChange}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div>
               <label
                 htmlFor="externalPoNumber"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 External Product Order
               </label>
@@ -309,13 +323,13 @@ const Dashboard: React.FC = () => {
                 id="externalPoNumber"
                 value={filterInputs.externalPoNumber || ''}
                 onChange={handleFilterChange}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div>
               <label
                 htmlFor="assignedUserRef"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 User
               </label>
@@ -324,7 +338,7 @@ const Dashboard: React.FC = () => {
                 id="assignedUserRef"
                 value={filterInputs.assignedUserRef || ''}
                 onChange={handleUserChange}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select an associate</option>
                 {allUsers.map((user) => (
@@ -337,7 +351,7 @@ const Dashboard: React.FC = () => {
             <div>
               <label
                 htmlFor="startDate"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 Start Date
               </label>
@@ -348,14 +362,14 @@ const Dashboard: React.FC = () => {
                     : null
                 }
                 onChange={(date) => handleDateChange('startDate', date)}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 dateFormat="yyyy/MM/dd"
               />
             </div>
             <div>
               <label
                 htmlFor="endDate"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 End Date
               </label>
@@ -364,14 +378,14 @@ const Dashboard: React.FC = () => {
                   filterInputs.endDate ? filterInputs.endDate.toDate() : null
                 }
                 onChange={(date) => handleDateChange('endDate', date)}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 dateFormat="yyyy/MM/dd"
               />
             </div>
             <div>
               <label
                 htmlFor="siteRef"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 Site
               </label>
@@ -380,9 +394,9 @@ const Dashboard: React.FC = () => {
                 id="siteRef"
                 value={filterInputs.siteRef || ''}
                 onChange={handleFilterChange}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
-                <option value="">Select an site</option>
+                <option value="">Select a site</option>
                 {allSites.map((site) => (
                   <option key={site.id} value={site.id}>
                     {site.name}
@@ -393,7 +407,7 @@ const Dashboard: React.FC = () => {
             <div>
               <label
                 htmlFor="planningStatus"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 Planning Status
               </label>
@@ -402,7 +416,7 @@ const Dashboard: React.FC = () => {
                 id="planningStatus"
                 value={filterInputs.planningStatus || ''}
                 onChange={handleFilterChange}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -415,7 +429,7 @@ const Dashboard: React.FC = () => {
             <div>
               <label
                 htmlFor="ntStatus"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 NT Status
               </label>
@@ -424,7 +438,7 @@ const Dashboard: React.FC = () => {
                 id="ntStatus"
                 value={filterInputs.ntStatus || ''}
                 onChange={handleFilterChange}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -437,7 +451,7 @@ const Dashboard: React.FC = () => {
             <div>
               <label
                 htmlFor="sacStatus"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-semibold text-gray-800"
               >
                 SAC Status
               </label>
@@ -446,7 +460,7 @@ const Dashboard: React.FC = () => {
                 id="sacStatus"
                 value={filterInputs.sacStatus || ''}
                 onChange={handleFilterChange}
-                className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -456,23 +470,27 @@ const Dashboard: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="col-span-3 flex justify-end gap-2">
-              <button
-                onClick={clearFilters}
-                className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-              >
-                Clear
-              </button>
-              <button
-                onClick={applyFilters}
-                className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
-              >
-                Apply Filters
-              </button>
-            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end space-x-3">
+            <button
+              onClick={clearAllFilters}
+              className="rounded-md border-2 border-red-500 bg-white px-5 py-2 font-semibold text-black hover:bg-red-500"
+            >
+              Clear All
+            </button>
+            <button
+              onClick={applyFilters}
+              className="rounded-md bg-teal-600 px-5 py-2 font-semibold text-white hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-50"
+            >
+              Apply Filters
+            </button>
+
+
           </div>
         </div>
       )}
+
       <div className="my-8 w-full border-b-4 border-teal-700"></div>
       <div className="grid grid-cols-3 gap-4">
         {filteredProductOrders.length > 0 ? (
