@@ -2,6 +2,7 @@ import ProdcutOrder from '@/components/ProductOrderItem';
 import { AllResponse } from '@/models/AllResponse';
 import { PoSearchFilters } from '@/models/PoSearchFilters';
 import { ProductOrder } from '@/models/ProductOrder';
+import { SnapshotPaginatedResult } from '@/models/SnapshotPaginatedResult';
 import { TracerStream } from '@/models/TracerStream';
 import { WholeSaleOrder } from '@/models/WholeSaleOrder';
 
@@ -121,6 +122,22 @@ class OrderManagementApiProxy {
     const poEncoded = encodeURIComponent(searchTerm);
     const response = await fetch(
       `${this.deployedUrl}ProductOrderController/search?po=${poEncoded}`,
+    );
+    return await response.json();
+  }
+
+  async searchProductOrdersSnapshots(
+    filter: PoSearchFilters,
+  ): Promise<SnapshotPaginatedResult> {
+    const response = await fetch(
+      `${this.deployedUrl}ProductOrderController/snapshot/search`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(filter),
+      },
     );
     return await response.json();
   }
