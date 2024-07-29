@@ -485,8 +485,6 @@ const Dashboard: React.FC = () => {
             >
               Apply Filters
             </button>
-
-
           </div>
         </div>
       )}
