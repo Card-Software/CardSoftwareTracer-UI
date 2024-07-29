@@ -21,7 +21,7 @@ import { reportsService } from '@/services/Reports.service';
 import { FaFileExport } from 'react-icons/fa';
 import { ProductOrderSnapshot } from '@/models/ProductOrderSnapshot';
 import { SnapshotPaginatedResult } from '@/models/SnapshotPaginatedResult';
-
+import * as XLSX from 'xlsx';
 const ManagerDashboard: React.FC = () => {
   const router = useRouter();
   const [productOrders, setProductOrders] = useState<ProductOrderSnapshot[]>(
@@ -260,20 +260,40 @@ const ManagerDashboard: React.FC = () => {
     });
   };
 
-  const handleExportToCsv = async () => {
+  const handleExportToXlsx = async () => {
     try {
       setIsLoading(true);
       const blob =
         await orderManagementApiProxy.convertSearchToCsv(filterValues);
       const url = window.URL.createObjectURL(blob);
+      const response = await fetch(url);
+      const csvText = await response.text();
+
+      // Parse CSV text to a worksheet
+      const csvArray = csvText.split('\n').map((row) => row.split(','));
+      const worksheet = XLSX.utils.aoa_to_sheet(csvArray);
+
+      // Create a new workbook and append the worksheet
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+
+      const xlsxBlob = XLSX.write(workbook, {
+        bookType: 'xlsx',
+        type: 'array',
+      });
+
+      // Create a download link for the XLSX file
+      const xlsxUrl = window.URL.createObjectURL(
+        new Blob([xlsxBlob], { type: 'application/octet-stream' }),
+      );
       const a = document.createElement('a');
-      a.href = url;
+      a.href = xlsxUrl;
       setIsLoading(false);
-      a.download = 'Report.csv';
+      a.download = 'Report.xlsx';
       a.click();
     } catch (error) {
       setIsLoading(false);
-      console.error('Failed to export to CSV:');
+      console.error('Failed to export to XLSX:', error);
     }
   };
 
@@ -345,7 +365,7 @@ const ManagerDashboard: React.FC = () => {
           <TracerButton
             name="Export"
             icon={<FaFileExport />}
-            onClick={handleExportToCsv}
+            onClick={handleExportToXlsx}
           />
         </div>
         <div className="ml-auto">
