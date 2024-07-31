@@ -592,7 +592,7 @@ const ManagerDashboard: React.FC = () => {
           className="h-[calc(100vh-200px)] overflow-y-auto"
           ref={tableContainerRef}
         >
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 border">
             <thead className="sticky top-0 bg-gray-50">
               <tr>
                 <th

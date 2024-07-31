@@ -82,14 +82,17 @@ const ProfilePage: React.FC = () => {
   if (!userInfo) return <p>Loading...</p>;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-lg">
-        <div className="bg-teal-600 p-6 text-white">
+    <div className="flex min-h-screen items-center justify-center bg-gray-500 p-4">
+      <div className="w-full max-w-screen-lg rounded-lg bg-white p-6 shadow-lg">
+        <div className="rounded-t-lg bg-teal-600 p-6 text-white">
           <div className="flex items-center">
-            <div className="h-24 w-24 overflow-hidden rounded-full bg-gray-300">
-              {/* Placeholder for profile picture */}
+            <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-300">
+              <span className="text-3xl font-bold text-gray-600">
+                {userInfo.firstName[0]}
+                {userInfo.lastname[0]}
+              </span>
             </div>
-            <div className="ml-4">
+            <div className="ml-6">
               <h1 className="text-4xl font-bold">
                 {userInfo.firstName} {userInfo.lastname}
               </h1>
@@ -201,7 +204,7 @@ const ProfilePage: React.FC = () => {
                 <strong>First Name:</strong> {userInfo.firstName}
               </p>
               <p className="text-lg font-medium text-gray-900">
-                <strong>Last Name:</strong> {userInfo.lastname}
+                <strong>Last Name:</strong> {userInfo.lastName}
               </p>
               <p className="text-lg font-medium text-gray-900">
                 <strong>Email:</strong> {userInfo.email}
