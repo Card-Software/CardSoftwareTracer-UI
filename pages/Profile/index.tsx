@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import { User } from '@/models/User';
+import Layout from '@/app/layout';
 
 const ProfilePage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<User | null>(null);
@@ -82,148 +83,150 @@ const ProfilePage: React.FC = () => {
   if (!userInfo) return <p>Loading...</p>;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-500 p-4">
-      <div className="w-full max-w-screen-lg rounded-lg bg-white p-6 shadow-lg">
-        <div className="rounded-t-lg bg-teal-600 p-6 text-white">
-          <div className="flex items-center">
-            <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-gray-300">
-              <span className="text-3xl font-bold text-gray-600">
-                {userInfo.firstName[0]}
-                {userInfo.lastname[0]}
-              </span>
-            </div>
-            <div className="ml-6">
-              <h1 className="text-4xl font-bold">
-                {userInfo.firstName} {userInfo.lastname}
-              </h1>
-              <p className="text-xl">{userInfo.email}</p>
+    <Layout>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="max-w-2xl rounded-lg border bg-white p-6 shadow-lg">
+          <div className="rounded-t-lg bg-teal-600 p-6 text-white">
+            <div className="flex items-center">
+              <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-white">
+                <span className="text-3xl font-bold text-gray-600">
+                  {userInfo.firstName[0]}
+                  {userInfo.lastname[0]}
+                </span>
+              </div>
+              <div className="ml-6">
+                <h1 className="text-4xl font-bold">
+                  {userInfo.firstName} {userInfo.lastname}
+                </h1>
+                <p className="text-xl">{userInfo.email}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="p-6">
-          {isEditing ? (
-            <div className="space-y-6">
-              <div>
-                <label
-                  className="block text-sm font-medium text-gray-700"
-                  htmlFor="firstName"
-                >
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50"
-                />
+          <div className="p-6">
+            {isEditing ? (
+              <div className="space-y-6">
+                <div>
+                  <label
+                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="firstName"
+                  >
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className="mt-1 block w-full max-w-xs border-b-2 border-teal-700 px-3 py-2 focus:border-teal-700 focus:outline-none sm:max-w-sm md:max-w-md lg:max-w-lg"
+                  />
+                </div>
+                <div>
+                  <label
+                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="lastName"
+                  >
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className="mt-1 block w-full max-w-xs border-b-2 border-teal-700 px-3 py-2 focus:border-teal-700 focus:outline-none sm:max-w-sm md:max-w-md lg:max-w-lg"
+                  />
+                </div>
+                <div>
+                  <label
+                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="email"
+                  >
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="mt-1 block w-full max-w-xs border-b-2 border-teal-700 px-3 py-2 focus:border-teal-700 focus:outline-none sm:max-w-sm md:max-w-md lg:max-w-lg"
+                  />
+                </div>
+                <div>
+                  <label
+                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="password"
+                  >
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="mt-1 block w-full max-w-xs border-b-2 border-teal-700 px-3 py-2 focus:border-teal-700 focus:outline-none sm:max-w-sm md:max-w-md lg:max-w-lg"
+                  />
+                </div>
+                <div>
+                  <label
+                    className="block text-sm font-medium text-gray-700"
+                    htmlFor="confirmPassword"
+                  >
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className="mt-1 block w-full max-w-xs border-b-2 border-teal-700 px-3 py-2 focus:border-teal-700 focus:outline-none sm:max-w-sm md:max-w-md lg:max-w-lg"
+                  />
+                </div>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={handleSave}
+                    className="inline-flex items-center rounded-md border border-transparent bg-teal-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={toggleEdit}
+                    className="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
+            ) : (
               <div>
-                <label
-                  className="block text-sm font-medium text-gray-700"
-                  htmlFor="lastName"
-                >
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50"
-                />
-              </div>
-              <div>
-                <label
-                  className="block text-sm font-medium text-gray-700"
-                  htmlFor="email"
-                >
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50"
-                />
-              </div>
-              <div>
-                <label
-                  className="block text-sm font-medium text-gray-700"
-                  htmlFor="password"
-                >
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50"
-                />
-              </div>
-              <div>
-                <label
-                  className="block text-sm font-medium text-gray-700"
-                  htmlFor="confirmPassword"
-                >
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50"
-                />
-              </div>
-              <div className="flex space-x-4">
-                <button
-                  onClick={handleSave}
-                  className="inline-flex items-center rounded-md border border-transparent bg-teal-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-                >
-                  Save
-                </button>
+                <p className="text-lg font-medium text-gray-900">
+                  <strong>First Name:</strong> {userInfo.firstName}
+                </p>
+                <p className="text-lg font-medium text-gray-900">
+                  <strong>Last Name:</strong> {userInfo.lastname}
+                </p>
+                <p className="text-lg font-medium text-gray-900">
+                  <strong>Email:</strong> {userInfo.email}
+                </p>
+                <p className=" row flex overflow-clip text-lg font-medium text-gray-900">
+                  <strong className="pe-1">Password:</strong>{' '}
+                  {userInfo.password || 'No password available'}
+                </p>
                 <button
                   onClick={toggleEdit}
-                  className="inline-flex items-center rounded-md border border-transparent bg-gray-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  className="mt-4 inline-flex items-center rounded-md border border-transparent bg-teal-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
                 >
-                  Cancel
+                  Edit
                 </button>
               </div>
-            </div>
-          ) : (
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                <strong>First Name:</strong> {userInfo.firstName}
-              </p>
-              <p className="text-lg font-medium text-gray-900">
-                <strong>Last Name:</strong> {userInfo.lastName}
-              </p>
-              <p className="text-lg font-medium text-gray-900">
-                <strong>Email:</strong> {userInfo.email}
-              </p>
-              <p className="text-lg font-medium text-gray-900">
-                <strong>Password:</strong>{' '}
-                {userInfo.password || 'No password available'}
-              </p>
-              <button
-                onClick={toggleEdit}
-                className="mt-4 inline-flex items-center rounded-md border border-transparent bg-teal-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-              >
-                Edit
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
