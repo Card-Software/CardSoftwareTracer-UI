@@ -7,6 +7,7 @@ import { ProductOrder } from '@/models/ProductOrder';
 import styled from 'styled-components';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import { User } from '@/models/User';
+import { format } from 'date-fns';
 
 interface ProductOrderItemProps {
   productOrder: ProductOrder;
@@ -22,9 +23,13 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
   const assignedTo = productOrder.assignedUser
     ? `${productOrder.assignedUser.firstName} ${productOrder.assignedUser.lastname}`
     : 'Unassigned';
-  const dateCreated = new Date(productOrder.createdDate).toLocaleDateString();
+  const dateCreated = productOrder.invoiceDate;
   const user: User = userAuthenticationService.getUser() as User;
   const isAdmin = user.role.includes('Admin');
+
+  const formattedDate = dateCreated
+    ? format(new Date(dateCreated), 'dd/MM/yyyy')
+    : 'N/A';
 
   return (
     <Link href={`/Dashboard/po/${poNumberUri}`}>
@@ -49,7 +54,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
             Assigned to: <HiUser className="icon" />
             <span>{assignedTo}</span>
           </div>
-          <div>Date Created: {dateCreated}</div>
+          <div>Invoice Date: {formattedDate}</div>
         </Info>
       </Container>
     </Link>
