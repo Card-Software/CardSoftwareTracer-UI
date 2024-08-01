@@ -44,7 +44,7 @@ import { emailService } from '@/services/Email.service';
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
-  const user = userAuthenticationService.getUser();
+  const user = userAuthenticationService.getUser() as User;
   const organization = userAuthenticationService.getOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -76,6 +76,7 @@ const PurchaseOrderPage: React.FC = () => {
   const [allActivityLogs, setAllActivityLogs] = useState<ActivityLog[]>([]);
 
   const groups: Group[] = userAuthenticationService.getGroups();
+  const isAdmin = user.role.includes('Admin');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -152,18 +153,19 @@ const PurchaseOrderPage: React.FC = () => {
     activityType: ActivityType,
     tracerStreamId = '',
   ) => {
-    if (activityType === ActivityType.StatusChange) {
-      setActivityLogsToDisplay(
-        allActivityLogs.filter((log) => log.activityType === activityType),
-      );
+    // Check if allActivityLogs is an array
+    if (Array.isArray(allActivityLogs)) {
+      const filteredLogs =
+        activityType === ActivityType.StatusChange
+          ? allActivityLogs.filter((log) => log.activityType === activityType)
+          : allActivityLogs.filter(
+              (log) =>
+                log.activityType === activityType &&
+                log.traceabilityStream === tracerStreamId,
+            );
+      setActivityLogsToDisplay(filteredLogs);
     } else {
-      setActivityLogsToDisplay(
-        allActivityLogs.filter(
-          (log) =>
-            log.activityType === activityType &&
-            log.traceabilityStream === tracerStreamId,
-        ),
-      );
+      console.error('allActivityLogs is not an array', allActivityLogs);
     }
     setActivityLogType(activityType);
     setIsActivityLogOpen(true);
@@ -184,6 +186,28 @@ const PurchaseOrderPage: React.FC = () => {
         ...prevOrder!,
         assignedUser: assignedUser,
       }));
+    }
+  };
+
+  const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
+    if (!orderToDelete.id) {
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this product order?',
+    );
+    if (confirmDelete) {
+      try {
+        setIsLoading(true);
+        await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
+        alert('Product Order deleted successfully!');
+      } catch (error) {
+        console.error('Failed to delete Product Order', error);
+        alert('Failed to delete Product Order');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -426,6 +450,19 @@ const PurchaseOrderPage: React.FC = () => {
                 }
               />
             </div>
+            {isAdmin && (
+              <div className="pl-2">
+                <button
+                  onClick={async () => {
+                    await handleDeleteProductOrder(productOrder);
+                    router.push('/Dashboard');
+                  }}
+                  className="rounded border-2 border-red-500 px-4 py-2 font-medium text-black hover:bg-red-500 hover:text-white"
+                >
+                  Delete PO
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="space-between mb-4 flex gap-5">
@@ -629,12 +666,17 @@ const PurchaseOrderPage: React.FC = () => {
           <div className="my-6">
             <button
               className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
-              onClick={(e) => {
-                handleActivityLogClick(ActivityType.StatusChange);
+              onClick={() => handleActivityLogClick(ActivityType.StatusChange)}
+              disabled={allActivityLogs.length === 0}
+              style={{
+                opacity: allActivityLogs.length === 0 ? 0.5 : 1,
+                cursor:
+                  allActivityLogs.length === 0 ? 'not-allowed' : 'pointer',
               }}
             >
               <FaHistory />
             </button>
+
             <TeamStatuses
               originalStatus={statuses}
               onChange={handleStatusChange}

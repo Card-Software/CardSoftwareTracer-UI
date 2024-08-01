@@ -16,6 +16,10 @@ const Navbar: React.FC = () => {
     }
   }, []);
 
+  const handleProfile = () => {
+    router.push('/Profile');
+  };
+
   //use effect to now if the user is logged in
   useEffect(() => {
     const loggedIn = userAuthenticationService.isLoggedIn();
@@ -48,6 +52,12 @@ const Navbar: React.FC = () => {
                 onClick={handleLogout}
               >
                 Logout
+              </div>
+              <div
+                className="cursor-pointer px-4 py-2 hover:bg-gray-100"
+                onClick={handleProfile}
+              >
+                Profile
               </div>
             </div>
           )}

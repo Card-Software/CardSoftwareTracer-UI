@@ -145,7 +145,6 @@ class UserAuthenticationService {
     const user = this.user
       ? this.user
       : JSON.parse(localStorage.getItem('CSTracerUser') || 'null');
-
     if (user) {
       return user;
     } else {

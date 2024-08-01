@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/dashboard.css';
 import TracerButton from '@/components/TracerButton';
-import { HiPlus, HiFilter } from 'react-icons/hi';
+import { HiPlus, HiFilter, HiArrowUp } from 'react-icons/hi';
 import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
 import { ProductOrder } from '@/models/ProductOrder';
@@ -56,6 +56,17 @@ const ManagerDashboard: React.FC = () => {
     sacStatus: '',
     assignedUserRef: '',
   });
+
+  const tableContainerRef = useRef(null);
+
+  const scrollToTop = () => {
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  };
 
   const [pageSize, setPageSize] = useState<number>(50);
   const [pageNumber, setPageNumber] = useState<number>(1);
@@ -354,7 +365,7 @@ const ManagerDashboard: React.FC = () => {
         <div className="me-8 text-xl">
           <h1>Managers Dashboard</h1>
         </div>
-        <div className="">
+        <div>
           <TracerButton
             name="Add New PO"
             icon={<HiPlus />}
@@ -368,6 +379,7 @@ const ManagerDashboard: React.FC = () => {
             onClick={handleExportToXlsx}
           />
         </div>
+        <div className="ml-3">Total Results: {totalResults}</div>
         <div className="ml-auto">
           <button
             onClick={toggleFilterVisibility}
@@ -575,99 +587,102 @@ const ManagerDashboard: React.FC = () => {
         </div>
       )}
       <div className="my-8 w-full border-b-4 border-teal-700"></div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('productOrderNumber')}
-              >
-                Product Order Number
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('externalProductOrderNumber')}
-              >
-                External Product Order
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-              >
-                User
-              </th>
-              <th
-                scope="col"
-                className=" px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('siteRef')}
-              >
-                Site
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('createdDate')}
-              >
-                Date Created
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('createdDate')}
-              >
-                Invoice Date
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('planningCompletion')}
-              >
-                Planning Completion
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('planningStatus')}
-              >
-                Planning Status
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('ntCompletion')}
-              >
-                NT Completion
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('ntStatus')}
-              >
-                NT Status
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('sacCompletion')}
-              >
-                SAC Completion
-              </th>
-              <th
-                scope="col"
-                className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                onClick={() => handleSort('sacStatus')}
-              >
-                SAC Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className=" cursor-pointer divide-y divide-gray-200 bg-white">
-            {sortedProductOrders.length > 0 ? (
-              sortedProductOrders.map((order) => {
-                return (
+      <div className="flex-1 overflow-hidden">
+        <div
+          className="h-[calc(100vh-200px)] overflow-y-auto"
+          ref={tableContainerRef}
+        >
+          <table className="min-w-full divide-y divide-gray-200 border">
+            <thead className="sticky top-0 bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('productOrderNumber')}
+                >
+                  Product Order Number
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('externalProductOrderNumber')}
+                >
+                  External Product Order
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  User
+                </th>
+                <th
+                  scope="col"
+                  className=" px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('siteRef')}
+                >
+                  Site
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('createdDate')}
+                >
+                  Date Created
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('createdDate')}
+                >
+                  Invoice Date
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('planningCompletion')}
+                >
+                  Planning Completion
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('planningStatus')}
+                >
+                  Planning Status
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('ntCompletion')}
+                >
+                  NT Completion
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('ntStatus')}
+                >
+                  NT Status
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('sacCompletion')}
+                >
+                  SAC Completion
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                  onClick={() => handleSort('sacStatus')}
+                >
+                  SAC Status
+                </th>
+              </tr>
+            </thead>
+            <tbody className="cursor-pointer divide-y divide-gray-200 bg-white">
+              {sortedProductOrders.length > 0 ? (
+                sortedProductOrders.map((order) => (
                   <tr
                     key={order.productOrderNumber}
                     onClick={() => handleRowClick(order.productOrderNumber)}
@@ -716,41 +731,27 @@ const ManagerDashboard: React.FC = () => {
                       {order.sacStatus}
                     </td>
                   </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan={6}
-                  className="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500"
-                >
-                  No product orders available.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={12}
+                    className="whitespace-nowrap px-6 py-4 text-center text-sm text-gray-500"
+                  >
+                    No product orders available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-4 right-4 rounded-full bg-teal-700 p-3 text-white shadow-lg hover:bg-teal-600"
+          >
+            <HiArrowUp className="text-xl" />
+          </button>
+        </div>
       </div>
-      <footer className="footer-class sticky bottom-0 mb-2 flex items-center justify-between bg-gray-800 p-4">
-        <span className="text-white">Total Results: {totalResults}</span>
-        {/* <div>
-          <button
-            onClick={() => handlePageChange(pageNumber - 1)}
-            disabled={pageNumber === 1}
-            className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="mx-4 text-white">Page {pageNumber}</span>
-          <button
-            onClick={() => handlePageChange(pageNumber + 1)}
-            disabled={pageNumber * pageSize >= totalResults}
-            className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div> */}
-      </footer>
     </Layout>
   );
 };
