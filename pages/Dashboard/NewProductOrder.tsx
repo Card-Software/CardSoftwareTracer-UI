@@ -28,12 +28,9 @@ const NewProductOrder: React.FC = () => {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
     setValue,
     watch,
-    setError,
-    clearErrors,
   } = useForm<ProductOrder>();
   const [allProductOrders, setAllProductOrders] = useState<ProductOrder[]>([]);
   const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
@@ -122,6 +119,11 @@ const NewProductOrder: React.FC = () => {
       return;
     }
 
+    if (errors) {
+      console.log(errors);
+      return;
+    }
+
     data.ownerRef = owner.id || '';
     data.statuses = statuses; // Add the statuses to the form data
     data.childrenTracerStreams = connectedTracerStreams;
@@ -191,15 +193,26 @@ const NewProductOrder: React.FC = () => {
         <div className="space-between mb-4 flex gap-5">
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
-              Product Order
+              Product Order 1
             </label>
             <input
               type="text"
-              {...register('productOrderNumber', { required: true })}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              {...register('productOrderNumber', {
+                required: true,
+                pattern: {
+                  value: /^[A-Za-z0-9\s-]+$/,
+                  message:
+                    'Only letters, numbers, spaces, and dashes are allowed',
+                },
+              })}
+              className={`block w-full rounded-lg border p-2.5 text-sm focus:border-blue-500 focus:ring-blue-500
+          ${errors.productOrderNumber ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}
+        `}
             />
             {errors.productOrderNumber && (
-              <p className="text-sm text-red-500">This field is required</p>
+              <p className="text-sm text-red-500">
+                {errors.productOrderNumber.message}
+              </p>
             )}
           </div>
           <div className="form-box">
