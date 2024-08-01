@@ -188,6 +188,28 @@ const PurchaseOrderPage: React.FC = () => {
     }
   };
 
+  const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
+    if (!orderToDelete.id) {
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this product order?',
+    );
+    if (confirmDelete) {
+      try {
+        setIsLoading(true);
+        await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
+        alert('Product Order deleted successfully!');
+      } catch (error) {
+        console.error('Failed to delete Product Order', error);
+        alert('Failed to delete Product Order');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const handleSiteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const siteRef = e.target.value;
     setProductOrder((prevOrder) => ({
@@ -426,6 +448,17 @@ const PurchaseOrderPage: React.FC = () => {
                   handleStreamClick({} as TracerStreamExtended, 'add')
                 }
               />
+            </div>
+            <div className="pl-2">
+              <button
+                onClick={async () => {
+                  await handleDeleteProductOrder(productOrder);
+                  router.push('/Dashboard');
+                }}
+                className="rounded border-2 border-red-500 px-4 py-2 font-medium text-black hover:bg-red-500 hover:text-white"
+              >
+                Delete PO
+              </button>
             </div>
           </div>
 
