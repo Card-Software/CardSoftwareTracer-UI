@@ -31,8 +31,10 @@ class ActivityLogProxy {
         },
       },
     );
-    const data = await response.json();
-    return data;
+    if (response.ok) {
+      return await response.json();
+    }
+    return [];
   }
 }
 
