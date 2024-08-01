@@ -20,7 +20,7 @@ const ProfilePage: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    userId: ''
+    userId: '',
   });
 
   useEffect(() => {
@@ -73,7 +73,7 @@ const ProfilePage: React.FC = () => {
         email: userInfo.email || undefined,
         password: '',
         confirmPassword: '',
-        userId: userInfo.id || undefined
+        userId: userInfo.id || undefined,
       });
     }
   };
@@ -138,22 +138,6 @@ const ProfilePage: React.FC = () => {
                 <div>
                   <label
                     className="block text-sm font-medium text-gray-700"
-                    htmlFor="email"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="mt-1 block w-full max-w-xs border-b-2 border-teal-700 px-3 py-2 focus:border-teal-700 focus:outline-none sm:max-w-sm md:max-w-md lg:max-w-lg"
-                  />
-                </div>
-                <div>
-                  <label
-                    className="block text-sm font-medium text-gray-700"
                     htmlFor="password"
                   >
                     Password
@@ -206,12 +190,8 @@ const ProfilePage: React.FC = () => {
                 <p className="text-lg font-medium text-gray-900">
                   <strong>Last Name:</strong> {userInfo.lastname}
                 </p>
-                <p className="text-lg font-medium text-gray-900">
-                  <strong>Email:</strong> {userInfo.email}
-                </p>
                 <p className=" row flex overflow-clip text-lg font-medium text-gray-900">
-                  <strong className="pe-1">Password:</strong>{' '}
-                  {userInfo.password || 'No password available'}
+                  <strong className="pe-1">Password:</strong> {'**********'}
                 </p>
                 <button
                   onClick={toggleEdit}
