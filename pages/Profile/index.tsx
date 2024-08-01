@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { userAuthenticationService } from '@/services/UserAuthentication.service';
 import { User } from '@/models/User';
 import Layout from '@/app/layout';
+import { userProxy } from '@/proxies/UserProxy.proxy';
 
 const ProfilePage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<User | null>(null);
@@ -9,15 +10,17 @@ const ProfilePage: React.FC = () => {
   const [formData, setFormData] = useState<{
     firstName: string;
     lastName: string;
-    email: string;
+    email: string | undefined;
     password: string;
     confirmPassword: string;
+    userId: string | undefined;
   }>({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
+    userId: ''
   });
 
   useEffect(() => {
@@ -25,6 +28,7 @@ const ProfilePage: React.FC = () => {
     if (user) {
       setUserInfo(user);
       setFormData({
+        userId: user.id,
         firstName: user.firstName,
         lastName: user.lastname,
         email: user.email,
@@ -48,20 +52,13 @@ const ProfilePage: React.FC = () => {
         return;
       }
 
-      // Here you would typically call an API to save the changes
-      // For simplicity, we're just updating local state
-      setUserInfo({
-        ...userInfo,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-      });
-
-      // If password is changed, you would need to send a request to update it
       if (formData.password) {
-        // Update password logic here
+        userInfo.password = formData.password;
       }
-
+      userInfo.firstName = formData.firstName;
+      userInfo.lastname = formData.lastName;
+      userInfo.id;
+      await userProxy.updateUser(userInfo);
       setIsEditing(false);
     }
   };
@@ -73,9 +70,10 @@ const ProfilePage: React.FC = () => {
       setFormData({
         firstName: userInfo.firstName,
         lastName: userInfo.lastname,
-        email: userInfo.email,
+        email: userInfo.email || undefined,
         password: '',
         confirmPassword: '',
+        userId: userInfo.id || undefined
       });
     }
   };
