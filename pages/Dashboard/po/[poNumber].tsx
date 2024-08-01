@@ -44,7 +44,7 @@ import { emailService } from '@/services/Email.service';
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
-  const user = userAuthenticationService.getUser();
+  const user = userAuthenticationService.getUser() as User;
   const organization = userAuthenticationService.getOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -76,6 +76,7 @@ const PurchaseOrderPage: React.FC = () => {
   const [allActivityLogs, setAllActivityLogs] = useState<ActivityLog[]>([]);
 
   const groups: Group[] = userAuthenticationService.getGroups();
+  const isAdmin = user.role.includes('Admin');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -449,17 +450,19 @@ const PurchaseOrderPage: React.FC = () => {
                 }
               />
             </div>
-            <div className="pl-2">
-              <button
-                onClick={async () => {
-                  await handleDeleteProductOrder(productOrder);
-                  router.push('/Dashboard');
-                }}
-                className="rounded border-2 border-red-500 px-4 py-2 font-medium text-black hover:bg-red-500 hover:text-white"
-              >
-                Delete PO
-              </button>
-            </div>
+            {isAdmin && (
+              <div className="pl-2">
+                <button
+                  onClick={async () => {
+                    await handleDeleteProductOrder(productOrder);
+                    router.push('/Dashboard');
+                  }}
+                  className="rounded border-2 border-red-500 px-4 py-2 font-medium text-black hover:bg-red-500 hover:text-white"
+                >
+                  Delete PO
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="space-between mb-4 flex gap-5">
