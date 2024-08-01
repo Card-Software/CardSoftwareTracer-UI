@@ -57,7 +57,7 @@ const ManagerDashboard: React.FC = () => {
     assignedUserRef: '',
   });
 
-  const tableContainerRef = useRef(null);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = () => {
     if (tableContainerRef.current) {
