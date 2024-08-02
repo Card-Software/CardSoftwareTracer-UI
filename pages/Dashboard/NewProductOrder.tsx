@@ -119,10 +119,7 @@ const NewProductOrder: React.FC = () => {
       return;
     }
 
-    if (errors) {
-      console.log(errors);
-      return;
-    }
+    console.log(errors);
 
     data.ownerRef = owner.id || '';
     data.statuses = statuses; // Add the statuses to the form data
@@ -193,7 +190,7 @@ const NewProductOrder: React.FC = () => {
         <div className="space-between mb-4 flex gap-5">
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
-              Product Order 1
+              Product Order
             </label>
             <input
               type="text"
