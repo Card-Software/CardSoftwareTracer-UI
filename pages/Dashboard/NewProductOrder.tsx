@@ -186,7 +186,7 @@ const NewProductOrder: React.FC = () => {
           />
         </div>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '5rem' }}>
         <div className="space-between mb-4 flex gap-5">
           <div className="form-box">
             <label className="mb-2 block text-sm font-bold text-gray-700">
