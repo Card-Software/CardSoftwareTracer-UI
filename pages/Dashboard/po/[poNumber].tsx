@@ -275,6 +275,66 @@ const PurchaseOrderPage: React.FC = () => {
     return requiredSections.every((section) => section.files.length > 0);
   };
 
+  const nextSection = () => {
+    if (!selectedStream || !productOrder) return;
+    const currentIndex = selectedStream.sections.findIndex(
+      (section) => section.sectionId === selectedSection?.sectionId,
+    );
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < selectedStream.sections.length) {
+      handleSectionClick(selectedStream.sections[nextIndex], selectedStream);
+    }
+  };
+
+  const previousSection = () => {
+    if (!selectedStream || !productOrder) return;
+    const currentIndex = selectedStream.sections.findIndex(
+      (section) => section.sectionId === selectedSection?.sectionId,
+    );
+    const previousIndex = currentIndex - 1;
+    if (previousIndex >= 0) {
+      handleSectionClick(
+        selectedStream.sections[previousIndex],
+        selectedStream,
+      );
+    }
+  };
+
+  const handleSaveSection = (
+    updatedSection: SectionModel,
+    move: 'Right' | 'Left' | null | undefined,
+  ) => {
+    setProductOrder((prevOrder) => {
+      if (!prevOrder || !selectedStream) return null;
+
+      const updatedStreams = prevOrder.childrenTracerStreams.map((stream) =>
+        stream.id === selectedStream.id
+          ? {
+              ...stream,
+              sections: stream.sections.some(
+                (section) => section.sectionId === updatedSection.sectionId,
+              )
+                ? stream.sections.map((section) =>
+                    section.sectionId === updatedSection.sectionId
+                      ? updatedSection
+                      : section,
+                  )
+                : [...stream.sections, updatedSection],
+            }
+          : stream,
+      );
+
+      return { ...prevOrder, childrenTracerStreams: updatedStreams };
+    });
+    if (move === 'Right') {
+      nextSection();
+    } else if (move === 'Left') {
+      previousSection();
+    } else {
+      handleCloseSectionModal();
+    }
+  };
+
   const handleDeleteSection = (
     stream: TracerStreamExtended,
     section: SectionModel,
@@ -666,8 +726,8 @@ const PurchaseOrderPage: React.FC = () => {
           <div className="my-6">
             <button
               className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+              disabled={!allActivityLogs.length}
               onClick={() => handleActivityLogClick(ActivityType.StatusChange)}
-              disabled={allActivityLogs.length === 0}
               style={{
                 opacity: allActivityLogs.length === 0 ? 0.5 : 1,
                 cursor:
@@ -702,6 +762,7 @@ const PurchaseOrderPage: React.FC = () => {
                       </div>
                       <div className="flex max-h-14">
                         <button
+                          disabled={!allActivityLogs.length}
                           className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
                           onClick={(e) => {
                             handleActivityLogClick(
@@ -899,39 +960,13 @@ const PurchaseOrderPage: React.FC = () => {
           tracerStreamId={selectedStream.id}
           originalSection={selectedSection}
           onClose={handleCloseSectionModal}
-          onSave={(updatedSection: SectionModel) => {
-            setProductOrder((prevOrder) => {
-              if (!prevOrder) return null;
-
-              const updatedStreams = prevOrder.childrenTracerStreams.map(
-                (stream) =>
-                  stream.id === selectedStream.id
-                    ? {
-                        ...stream,
-                        sections: stream.sections.some(
-                          (section) =>
-                            section.sectionId === updatedSection.sectionId,
-                        )
-                          ? stream.sections.map((section) =>
-                              section.sectionId === updatedSection.sectionId
-                                ? updatedSection
-                                : section,
-                            )
-                          : [...stream.sections, updatedSection],
-                      }
-                    : stream,
-              );
-
-              return { ...prevOrder, childrenTracerStreams: updatedStreams };
-            });
-
-            handleCloseSectionModal();
-          }}
+          onSave={handleSaveSection}
           mode={
             selectedSection.sectionId
               ? 'edit'
               : 'sectionCreationOnExistingTracer'
           }
+          totalSections={selectedStream.sections.length}
         />
       )}
       {isStreamModalOpen && selectedStream && (
