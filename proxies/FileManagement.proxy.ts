@@ -2,11 +2,9 @@ import { S3ObjectDto } from '@/models/S3ObjectDto';
 
 class FileManagementProxy {
   private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
-  private deployedUrl: string =
-    process.env.NEXT_PUBLIC_TRACER_APP_API_URL_DEPLOYED || '';
   //#region
   async CreateBucket(bucketName: string): Promise<any> {
-    const response = await fetch(`${this.deployedUrl}CreateBucket`, {
+    const response = await fetch(`${this.baseUrl}CreateBucket`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -17,7 +15,7 @@ class FileManagementProxy {
   }
 
   async RetrieveBuckets(): Promise<string[]> {
-    const response = await fetch(`${this.deployedUrl}RetrieveBuckets`);
+    const response = await fetch(`${this.baseUrl}RetrieveBuckets`);
     return await response.json();
   }
   //#endregion
@@ -34,7 +32,7 @@ class FileManagementProxy {
     formData.append('file', file);
 
     const response = await fetch(
-      `${this.deployedUrl}File/UploadFile?bucketName=${bucketName}&prefix=${prefix}`,
+      `${this.baseUrl}File/UploadFile?bucketName=${bucketName}&prefix=${prefix}`,
       {
         method: 'POST',
         body: formData,
@@ -50,7 +48,7 @@ class FileManagementProxy {
 
   async DeleteFile(bucketName: string, key: string): Promise<any> {
     const response = await fetch(
-      `${this.deployedUrl}File/delete?bucketName=${bucketName}&key=${key}`,
+      `${this.baseUrl}File/delete?bucketName=${bucketName}&key=${key}`,
       {
         method: 'DELETE',
       },
@@ -68,7 +66,7 @@ class FileManagementProxy {
     prefix: string,
   ): Promise<S3ObjectDto[]> {
     const response = await fetch(
-      `${this.deployedUrl}File/AllFiles?bucketName=${bucketName}&prefix=${prefix}`,
+      `${this.baseUrl}File/AllFiles?bucketName=${bucketName}&prefix=${prefix}`,
     );
     return await response.json();
   }
@@ -79,7 +77,7 @@ class FileManagementProxy {
     fileName: string,
   ): Promise<any> {
     const response = await fetch(
-      `${this.deployedUrl}File/preview?bucketName=${bucketName}&prefix=${prefix}&fileName=${fileName}`,
+      `${this.baseUrl}File/preview?bucketName=${bucketName}&prefix=${prefix}&fileName=${fileName}`,
     );
     return await response.json();
   }
