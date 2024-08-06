@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_ENV=development node load-env.js && next dev",
+    "prod": "NODE_ENV=production node load-env.js && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,6 +12,7 @@
   "dependencies": {
     "bson": "^6.8.0",
     "date-fns": "^3.6.0",
+    "dotenv-cli": "^7.4.2",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "moment": "^2.30.1",

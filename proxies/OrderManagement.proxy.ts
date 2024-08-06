@@ -10,6 +10,7 @@ class OrderManagementApiProxy {
   private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
   private deployedUrl: string =
     process.env.NEXT_PUBLIC_TRACER_APP_API_URL_DEPLOYED || '';
+
   //#region
   // Stream controller
   async createTraceability(traceability: TracerStream): Promise<TracerStream> {
