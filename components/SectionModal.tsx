@@ -252,170 +252,187 @@ const SectionModal: React.FC<SectionModalProps> = ({
           </button>
         </ModalHeader>
         <ModalContentWrapper>
-          {canLeftClick && (
-            <ArrowButton onClick={() => onSave(section, 'Left')}>
-              <FaChevronLeft size={24} />
-            </ArrowButton>
-          )}
           <ModalBody>
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                className="peer hidden"
-                checked={section.isRequired}
-                onChange={(e) =>
-                  setSection((prevSection) => ({
-                    ...prevSection,
-                    isRequired: e.target.checked,
-                  }))
-                }
-                id="custom-checkbox"
-              />
-              <span
-                className={`h-5 w-5 rounded border-2 border-gray-400 ${
-                  section.isRequired ? 'bg-teal-600' : 'bg-white'
-                } flex items-center justify-center peer-checked:bg-teal-600`}
-              >
-                {section.isRequired && (
-                  <svg
-                    className="h-3 w-3 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                )}
-              </span>
-              <span>Is Required</span>
-            </label>
-
-            <br />
-            <label>Section Name</label>
-            <input
-              type="text"
-              value={section.sectionName}
-              onChange={(e) => handleSectionChange('sectionName', e)}
-              placeholder="Section Name"
-              className="tracer-stream-name"
-            />
-            <label>Description</label>
-            <textarea
-              value={section.sectionDescription}
-              onChange={(e) => handleSectionChange('sectionDescription', e)}
-              placeholder="Section Description"
-              className="section-description"
-            />
-            <div className="mb-6">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Tags
-              </label>
-              <div className="inline-block">
-                <select
-                  onChange={handleTagSelect}
-                  className="block w-auto max-w-fit rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            <div className="flex items-center">
+              {canLeftClick && (
+                <ArrowButton
+                  onClick={() => onSave(section, 'Left')}
+                  className=""
                 >
-                  <option value="">Select a tag</option>
-                  {teamLabels.map((teamLabel) => (
-                    <option key={teamLabel.id} value={teamLabel.id}>
-                      {teamLabel.labelName}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {section.teamLabels.map((label) => (
-                  <div
-                    key={label.id}
-                    className="flex items-center space-x-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700"
+                  <FaChevronLeft size={24} />
+                </ArrowButton>
+              )}
+              <div
+                className={`flex-1 overflow-y-auto ${
+                  !canLeftClick || !canRightClick ? 'px-4' : ''
+                }`}
+              >
+                <label className="mb-4 flex items-center">
+                  <input
+                    type="checkbox"
+                    className="peer hidden"
+                    checked={section.isRequired}
+                    onChange={(e) =>
+                      setSection((prevSection) => ({
+                        ...prevSection,
+                        isRequired: e.target.checked,
+                      }))
+                    }
+                    id="custom-checkbox"
+                  />
+                  <span
+                    className={`h-5 w-5 rounded border-2 border-gray-400 ${
+                      section.isRequired ? 'bg-teal-600' : 'bg-white'
+                    } flex items-center justify-center peer-checked:bg-teal-600`}
                   >
-                    <span>{label.labelName}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteTag(label.id)}
-                      className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-700 text-white hover:bg-blue-800"
-                    >
-                      &times;
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {mode !== 'sectionCreation' && (
-              <>
-                <h3>Files:</h3>
-                <div style={{ overflow: 'hidden' }}>
-                  <ul>
-                    {section.files?.map(
-                      (s3Object: S3ObjectDto, index: number) => (
-                        <FileItem
-                          key={index}
-                          style={{ display: 'flex', alignItems: 'center' }}
-                        >
-                          <span
-                            style={{
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              maxWidth: '60%', // Adjust the max-width as needed
-                              display: 'inline-block',
-                            }}
-                          >
-                            {getOnlyFileName(s3Object.name || '')}
-                          </span>
-                          <div>
-                            <Button
-                              style={{ marginRight: '10px' }}
-                              onClick={() => {
-                                handleRedirect(s3Object.presignedUrl || '');
-                              }}
-                            >
-                              View
-                            </Button>
-                            <CancelButton
-                              className="border-r-md border border-red-600 bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white"
-                              onClick={() => {
-                                handleFileDelete(s3Object);
-                              }}
-                            >
-                              Delete
-                            </CancelButton>
-                          </div>
-                        </FileItem>
-                      ),
+                    {section.isRequired && (
+                      <svg
+                        className="h-3 w-3 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 13l4 4L19 7"
+                        ></path>
+                      </svg>
                     )}
-                  </ul>
+                  </span>
+                  <span className="ms-2">Is Required</span>
+                </label>
+
+                <div className="mb-4">
+                  <label htmlFor="sectionName">Section Name</label>
+                  <input
+                    id="sectionName"
+                    value={section.sectionName}
+                    onChange={(e) => handleSectionChange('sectionName', e)}
+                    placeholder="Section Name"
+                  />
                 </div>
 
-                <DragAndDropArea
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                  onClick={() => fileInputRef.current?.click()} // Trigger file input click
-                >
-                  <label>Drag & drop files here or click to upload:</label>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileUpload}
-                    style={{ display: 'none' }}
+                <div className="mb-4">
+                  <label htmlFor="description">Description</label>
+                  <TextArea
+                    id="description"
+                    value={section.sectionDescription}
+                    onChange={(e) =>
+                      handleSectionChange('sectionDescription', e)
+                    }
+                    placeholder="Section Description"
                   />
-                  <Button>Upload File</Button>
-                </DragAndDropArea>
-              </>
-            )}
+                </div>
+
+                <div className="mb-6">
+                  <label htmlFor="tags" className="mb-2 block">
+                    Tags
+                  </label>
+                  <div className="inline-block">
+                    <select
+                      onChange={handleTagSelect}
+                      className="block w-auto max-w-fit rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="">Select a tag</option>
+                      {teamLabels.map((teamLabel) => (
+                        <option key={teamLabel.id} value={teamLabel.id}>
+                          {teamLabel.labelName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {section.teamLabels.map((label) => (
+                      <div
+                        key={label.id}
+                        className="flex items-center space-x-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700"
+                      >
+                        <span>{label.labelName}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteTag(label.id)}
+                          className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-700 text-white hover:bg-blue-800"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {mode !== 'sectionCreation' && (
+                  <>
+                    <h3 className="mb-2">Files:</h3>
+                    <div className="mb-4 overflow-hidden">
+                      <ul>
+                        {section.files?.map(
+                          (s3Object: S3ObjectDto, index: number) => (
+                            <FileItem
+                              key={index}
+                              className="mb-2 flex items-center justify-between"
+                            >
+                              <span
+                                className="truncate"
+                                style={{
+                                  maxWidth: '60%', // Adjust the max-width as needed
+                                }}
+                              >
+                                {getOnlyFileName(s3Object.name || '')}
+                              </span>
+                              <div>
+                                <Button
+                                  className="mr-2"
+                                  onClick={() => {
+                                    handleRedirect(s3Object.presignedUrl || '');
+                                  }}
+                                >
+                                  View
+                                </Button>
+                                <CancelButton
+                                  className="border-r-md border border-red-600 bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white"
+                                  onClick={() => {
+                                    handleFileDelete(s3Object);
+                                  }}
+                                >
+                                  Delete
+                                </CancelButton>
+                              </div>
+                            </FileItem>
+                          ),
+                        )}
+                      </ul>
+                    </div>
+
+                    <DragAndDropArea
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      onClick={() => fileInputRef.current?.click()} // Trigger file input click
+                    >
+                      <label>Drag & drop files here or click to upload:</label>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileUpload}
+                        style={{ display: 'none' }}
+                      />
+                      <Button>Upload File</Button>
+                    </DragAndDropArea>
+                  </>
+                )}
+              </div>
+              {canRightClick && (
+                <ArrowButton
+                  onClick={() => onSave(section, 'Right')}
+                  className="flex-shrink-0"
+                >
+                  <FaChevronRight size={24} />
+                </ArrowButton>
+              )}
+            </div>
           </ModalBody>
-          {canRightClick && (
-            <ArrowButton onClick={() => onSave(section, 'Right')}>
-              <FaChevronRight size={24} />
-            </ArrowButton>
-          )}
         </ModalContentWrapper>
 
         <ModalFooter>
@@ -499,9 +516,8 @@ const ModalHeader = styled.div`
 `;
 
 const ArrowButton = styled.button`
-  background: #2d3748;
   border: none;
-  color: #fff;
+  color: #bebebe;
   padding: 20px;
   cursor: pointer;
   display: flex;
@@ -509,15 +525,12 @@ const ArrowButton = styled.button`
   justify-content: center;
   transition: background 0.3s;
   z-index: 1001;
-
-  &:hover {
-    background: #4a5568;
-  }
 `;
 
 const ModalBody = styled.div`
   flex: 1;
-  padding: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   overflow-y: auto;
 
   .tracer-stream-name {
