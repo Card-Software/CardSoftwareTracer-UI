@@ -5,7 +5,7 @@ export enum Statuses {
   Returned = 'Returned',
 }
 
-export enum NTStasuses {
+export enum DeliveryStatus {
   Sent = 'Sent',
   NotSent = 'Not Sent',
 }
