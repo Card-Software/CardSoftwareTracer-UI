@@ -4,6 +4,8 @@ class UserAuthenticationProxy {
   private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
 
   async Login(email: string, password: string): Promise<{ token: string }> {
+    console.log('baseUrl', this.baseUrl);
+
     const response = await fetch(
       `${this.baseUrl}AuthenticationController/login`,
       {
