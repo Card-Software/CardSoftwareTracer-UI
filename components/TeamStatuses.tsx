@@ -1,7 +1,7 @@
 // components/TeamStatuses.tsx
 import React, { useEffect } from 'react';
 import { Status } from '../models/Status';
-import { Statuses, NTStasuses } from '@/models/enum/statuses';
+import { Statuses, DeliveryStatus } from '@/models/enum/statuses';
 
 interface TeamStatusesProps {
   onChange: (updatedStatuses: Status[]) => void;
@@ -19,16 +19,17 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
       setStatus([
         { team: 'Planning', teamStatus: Statuses.Pending, feedback: '' },
         { team: 'SAC', teamStatus: Statuses.Pending, feedback: '' },
-        { team: 'NT', teamStatus: NTStasuses.NotSent, feedback: '' },
+        { team: 'NT', teamStatus: Statuses.Pending, feedback: '' },
+        { team: 'Delivery', teamStatus: DeliveryStatus.NotSent, feedback: '' },
       ]);
     }
   }, [status]);
 
   useEffect(() => {
     const updatedStatus = status.map((s) =>
-      s.team === 'NT' &&
-      !Object.values(NTStasuses).includes(s.teamStatus as NTStasuses)
-        ? { ...s, teamStatus: NTStasuses.NotSent }
+      s.team === 'Delivery' &&
+      !Object.values(DeliveryStatus).includes(s.teamStatus as DeliveryStatus)
+        ? { ...s, teamStatus: DeliveryStatus.NotSent }
         : s,
     );
     if (JSON.stringify(updatedStatus) !== JSON.stringify(status)) {
@@ -63,8 +64,8 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
               onChange={(e) => handleStatusChange(s.team, e.target.value)}
               className="w-48 rounded-md border border-gray-300 px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              {s.team === 'NT'
-                ? Object.values(NTStasuses).map((status) => (
+              {s.team === 'Delivery'
+                ? Object.values(DeliveryStatus).map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development node load-env.js && next dev",
-    "prod": "NODE_ENV=production node load-env.js && next dev",
+    "dev": "cp .env.dev .env.local && next dev",
+    "prod": "cp .env.prod .env.local && next dev",
     "build:dev": "cp .env.dev .env.local && next build",
     "build:prod": "cp .env.prod .env.local && next build",
     "lint": "next lint",
