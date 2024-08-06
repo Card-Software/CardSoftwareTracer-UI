@@ -253,7 +253,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
         </ModalHeader>
         <ModalContentWrapper>
           <ModalBody>
-            <div className="flex items-center">
+            <div className="flex items-center p-4">
               {canLeftClick && (
                 <ArrowButton
                   onClick={() => onSave(section, 'Left')}
@@ -263,8 +263,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
                 </ArrowButton>
               )}
               <div
-                className={`flex-1 overflow-y-auto ${
-                  !canLeftClick || !canRightClick ? 'px-4' : ''
+                className={`flex-1 overflow-y-auto px-8 ${
+                  !canLeftClick || !canRightClick ? '' : ''
                 }`}
               >
                 <label className="mb-4 flex items-center">
@@ -467,7 +467,7 @@ const ModalWrapper = styled.div`
   z-index: 1000;
 
   &.open {
-    width: 40%;
+    width: 50%;
   }
 `;
 
