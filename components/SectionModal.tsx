@@ -306,7 +306,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
                 </label>
 
                 <div className="mb-4">
-                  <label htmlFor="sectionName">Section Name</label>
+                  <label htmlFor="sectionName">Section Name </label>
                   <input
                     id="sectionName"
                     value={section.sectionName}
