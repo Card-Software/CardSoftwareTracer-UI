@@ -12,11 +12,11 @@ dotenv.config({ path: '.env' });
 if (env === 'development') {
   if (useLocal && fs.existsSync('.env.local')) {
     dotenv.config({ path: '.env.local' });
-  } else if (fs.existsSync('.env.development')) {
-    dotenv.config({ path: '.env.development' });
+  } else if (fs.existsSync('.env.dev')) {
+    dotenv.config({ path: '.env.dev' });
   }
-} else if (env === 'production' && fs.existsSync('.env.production')) {
-  dotenv.config({ path: '.env.production' });
+} else if (env === 'production' && fs.existsSync('.env.prod')) {
+  dotenv.config({ path: '.env.prod' });
 }
 
 console.log(`Running in ${env} mode`);

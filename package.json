@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "NODE_ENV=development node load-env.js && next dev",
     "prod": "NODE_ENV=production node load-env.js && next dev",
+    "build:dev": "NODE_ENV=development node load-env.js && next build",
+    "build:prod": "NODE_ENV=production node load-env.js && next build",
+    "lint": "next lint",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
     "bson": "^6.8.0",
