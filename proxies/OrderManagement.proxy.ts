@@ -8,28 +8,24 @@ import { WholeSaleOrder } from '@/models/WholeSaleOrder';
 
 class OrderManagementApiProxy {
   private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
-  private deployedUrl: string =
-    process.env.NEXT_PUBLIC_TRACER_APP_API_URL_DEPLOYED || '';
+
   //#region
   // Stream controller
   async createTraceability(traceability: TracerStream): Promise<TracerStream> {
-    const response = await fetch(
-      `${this.deployedUrl}TracerStreams/CreateStream`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(traceability),
+    const response = await fetch(`${this.baseUrl}TracerStreams/CreateStream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify(traceability),
+    });
     return await response.json();
   }
 
   async getTraceability(name: string): Promise<TracerStream> {
     const nameEncoded = encodeURIComponent(name);
     const response = await fetch(
-      `${this.deployedUrl}TracerStreams/GetStream/${nameEncoded}`,
+      `${this.baseUrl}TracerStreams/GetStream/${nameEncoded}`,
     );
     return await response.json();
   }
@@ -40,7 +36,7 @@ class OrderManagementApiProxy {
   ): Promise<TracerStream> {
     const nameEncoded = encodeURIComponent(tracerName);
     const response = await fetch(
-      `${this.deployedUrl}TracerStreams/UpdateStream/${nameEncoded}`,
+      `${this.baseUrl}TracerStreams/UpdateStream/${nameEncoded}`,
       {
         method: 'PATCH',
         headers: {
@@ -54,7 +50,7 @@ class OrderManagementApiProxy {
 
   async getAllTraceabilities(): Promise<TracerStream[]> {
     const response = await fetch(
-      `${this.deployedUrl}TracerStreams/GetAllTracerStreams`,
+      `${this.baseUrl}TracerStreams/GetAllTracerStreams`,
     );
     return await response.json();
   }
@@ -64,7 +60,7 @@ class OrderManagementApiProxy {
   // Product Order controller
   async createProductOrder(productOrder: ProductOrder): Promise<ProductOrder> {
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/create`,
+      `${this.baseUrl}ProductOrderController/create`,
       {
         method: 'POST',
         headers: {
@@ -79,7 +75,7 @@ class OrderManagementApiProxy {
   async getProductOrder(id: string): Promise<ProductOrder> {
     const encoedUri = encodeURIComponent(id);
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/get/${encoedUri}`,
+      `${this.baseUrl}ProductOrderController/get/${encoedUri}`,
     );
     return await response.json();
   }
@@ -90,7 +86,7 @@ class OrderManagementApiProxy {
   ): Promise<any> {
     const poId = originalProductOderId || productOrder.id;
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/update/${poId}`,
+      `${this.baseUrl}ProductOrderController/update/${poId}`,
       {
         method: 'PUT',
         headers: {
@@ -103,7 +99,7 @@ class OrderManagementApiProxy {
   }
 
   async deleteProductOrder(id: string): Promise<void> {
-    await fetch(`${this.deployedUrl}ProductOrderController/delete/${id}`, {
+    await fetch(`${this.baseUrl}ProductOrderController/delete/${id}`, {
       method: 'DELETE',
     });
   }
@@ -113,7 +109,7 @@ class OrderManagementApiProxy {
     pageSize: number = 50,
   ): Promise<AllResponse> {
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/all?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      `${this.baseUrl}ProductOrderController/all?pageNumber=${pageNumber}&pageSize=${pageSize}`,
     );
     return await response.json();
   }
@@ -121,7 +117,7 @@ class OrderManagementApiProxy {
   async searchProductOrders(searchTerm: string): Promise<ProductOrder[]> {
     const poEncoded = encodeURIComponent(searchTerm);
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/search?po=${poEncoded}`,
+      `${this.baseUrl}ProductOrderController/search?po=${poEncoded}`,
     );
     return await response.json();
   }
@@ -130,7 +126,7 @@ class OrderManagementApiProxy {
     filter: PoSearchFilters,
   ): Promise<SnapshotPaginatedResult> {
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/snapshot/search`,
+      `${this.baseUrl}ProductOrderController/snapshot/search`,
       {
         method: 'POST',
         headers: {
@@ -148,7 +144,7 @@ class OrderManagementApiProxy {
     pageSize: number = 50,
   ): Promise<AllResponse> {
     const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/search?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+      `${this.baseUrl}ProductOrderController/search?pageNumber=${pageNumber}&pageSize=${pageSize}`,
       {
         method: 'POST',
         headers: {
@@ -161,16 +157,13 @@ class OrderManagementApiProxy {
   }
 
   async convertSearchToCsv(filter: PoSearchFilters): Promise<Blob> {
-    const response = await fetch(
-      `${this.deployedUrl}ProductOrderController/csv`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(filter),
+    const response = await fetch(`${this.baseUrl}ProductOrderController/csv`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    );
+      body: JSON.stringify(filter),
+    });
 
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -188,7 +181,7 @@ class OrderManagementApiProxy {
     wholeSaleOrder: WholeSaleOrder,
   ): Promise<WholeSaleOrder> {
     const response = await fetch(
-      `${this.deployedUrl}WholeSaleOrderController/create`,
+      `${this.baseUrl}WholeSaleOrderController/create`,
       {
         method: 'POST',
         headers: {
@@ -202,7 +195,7 @@ class OrderManagementApiProxy {
 
   async getWholeSaleOrder(id: string): Promise<WholeSaleOrder> {
     const response = await fetch(
-      `${this.deployedUrl}WholeSaleOrderController/get/${id}`,
+      `${this.baseUrl}WholeSaleOrderController/get/${id}`,
     );
     return await response.json();
   }
@@ -211,7 +204,7 @@ class OrderManagementApiProxy {
     wholeSaleOrder: WholeSaleOrder,
   ): Promise<WholeSaleOrder> {
     const response = await fetch(
-      `${this.deployedUrl}WholeSaleOrderController/${wholeSaleOrder.id}`,
+      `${this.baseUrl}WholeSaleOrderController/${wholeSaleOrder.id}`,
       {
         method: 'PUT',
         headers: {
@@ -224,15 +217,13 @@ class OrderManagementApiProxy {
   }
 
   async deleteWholeSaleOrder(id: string): Promise<void> {
-    await fetch(`${this.deployedUrl}WholeSaleOrderController/delete/${id}`, {
+    await fetch(`${this.baseUrl}WholeSaleOrderController/delete/${id}`, {
       method: 'DELETE',
     });
   }
 
   async getAllWholeSaleOrders(): Promise<WholeSaleOrder[]> {
-    const response = await fetch(
-      `${this.deployedUrl}WholeSaleOrderController/all`,
-    );
+    const response = await fetch(`${this.baseUrl}WholeSaleOrderController/all`);
     return await response.json();
   }
   //#endregion

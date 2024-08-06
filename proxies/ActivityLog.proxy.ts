@@ -4,12 +4,10 @@ import { S3ObjectDto } from '@/models/S3ObjectDto';
 
 class ActivityLogProxy {
   private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
-  private deployedUrl: string =
-    process.env.NEXT_PUBLIC_TRACER_APP_API_URL_DEPLOYED || '';
 
   async insertActivityLog(activityLog: ActivityLog): Promise<boolean> {
     const response = await fetch(
-      `${this.deployedUrl}ActivityLogController/insert`,
+      `${this.baseUrl}ActivityLogController/insert`,
       {
         method: 'POST',
         headers: {
@@ -23,7 +21,7 @@ class ActivityLogProxy {
 
   async getActivityLogByPo(po: string): Promise<ActivityLog[]> {
     const response = await fetch(
-      `${this.deployedUrl}ActivityLogController/getbyPo/${po}`,
+      `${this.baseUrl}ActivityLogController/getbyPo/${po}`,
       {
         method: 'GET',
         headers: {
@@ -31,8 +29,10 @@ class ActivityLogProxy {
         },
       },
     );
-    const data = await response.json();
-    return data;
+    if (response.ok) {
+      return await response.json();
+    }
+    return [];
   }
 }
 

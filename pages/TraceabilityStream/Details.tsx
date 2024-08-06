@@ -131,6 +131,26 @@ const Details = () => {
     }
   };
 
+  const nextSection = () => {
+    const currentIndex = tracerStream.sections.findIndex(
+      (section) => section.sectionId === currentProcess?.sectionId,
+    );
+    const nextIndex = currentIndex + 1;
+    if (nextIndex < tracerStream.sections.length) {
+      openModal('Edit Section', tracerStream.sections[nextIndex]);
+    }
+  };
+
+  const previousSection = () => {
+    const currentIndex = tracerStream.sections.findIndex(
+      (section) => section.sectionId === currentProcess?.sectionId,
+    );
+    const previousIndex = currentIndex - 1;
+    if (previousIndex >= 0) {
+      openModal('Edit Section', tracerStream.sections[previousIndex]);
+    }
+  };
+
   const handleAddSection = () => {
     openModal('Add New Section', {
       sectionId: uuidv4(),
@@ -159,7 +179,10 @@ const Details = () => {
     window.scrollTo(0, scrollPosition); // Restore the scroll position
   };
 
-  const saveSection = (data: Section) => {
+  const saveSection = (
+    data: Section,
+    move: 'Right' | 'Left' | null | undefined,
+  ) => {
     const updatedSections =
       modalTitle === 'Add New Section'
         ? [...tracerStream.sections, data]
@@ -168,7 +191,13 @@ const Details = () => {
           );
 
     setTracerStream({ ...tracerStream, sections: updatedSections });
-    closeModal();
+    if (move === 'Right') {
+      nextSection();
+    } else if (move === 'Left') {
+      previousSection();
+    } else {
+      closeModal();
+    }
   };
 
   const handleSave = async () => {
@@ -339,6 +368,7 @@ const Details = () => {
             onSave={saveSection}
             originalSection={currentProcess as Section}
             mode={'sectionCreation'}
+            totalSections={tracerStream.sections.length}
           />
         )}
       </div>
