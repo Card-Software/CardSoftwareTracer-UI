@@ -410,17 +410,6 @@ const PurchaseOrderPage: React.FC = () => {
     });
   };
 
-  const sendEmailToGroupName = (groupName: string) => {
-    const group = groups.find((group) => group.name === groupName);
-    if (group) {
-      emailService.sendEmailToGroup(
-        group,
-        productOrder?.productOrderNumber || '',
-        'Jony',
-      );
-    }
-  };
-
   const insertLogs = () => {
     productOrder?.statuses.forEach((status) => {
       const originalStatus = originalProductOrder?.statuses.find(
@@ -439,10 +428,33 @@ const PurchaseOrderPage: React.FC = () => {
         };
         activityLogProxy.insertActivityLog(activityLog);
 
-        if (status.team === 'Planning' && status.teamStatus === 'Completed') {
-          sendEmailToGroupName('SAC');
-        } else if (status.team === 'SAC' && status.teamStatus === 'Returned') {
-          sendEmailToGroupName('SAC');
+        console.log(process.env.NODE_ENV);
+        if (process.env.NEXT_PUBLIC_ENV === 'prod') {
+          if (status.team === 'Planning' && status.teamStatus === 'Completed') {
+            emailService.sendPoUpdateEmailToAllUsers(
+              productOrder?.productOrderNumber || '',
+              'Planning',
+              'Completed',
+            );
+          } else if (
+            status.team === 'SAC' &&
+            status.teamStatus === 'Returned'
+          ) {
+            emailService.sendPoUpdateEmailToAllUsers(
+              productOrder?.productOrderNumber || '',
+              'SAC',
+              'Returned',
+            );
+          } else if (
+            status.team === 'Planning' &&
+            status.teamStatus === 'Accomplish'
+          ) {
+            emailService.sendPoUpdateEmailToAllUsers(
+              productOrder?.productOrderNumber || '',
+              'Planning',
+              'Accomplish',
+            );
+          }
         }
       }
     });
