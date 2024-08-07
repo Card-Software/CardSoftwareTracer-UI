@@ -22,6 +22,7 @@ import { Status } from '@/models/Status';
 import { Site } from '@/models/Site';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { emailService } from '@/services/Email.service';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -65,8 +66,6 @@ const NewProductOrder: React.FC = () => {
 
         setAllSites(organization.sites || []);
 
-        // const productOrders =
-        //   await orderManagementApiProxy.getAllProductOrders();
         const users = await organizationManagementProxy.GetAllUsers();
         const teamLabels = await teamLabelProxy.getTeamLabelsByOrganizationName(
           organization.name,
@@ -138,6 +137,7 @@ const NewProductOrder: React.FC = () => {
         return;
       }
 
+      emailService.sendPoCreationEmail(data.productOrderNumber);
       alert('PO successfully created');
 
       router.push(`/Dashboard`);

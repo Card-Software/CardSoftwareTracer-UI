@@ -1,16 +1,43 @@
-import { Organization } from '@/models/Organization';
 import { User } from '@/models/User';
-import { userAuthenticationProxy } from '@/proxies/UserAuthentication.proxy';
-import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
-import router, { NextRouter } from 'next/router';
-import { userAuthorizationProxy } from '@/proxies/UserAuthorizationProxy.proxy';
-import { Group } from '@/models/Group';
+import { userAuthenticationService } from './UserAuthentication.service';
 import { emailProxy } from '@/proxies/Email.proxy';
+import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/Email';
 
 class EmailService {
-  sendEmailToGroup(group: Group, poNumber: string, body: string): void {
-    group.membersEmail.forEach((email) => {
-      emailProxy.EmailPoStatusUpdate(email, poNumber, '');
+  user = userAuthenticationService.getUser() as User;
+  allUsers = userAuthenticationService.getOrganization()?.users as User[];
+
+  sendPoUpdateEmailToAllUsers(
+    poNumber: string,
+    team: string,
+    status: string,
+  ): void {
+    this.allUsers.forEach((user) => {
+      if (user.email) {
+        const data: PoStatusChanged = {
+          recipient: user.email,
+          poNumber: poNumber,
+          name: user.firstName + ' ' + user.lastname,
+          emailOfChange: this.user.email as string,
+          team: team,
+          status: status,
+        };
+        emailProxy.EmailPoStatusChanged(data);
+      }
+    });
+  }
+
+  sendPoCreationEmail(poNumber: string): void {
+    this.allUsers.forEach((user) => {
+      if (user.email) {
+        const data: ProductOrderCreatedEmail = {
+          recipient: user.email,
+          poNumber: poNumber,
+          name: user.firstName + ' ' + user.lastname,
+          emailOfChange: this.user.email as string,
+        };
+        emailProxy.EmailPoCreation(data);
+      }
     });
   }
 }
