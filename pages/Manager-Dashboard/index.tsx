@@ -351,6 +351,7 @@ const ManagerDashboard: React.FC = () => {
       'externalProductOrderNumber',
       'siteRef',
       'createdDate',
+      'invoiceDate',
       'planningCompletion',
       'planningStatus',
       'planningMissingSections',
@@ -360,6 +361,10 @@ const ManagerDashboard: React.FC = () => {
       'sacCompletion',
       'sacStatus',
       'sacMissingSections',
+      'referenceNumber',
+      'lot',
+      'product',
+      'quantity',
     ] as const;
 
     type SortKey = (typeof sortKeys)[number];
@@ -370,8 +375,20 @@ const ManagerDashboard: React.FC = () => {
 
     if (sortConfig !== null && isSortKey(sortConfig.key)) {
       const sortedOrders = [...filteredProductOrders].sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
-        const bValue = b[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
+        let aValue = a[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
+        let bValue = b[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
+
+        if (
+          sortConfig.key === 'createdDate' ||
+          sortConfig.key === 'invoiceDate'
+        ) {
+          if (typeof aValue === 'string') {
+            aValue = new Date(aValue);
+          }
+          if (typeof bValue === 'string') {
+            bValue = new Date(bValue);
+          }
+        }
 
         if (aValue < bValue) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -646,6 +663,34 @@ const ManagerDashboard: React.FC = () => {
                   </th>
                   <th
                     scope="col"
+                    className=" px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    onClick={() => handleSort('referenceNumber')}
+                  >
+                    Reference Number
+                  </th>
+                  <th
+                    scope="col"
+                    className=" px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    onClick={() => handleSort('lot')}
+                  >
+                    Lot
+                  </th>
+                  <th
+                    scope="col"
+                    className=" px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    onClick={() => handleSort('quantity')}
+                  >
+                    Quantity
+                  </th>
+                  <th
+                    scope="col"
+                    className=" px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                    onClick={() => handleSort('product')}
+                  >
+                    Product
+                  </th>
+                  <th
+                    scope="col"
                     className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   >
                     User
@@ -667,7 +712,7 @@ const ManagerDashboard: React.FC = () => {
                   <th
                     scope="col"
                     className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
-                    onClick={() => handleSort('createdDate')}
+                    onClick={() => handleSort('invoiceDate')}
                   >
                     Invoice Date
                   </th>
@@ -753,6 +798,38 @@ const ManagerDashboard: React.FC = () => {
                           }
                         >
                           {order.externalProductOrderNumber}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
+                          {order.referenceNumber}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
+                          {order.lot}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
+                          {order.quantity}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
+                          {order.product}
                         </td>
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"

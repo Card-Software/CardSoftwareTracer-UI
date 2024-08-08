@@ -15,4 +15,8 @@ export interface ProductOrderSnapshot {
   sacCompletion?: number;
   sacStatus?: string;
   sacMissingSections?: string[];
+  lot?: string;
+  referenceNumber?: string;
+  product?: string;
+  quantity?: number;
 }
