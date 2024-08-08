@@ -1,3 +1,4 @@
+import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/Email';
 import { Group } from '@/models/Group';
 import { S3ObjectDto } from '@/models/S3ObjectDto';
 
@@ -18,6 +19,28 @@ class EmailProxy {
         },
       },
     );
+    return response;
+  }
+
+  async EmailPoCreation(body: ProductOrderCreatedEmail): Promise<Response> {
+    const response = await fetch(`${this.baseUrl}Email/EmailPOCreated`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    return response;
+  }
+
+  async EmailPoStatusChanged(body: PoStatusChanged) {
+    const response = await fetch(`${this.baseUrl}Email/EmailStatusChange`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
     return response;
   }
 }

@@ -8,8 +8,15 @@ export interface ProductOrderSnapshot {
   siteRef?: string;
   planningCompletion?: number;
   planningStatus?: string;
+  planningMissingSections?: string[];
   ntCompletion?: number;
   ntStatus?: string;
+  ntMissingSections?: string[];
   sacCompletion?: number;
   sacStatus?: string;
+  sacMissingSections?: string[];
+  lot?: string;
+  referenceNumber?: string;
+  product?: string;
+  quantity?: number;
 }

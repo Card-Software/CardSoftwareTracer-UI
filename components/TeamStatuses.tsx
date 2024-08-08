@@ -1,7 +1,10 @@
-// components/TeamStatuses.tsx
 import React, { useEffect } from 'react';
 import { Status } from '../models/Status';
-import { Statuses, DeliveryStatus } from '@/models/enum/statuses';
+import {
+  Statuses,
+  DeliveryStatus,
+  PlanningStatuses,
+} from '@/models/enum/statuses';
 
 interface TeamStatusesProps {
   onChange: (updatedStatuses: Status[]) => void;
@@ -17,7 +20,11 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
   useEffect(() => {
     if (status.length === 0) {
       setStatus([
-        { team: 'Planning', teamStatus: Statuses.Pending, feedback: '' },
+        {
+          team: 'Planning',
+          teamStatus: PlanningStatuses.Pending,
+          feedback: '',
+        },
         { team: 'SAC', teamStatus: Statuses.Pending, feedback: '' },
         { team: 'NT', teamStatus: Statuses.Pending, feedback: '' },
         { team: 'Delivery', teamStatus: DeliveryStatus.NotSent, feedback: '' },
@@ -53,6 +60,17 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
     onChange(updatedStatus);
   };
 
+  const getStatusOptions = (team: string) => {
+    switch (team) {
+      case 'Delivery':
+        return Object.values(DeliveryStatus);
+      case 'Planning':
+        return Object.values(PlanningStatuses);
+      default:
+        return Object.values(Statuses);
+    }
+  };
+
   return (
     <div className="flex flex-row justify-between rounded-lg border bg-white p-6 shadow-lg">
       {status.map((s) => (
@@ -64,17 +82,11 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
               onChange={(e) => handleStatusChange(s.team, e.target.value)}
               className="w-48 rounded-md border border-gray-300 px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              {s.team === 'Delivery'
-                ? Object.values(DeliveryStatus).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))
-                : Object.values(Statuses).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
+              {getStatusOptions(s.team).map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
             </select>
             {s.teamStatus === Statuses.Returned && (
               <textarea
