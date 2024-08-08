@@ -328,10 +328,13 @@ const ManagerDashboard: React.FC = () => {
       'createdDate',
       'planningCompletion',
       'planningStatus',
+      'planningMissingSections',
       'ntCompletion',
       'ntStatus',
+      'ntMissingSections',
       'sacCompletion',
       'sacStatus',
+      'sacMissingSections',
     ] as const;
 
     type SortKey = (typeof sortKeys)[number];
@@ -653,6 +656,12 @@ const ManagerDashboard: React.FC = () => {
                 <th
                   scope="col"
                   className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  Planning Missing
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   onClick={() => handleSort('ntCompletion')}
                 >
                   NT Completion
@@ -663,6 +672,12 @@ const ManagerDashboard: React.FC = () => {
                   onClick={() => handleSort('ntStatus')}
                 >
                   NT Status
+                </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  NT Missing
                 </th>
                 <th
                   scope="col"
@@ -678,60 +693,123 @@ const ManagerDashboard: React.FC = () => {
                 >
                   SAC Status
                 </th>
+                <th
+                  scope="col"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
+                >
+                  SAC Missing
+                </th>
               </tr>
             </thead>
             <tbody className="cursor-pointer divide-y divide-gray-200 bg-white">
               {sortedProductOrders.length > 0 ? (
-                sortedProductOrders.map((order) => (
-                  <tr
-                    key={order.productOrderNumber}
-                    onClick={() => handleRowClick(order.productOrderNumber)}
-                  >
-                    <td className=" whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.productOrderNumber}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.externalProductOrderNumber}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {allUsers.find(
-                        (user) => user.id === order.assignedUserRef,
-                      )
-                        ? `${allUsers.find((user) => user.id === order.assignedUserRef)?.firstName} 
+                sortedProductOrders.map((order) => {
+                  console.log('Order:', order);
+                  console.log(
+                    'Planning Missing Sections for order',
+                    order.productOrderNumber,
+                    ':',
+                    order.planningMissingSections,
+                    ':',
+                    order.ntMissingSections,
+                    ':',
+                    order.sacMissingSections,
+                  );
+
+                  return (
+                    <tr
+                      key={order.productOrderNumber}
+                      onClick={() => handleRowClick(order.productOrderNumber)}
+                    >
+                      <td className=" whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.productOrderNumber}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.externalProductOrderNumber}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {allUsers.find(
+                          (user) => user.id === order.assignedUserRef,
+                        )
+                          ? `${allUsers.find((user) => user.id === order.assignedUserRef)?.firstName} 
                         ${allUsers.find((user) => user.id === order.assignedUserRef)?.lastname}`
-                        : ''}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {allSites.find((site) => site.id === order.siteRef)?.name}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {convertDateToInternationalDateString(order.createdDate)}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {convertDateToInternationalDateString(
-                        order.invoiceDate || '',
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.planningCompletion}%
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.planningStatus}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.ntCompletion}%
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.ntStatus}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.sacCompletion}%
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {order.sacStatus}
-                    </td>
-                  </tr>
-                ))
+                          : ''}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {
+                          allSites.find((site) => site.id === order.siteRef)
+                            ?.name
+                        }
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {convertDateToInternationalDateString(
+                          order.createdDate,
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {convertDateToInternationalDateString(
+                          order.invoiceDate || '',
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.planningCompletion}%
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.planningStatus}
+                      </td>
+                      <td>
+                        {Array.isArray(order.planningMissingSections) &&
+                        order.planningMissingSections.length > 0 ? (
+                          <ul>
+                            {order.planningMissingSections.map(
+                              (section, index) => (
+                                <li key={index}>{section}</li>
+                              ),
+                            )}
+                          </ul>
+                        ) : (
+                          'No missing sections'
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.ntCompletion}%
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.ntStatus}
+                      </td>
+                      <td>
+                        {Array.isArray(order.ntMissingSections) &&
+                        order.ntMissingSections.length > 0 ? (
+                          <ul>
+                            {order.ntMissingSections.map((section, index) => (
+                              <li key={index}>{section}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          'No missing sections'
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.sacCompletion}%
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        {order.sacStatus}
+                      </td>
+                      <td>
+                        {Array.isArray(order.sacMissingSections) &&
+                        order.sacMissingSections.length > 0 ? (
+                          <ul>
+                            {order.sacMissingSections.map((section, index) => (
+                              <li key={index}>{section}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          'No missing sections'
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td
