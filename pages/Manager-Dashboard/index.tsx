@@ -29,6 +29,11 @@ const ManagerDashboard: React.FC = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [modalData, setModalData] = useState<string[]>([]);
 
+  const truncateArray = (array: string[], limit: number) => {
+    if (array.length <= limit) return array;
+    return array.slice(0, limit).concat(`...and ${array.length - limit} more`);
+  };
+
   const handleOpenModal = (title: string, data: string[]) => {
     setModalTitle(title);
     setModalData(data);
@@ -274,7 +279,9 @@ const ManagerDashboard: React.FC = () => {
   };
 
   const handleRowClick = (productOrderNumber: string) => {
-    router.push(`/Dashboard/po/${productOrderNumber}`);
+    if (!isModalOpen) {
+      router.push(`/Dashboard/po/${productOrderNumber}`);
+    }
   };
 
   const convertDateToInternationalDateString = (date: string | Date) => {
@@ -730,17 +737,29 @@ const ManagerDashboard: React.FC = () => {
                 {sortedProductOrders.length > 0 ? (
                   sortedProductOrders.map((order) => {
                     return (
-                      <tr
-                        key={order.productOrderNumber}
-                        onClick={() => handleRowClick(order.productOrderNumber)}
-                      >
-                        <td className=" whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      <tr key={order.productOrderNumber}>
+                        <td
+                          className=" whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {order.productOrderNumber}
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {order.externalProductOrderNumber}
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {allUsers.find(
                             (user) => user.id === order.assignedUserRef,
                           )
@@ -748,26 +767,51 @@ const ManagerDashboard: React.FC = () => {
                         ${allUsers.find((user) => user.id === order.assignedUserRef)?.lastname}`
                             : ''}
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {
                             allSites.find((site) => site.id === order.siteRef)
                               ?.name
                           }
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {convertDateToInternationalDateString(
                             order.createdDate,
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {convertDateToInternationalDateString(
                             order.invoiceDate || '',
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {order.planningCompletion}%
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {order.planningStatus}
                         </td>
                         <td
@@ -782,7 +826,53 @@ const ManagerDashboard: React.FC = () => {
                           {Array.isArray(order.planningMissingSections) &&
                           order.planningMissingSections.length > 0 ? (
                             <ul>
-                              {order.planningMissingSections.map(
+                              {truncateArray(
+                                order.planningMissingSections,
+                                2,
+                              ).map((section, index) => (
+                                <li
+                                  className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                                  key={index}
+                                >
+                                  {section}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                              No missing sections
+                            </p>
+                          )}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
+                          {order.ntCompletion}%
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
+                          {order.ntStatus}
+                        </td>
+                        <td
+                          className="cursor-pointer whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"
+                          onClick={() =>
+                            handleOpenModal(
+                              'Planning Missing Sections',
+                              order.ntMissingSections || [],
+                            )
+                          }
+                        >
+                          {Array.isArray(order.ntMissingSections) &&
+                          order.ntMissingSections.length > 0 ? (
+                            <ul>
+                              {truncateArray(order.ntMissingSections, 2).map(
                                 (section, index) => (
                                   <li
                                     className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
@@ -799,43 +889,20 @@ const ManagerDashboard: React.FC = () => {
                             </p>
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {order.ntCompletion}%
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                          {order.ntStatus}
-                        </td>
                         <td
-                          className="cursor-pointer whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleOpenModal(
-                              'Planning Missing Sections',
-                              order.ntMissingSections || [],
-                            )
+                            handleRowClick(order.productOrderNumber)
                           }
                         >
-                          {Array.isArray(order.ntMissingSections) &&
-                          order.ntMissingSections.length > 0 ? (
-                            <ul>
-                              {order.ntMissingSections.map((section, index) => (
-                                <li
-                                  className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
-                                  key={index}
-                                >
-                                  {section}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                              No missing sections
-                            </p>
-                          )}
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                           {order.sacCompletion}%
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                        <td
+                          className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                          onClick={() =>
+                            handleRowClick(order.productOrderNumber)
+                          }
+                        >
                           {order.sacStatus}
                         </td>
                         <td
@@ -850,7 +917,7 @@ const ManagerDashboard: React.FC = () => {
                           {Array.isArray(order.sacMissingSections) &&
                           order.sacMissingSections.length > 0 ? (
                             <ul>
-                              {order.sacMissingSections.map(
+                              {truncateArray(order.sacMissingSections, 2).map(
                                 (section, index) => (
                                   <li
                                     className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
