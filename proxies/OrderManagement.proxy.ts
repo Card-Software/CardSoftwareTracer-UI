@@ -58,18 +58,36 @@ class OrderManagementApiProxy {
 
   //#region
   // Product Order controller
-  async createProductOrder(productOrder: ProductOrder): Promise<ProductOrder> {
-    const response = await fetch(
-      `${this.baseUrl}ProductOrderController/create`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+  async createProductOrder(
+    productOrder: ProductOrder,
+  ): Promise<ProductOrder | null> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}ProductOrderController/create`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(productOrder),
         },
-        body: JSON.stringify(productOrder),
-      },
-    );
-    return (await response) ? response.json() : null;
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! Status: ${response.status}. Message: ${errorText}`,
+        );
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(
+        'An error occurred while creating the product order:',
+        error,
+      );
+      return null;
+    }
   }
 
   async getProductOrder(id: string): Promise<ProductOrder> {
