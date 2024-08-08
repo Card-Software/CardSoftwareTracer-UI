@@ -428,7 +428,6 @@ const PurchaseOrderPage: React.FC = () => {
         };
         activityLogProxy.insertActivityLog(activityLog);
 
-        console.log(process.env.NODE_ENV);
         if (process.env.NEXT_PUBLIC_ENV === 'prod') {
           if (status.team === 'Planning' && status.teamStatus === 'Completed') {
             emailService.sendPoUpdateEmailToAllUsers(
