@@ -100,6 +100,7 @@ const ManagerDashboard: React.FC = () => {
     key: string;
     direction: string;
   } | null>(null);
+  let loadingOrders = false;
 
   const handleNewProductOrder = () => {
     router.push('/Dashboard/NewProductOrder');
@@ -132,7 +133,10 @@ const ManagerDashboard: React.FC = () => {
 
     setFilterInputs(initialFilters);
     setFilterValues(initialFilters);
-    fetchProductOrders(initialFilters);
+    if (!loadingOrders) {
+      loadingOrders = true;
+      fetchProductOrders(initialFilters);
+    }
   }, [router.query]);
 
   // get all sites

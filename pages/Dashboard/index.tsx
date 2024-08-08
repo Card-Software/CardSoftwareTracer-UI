@@ -57,12 +57,19 @@ const Dashboard: React.FC = () => {
   const [totalResults, setTotalResults] = useState<number>(0);
   const [allSites, setAllSites] = useState<Site[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
+  let loadingOrders = false;
 
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
     if (organization) {
       setAllSites(organization.sites || []);
       setAllUsers(organization.users || []);
+    }
+
+    if (!loadingOrders) {
+      fetchProductOrders();
+      loadingOrders = true;
     }
   }, []);
 
@@ -96,30 +103,32 @@ const Dashboard: React.FC = () => {
   }, [router.query]);
 
   useEffect(() => {
-    const fetchProductOrders = async () => {
-      try {
-        setIsLoading(true);
-        const response: AllResponse =
-          await orderManagementApiProxy.searchProductOrdersByFilters(
-            filterValues,
-            pageNumber,
-            pageSize,
-          );
-        setProductOrders(response.results);
-        setFilteredProductOrders(response.results);
-        setTotalResults(response.totalResults);
-      } catch (error) {
-        console.error('Failed to fetch product orders:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
+    if (initialLoad) return;
     fetchProductOrders();
   }, [filterValues, pageNumber, pageSize]);
 
   const toggleFilterVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
+  };
+
+  const fetchProductOrders = async () => {
+    try {
+      setIsLoading(true);
+      const response: AllResponse =
+        await orderManagementApiProxy.searchProductOrdersByFilters(
+          filterValues,
+          pageNumber,
+          pageSize,
+        );
+      setInitialLoad(false);
+      setProductOrders(response.results);
+      setFilteredProductOrders(response.results);
+      setTotalResults(response.totalResults);
+    } catch (error) {
+      console.error('Failed to fetch product orders:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFilterChange = (
