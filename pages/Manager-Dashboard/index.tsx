@@ -704,18 +704,6 @@ const ManagerDashboard: React.FC = () => {
             <tbody className="cursor-pointer divide-y divide-gray-200 bg-white">
               {sortedProductOrders.length > 0 ? (
                 sortedProductOrders.map((order) => {
-                  console.log('Order:', order);
-                  console.log(
-                    'Planning Missing Sections for order',
-                    order.productOrderNumber,
-                    ':',
-                    order.planningMissingSections,
-                    ':',
-                    order.ntMissingSections,
-                    ':',
-                    order.sacMissingSections,
-                  );
-
                   return (
                     <tr
                       key={order.productOrderNumber}
@@ -763,12 +751,19 @@ const ManagerDashboard: React.FC = () => {
                           <ul>
                             {order.planningMissingSections.map(
                               (section, index) => (
-                                <li key={index}>{section}</li>
+                                <li
+                                  className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                                  key={index}
+                                >
+                                  {section}
+                                </li>
                               ),
                             )}
                           </ul>
                         ) : (
-                          'No missing sections'
+                          <p className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            No missing sections
+                          </p>
                         )}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
@@ -782,11 +777,18 @@ const ManagerDashboard: React.FC = () => {
                         order.ntMissingSections.length > 0 ? (
                           <ul>
                             {order.ntMissingSections.map((section, index) => (
-                              <li key={index}>{section}</li>
+                              <li
+                                className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                                key={index}
+                              >
+                                {section}
+                              </li>
                             ))}
                           </ul>
                         ) : (
-                          'No missing sections'
+                          <p className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            No missing sections
+                          </p>
                         )}
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
@@ -800,11 +802,18 @@ const ManagerDashboard: React.FC = () => {
                         order.sacMissingSections.length > 0 ? (
                           <ul>
                             {order.sacMissingSections.map((section, index) => (
-                              <li key={index}>{section}</li>
+                              <li
+                                className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
+                                key={index}
+                              >
+                                {section}
+                              </li>
                             ))}
                           </ul>
                         ) : (
-                          'No missing sections'
+                          <p className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            No missing sections
+                          </p>
                         )}
                       </td>
                     </tr>
