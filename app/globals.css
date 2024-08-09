@@ -160,3 +160,15 @@ body {
   height: calc(100vh - 4rem); /* Subtract navbar height */
   overflow-y: auto; /* Enable scrollbar for sidebar content */
 }
+
+/* Remove the spinner from number inputs in WebKit browsers (Chrome, Safari, etc.) */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove the spinner from number inputs in Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}

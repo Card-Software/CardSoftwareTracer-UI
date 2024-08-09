@@ -23,6 +23,7 @@ import { Site } from '@/models/Site';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { emailService } from '@/services/Email.service';
+import SiblingProductOrdersModal from '@/components/SiblingProductOrdersModal';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -47,6 +48,9 @@ const NewProductOrder: React.FC = () => {
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
   const [invoiceDate, setInvoiceDate] = useState<Date>();
+
+  const [isSiblingProductOrderModalOpen, setIsSiblingProductOrderModalOpen] =
+    useState(false);
 
   useEffect(() => {
     // Set the default value for the date input in the form
@@ -183,6 +187,11 @@ const NewProductOrder: React.FC = () => {
             name="Add Tracer Stream"
             icon={<HiPlus />}
             onClick={() => setIsModalOpen(true)}
+          />
+          <TracerButton
+            name="Sibling Product Orders"
+            icon={<HiPlus />}
+            onClick={() => setIsSiblingProductOrderModalOpen(true)}
           />
         </div>
       </div>
@@ -410,6 +419,13 @@ const NewProductOrder: React.FC = () => {
           onClose={() => setIsModalOpen(false)}
           onSave={handleConnectTracerStream}
           mode="add"
+        />
+      )}
+      {isSiblingProductOrderModalOpen && (
+        <SiblingProductOrdersModal
+          initialSiblingProductOrders={[]}
+          onClose={() => {}}
+          onSave={() => {}}
         />
       )}
     </Layout>
