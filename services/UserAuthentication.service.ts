@@ -20,7 +20,7 @@ class UserAuthenticationService {
   private async initialize() {
     const token = localStorage.getItem('CSTracerUserJWT');
     if (token && this.isTokenValid()) {
-      await this.fetchUserData(token);
+      console.log('Token is valid');
     } else {
       this.logout();
     }

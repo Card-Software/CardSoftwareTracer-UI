@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import '../../../styles/dashboard.css';
@@ -40,6 +40,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Group } from '@/models/Group';
 import { emailService } from '@/services/Email.service';
+import SiblingProductOrdersModal from '@/components/SiblingProductOrdersModal';
+import { SiblingProductOrder } from '@/models/SiblingProductOrder';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -74,6 +76,9 @@ const PurchaseOrderPage: React.FC = () => {
     ActivityType.FileUpload,
   );
   const [allActivityLogs, setAllActivityLogs] = useState<ActivityLog[]>([]);
+  const [isSiblingProductOrderModalOpen, setIsSiblingProductOrderModalOpen] =
+    useState(false);
+  const [siblingPoTextDisplay, setSiblingPoTextDisplay] = useState<string>('');
 
   const groups: Group[] = userAuthenticationService.getGroups();
   const isAdmin = user.role.includes('Admin');
@@ -129,13 +134,34 @@ const PurchaseOrderPage: React.FC = () => {
   }, [poNumber]);
 
   useEffect(() => {
+    const siblingProductOrders = productOrder?.siblingProductOrders;
+    if (siblingProductOrders) {
+      if (siblingProductOrders.length === 0) {
+        setSiblingPoTextDisplay('');
+      } else {
+        setSiblingPoTextDisplay(`(${siblingProductOrders.length}) `);
+      }
+    } else {
+      setSiblingPoTextDisplay('');
+    }
+  }, [productOrder?.siblingProductOrders]);
+
+  const [fetchingUsers, setFetchingUsers] = useState(false);
+
+  const hasPageBeenRendered = useRef({ allUsersLoaded: false });
+
+  useEffect(() => {
     const fetchUsers = async () => {
       const users = await organizationManagementProxy.GetAllUsers();
       setAllUsers(users);
     };
 
-    fetchUsers();
-  }, [user, organization]);
+    if (!hasPageBeenRendered.current.allUsersLoaded) {
+      hasPageBeenRendered.current.allUsersLoaded = true;
+      setFetchingUsers(true);
+      fetchUsers();
+    }
+  }, []);
 
   const handleProductOrderChange = (
     e: React.ChangeEvent<
@@ -257,6 +283,18 @@ const PurchaseOrderPage: React.FC = () => {
         childrenTracerStreams: updatedStreams,
       });
     }
+  };
+
+  const handleSiblingProductOrderChange = (newPOs: SiblingProductOrder[]) => {
+    setProductOrder((prevOrder) => ({
+      ...prevOrder!,
+      siblingProductOrders: newPOs,
+    }));
+    setIsSiblingProductOrderModalOpen(false);
+  };
+
+  const handleSiblingProductOrderCancel = () => {
+    setIsSiblingProductOrderModalOpen(false);
   };
 
   const handleStreamClick = (
@@ -512,13 +550,17 @@ const PurchaseOrderPage: React.FC = () => {
             <div className="me-8 text-xl">
               <h1>Product Order Details</h1>
             </div>
-            <div>
+            <div className="flex flex-row flex-nowrap space-x-4">
               <TracerButton
                 name="Add Tracer Stream"
                 icon={<HiPlus />}
                 onClick={() =>
                   handleStreamClick({} as TracerStreamExtended, 'add')
                 }
+              />
+              <TracerButton
+                name={`${siblingPoTextDisplay} Sibling Pos`}
+                onClick={() => setIsSiblingProductOrderModalOpen(true)}
               />
             </div>
             {isAdmin && (
@@ -1027,6 +1069,13 @@ const PurchaseOrderPage: React.FC = () => {
           activityLogs={activityLogsToDisplay}
           displayType={activityLogType}
           onClose={handleCloseActivityLogModal}
+        />
+      )}
+      {isSiblingProductOrderModalOpen && (
+        <SiblingProductOrdersModal
+          initialSiblingProductOrders={productOrder.siblingProductOrders || []}
+          onClose={handleSiblingProductOrderCancel}
+          onSave={handleSiblingProductOrderChange}
         />
       )}
     </Layout>
