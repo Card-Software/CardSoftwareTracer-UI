@@ -303,34 +303,23 @@ const ManagerDashboard: React.FC = () => {
   const handleExportToXlsx = async () => {
     try {
       setIsLoading(true);
-      const blob =
-        await orderManagementApiProxy.convertSearchToCsv(filterValues);
-      const url = window.URL.createObjectURL(blob);
-      const response = await fetch(url);
-      const csvText = await response.text();
 
-      // Parse CSV text to a worksheet
-      const csvArray = csvText.split('\n').map((row) => row.split(','));
-      const worksheet = XLSX.utils.aoa_to_sheet(csvArray);
-
-      // Create a new workbook and append the worksheet
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-      const xlsxBlob = XLSX.write(workbook, {
-        bookType: 'xlsx',
-        type: 'array',
-      });
+      // Call the proxy function to get the Excel file as a Blob
+      const xlsxBlob =
+        await orderManagementApiProxy.convertSnapshotSearchToExcel(
+          filterValues,
+        );
 
       // Create a download link for the XLSX file
-      const xlsxUrl = window.URL.createObjectURL(
-        new Blob([xlsxBlob], { type: 'application/octet-stream' }),
-      );
+      const xlsxUrl = window.URL.createObjectURL(xlsxBlob);
       const a = document.createElement('a');
       a.href = xlsxUrl;
+      a.download = 'Report.xlsx'; // Set the desired file name
+      document.body.appendChild(a); // Append the anchor to the document body
+      a.click(); // Trigger the download
+      document.body.removeChild(a); // Remove the anchor from the document body
+
       setIsLoading(false);
-      a.download = 'Report.xlsx';
-      a.click();
     } catch (error) {
       setIsLoading(false);
       console.error('Failed to export to XLSX:', error);

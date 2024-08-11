@@ -1,6 +1,6 @@
 import Layout from '@/app/layout';
 import TracerButton from '@/components/TracerButton';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../../styles/dashboard.css';
 import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
@@ -19,6 +19,7 @@ const TraceabilityStream = () => {
   const [streams, setStreams] = useState<TracerStream[]>([]);
   const [filteredStreams, setFilteredStreams] = useState<TracerStream[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const hasPageBeenRendered = useRef({ allTracersLoaded: false });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +35,10 @@ const TraceabilityStream = () => {
       }
     };
 
-    fetchData();
+    if (!hasPageBeenRendered.current.allTracersLoaded) {
+      hasPageBeenRendered.current.allTracersLoaded = true;
+      fetchData();
+    }
   }, []);
 
   const handleSearch = () => {
@@ -56,12 +60,6 @@ const TraceabilityStream = () => {
   const user: User = userAuthenticationService.getUser() as User;
 
   const IsAdmin = user.role.includes('Admin');
-
-  const handleClear = () => {
-    setName('');
-    setClients('');
-    setFilteredStreams(streams);
-  };
 
   return (
     <Layout>

@@ -1,6 +1,7 @@
 import { Note } from './Note';
 import { Organization } from './Organization';
 import { Section } from './Section';
+import { SiblingProductOrder } from './SiblingProductOrder';
 import { Status } from './Status';
 import { TeamLabel } from './TeamLabel';
 import { TracerStream, TracerStreamExtended } from './TracerStream';
@@ -28,4 +29,5 @@ export interface ProductOrder {
   referenceNumber?: string;
   invoiceDate?: Date;
   provider?: string;
+  siblingProductOrders: SiblingProductOrder[];
 }
