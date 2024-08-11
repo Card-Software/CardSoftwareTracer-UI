@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/traceabilityStream.css';
 import { HiPlus } from 'react-icons/hi';
@@ -24,6 +24,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { emailService } from '@/services/Email.service';
 import SiblingProductOrdersModal from '@/components/SiblingProductOrdersModal';
+import { SiblingProductOrder } from '@/models/SiblingProductOrder';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -48,6 +49,8 @@ const NewProductOrder: React.FC = () => {
   const [statuses, setStatuses] = useState<Status[]>([]);
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
   const [invoiceDate, setInvoiceDate] = useState<Date>();
+  const [siblingPoTextDisplay, setSiblingPoTextDisplay] = useState<string>('');
+  const hasPageBeenRendered = useRef({ allUsersLoaded: false });
 
   const [isSiblingProductOrderModalOpen, setIsSiblingProductOrderModalOpen] =
     useState(false);
@@ -57,6 +60,19 @@ const NewProductOrder: React.FC = () => {
     setValue('createdDate', new Date());
     setValue('quantity', 0);
   }, [setValue]);
+
+  useEffect(() => {
+    const siblingProductOrders = watch('siblingProductOrders');
+    if (siblingProductOrders) {
+      if (siblingProductOrders.length === 0) {
+        setSiblingPoTextDisplay('');
+      } else {
+        setSiblingPoTextDisplay(`(${siblingProductOrders.length}) `);
+      }
+    } else {
+      setSiblingPoTextDisplay('');
+    }
+  }, [watch('siblingProductOrders')]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,7 +100,10 @@ const NewProductOrder: React.FC = () => {
       }
     };
 
-    fetchData();
+    if (!hasPageBeenRendered.current.allUsersLoaded) {
+      hasPageBeenRendered.current.allUsersLoaded = true;
+      fetchData();
+    }
   }, []);
 
   const handleDateChange = (name: string, date: Date | null) => {
@@ -114,6 +133,15 @@ const NewProductOrder: React.FC = () => {
     setValue('statuses', newStatuses);
   };
 
+  const handleSiblingProductOrderChange = (newPOs: SiblingProductOrder[]) => {
+    setValue('siblingProductOrders', newPOs);
+    setIsSiblingProductOrderModalOpen(false);
+  };
+
+  const handleSiblingProductOrderCancel = () => {
+    setIsSiblingProductOrderModalOpen(false);
+  };
+
   const onSubmit = async (data: ProductOrder) => {
     const owner = userAuthenticationService.getOrganization();
 
@@ -131,6 +159,7 @@ const NewProductOrder: React.FC = () => {
       (ts) => ts.productOrderNumber,
     );
 
+    console.log(data);
     data.notes = [];
     setIsLoading(true);
     try {
@@ -140,8 +169,10 @@ const NewProductOrder: React.FC = () => {
         console.error('Failed to save Product Order');
         return;
       }
+      if (process.env.NEXT_PUBLIC_ENV === 'prod') {
+        emailService.sendPoCreationEmail(data.productOrderNumber);
+      }
 
-      emailService.sendPoCreationEmail(data.productOrderNumber);
       alert('PO successfully created');
 
       router.push(`/Dashboard`);
@@ -182,19 +213,19 @@ const NewProductOrder: React.FC = () => {
         <div className="me-8 text-xl">
           <h1>Add New Product Order</h1>
         </div>
-        <div>
+        <div className="flex flex-row flex-nowrap space-x-4">
           <TracerButton
             name="Add Tracer Stream"
             icon={<HiPlus />}
             onClick={() => setIsModalOpen(true)}
           />
           <TracerButton
-            name="Sibling Product Orders"
-            icon={<HiPlus />}
+            name={`${siblingPoTextDisplay} Sibling Pos`}
             onClick={() => setIsSiblingProductOrderModalOpen(true)}
           />
         </div>
       </div>
+
       <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '5rem' }}>
         <div className="space-between mb-4 flex gap-5">
           <div className="form-box">
@@ -423,9 +454,9 @@ const NewProductOrder: React.FC = () => {
       )}
       {isSiblingProductOrderModalOpen && (
         <SiblingProductOrdersModal
-          initialSiblingProductOrders={[]}
-          onClose={() => {}}
-          onSave={() => {}}
+          initialSiblingProductOrders={watch('siblingProductOrders') || []}
+          onClose={handleSiblingProductOrderCancel}
+          onSave={handleSiblingProductOrderChange}
         />
       )}
     </Layout>
