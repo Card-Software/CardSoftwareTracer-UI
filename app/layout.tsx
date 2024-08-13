@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Sidebar from '@/components/sidebar';
+import Navbar from '@/components/nav-bar.component';
+import Sidebar from '@/components/sidebar.component';
 
 interface Props {
   children: ReactNode;

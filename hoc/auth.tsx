@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { userAuthenticationService } from '@/services/UserAuthentication.service';
-import LoadingOverlay from '@/components/LoadingOverlay';
+import { userAuthenticationService } from '@/services/user-authentication.service';
+import LoadingOverlay from '@/components/loading-overlay.component';
 
 const withAuth = (WrappedComponent: React.FC) => {
   const Wrapper: React.FC = (props) => {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { userAuthenticationService } from '@/services/UserAuthentication.service';
-import { User } from '@/models/User';
+import { userAuthenticationService } from '@/services/user-authentication.service';
+import { User } from '@/models/user';
 import Layout from '@/app/layout';
-import { userProxy } from '@/proxies/UserProxy.proxy';
+import { userProxy } from '@/proxies/user.proxy';
 
 const ProfilePage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<User | null>(null);

@@ -1,8 +1,7 @@
-import { Note } from './Note';
-import { Organization } from './Organization';
-import { S3ObjectDto } from './S3ObjectDto';
-import { TeamLabel } from './TeamLabel';
-import { User } from './User';
+import { Note } from './note';
+import { S3ObjectDto } from './s3-object-dto';
+import { TeamLabel } from './team-label';
+import { User } from './user';
 
 export interface Section {
   position: number; // Nullable

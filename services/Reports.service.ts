@@ -1,9 +1,9 @@
-import { ProductOrder } from '@/models/ProductOrder';
-import { TracerStreamExtended } from '@/models/TracerStream';
-import { TeamsProgressPercentage } from '@/models/reports/TeamsProgressPercentage';
-import { User } from '@/models/User';
-import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
-import { PoSearchFilters } from '@/models/PoSearchFilters';
+import { ProductOrder } from '@/models/product-order';
+import { TracerStreamExtended } from '@/models/tracer-stream';
+import { TeamsProgressPercentage } from '@/models/reports/team-progress-percentage';
+import { User } from '@/models/user';
+import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
+import { PoSearchFilters } from '@/models/po-search-filter';
 
 class ReportsService {
   readonly teams = ['Planning', 'SAC', 'NT'];

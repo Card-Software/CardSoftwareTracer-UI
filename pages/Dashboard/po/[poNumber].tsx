@@ -12,36 +12,36 @@ import {
   FaTrash,
   FaHistory,
 } from 'react-icons/fa';
-import SectionModal from '@/components/SectionModal';
-import TracerStreamModal from '@/components/TracerStreamModal';
-import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
-import { ProductOrder } from '@/models/ProductOrder';
+import SectionModal from '@/components/modals/section-modal.component';
+import TracerStreamModal from '@/components/modals/tracer-stream-modal.component';
+import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
+import { ProductOrder } from '@/models/product-order';
 import Link from 'next/link';
-import { Section as SectionModel } from '@/models/Section';
-import { TracerStreamExtended, TracerStream } from '@/models/TracerStream';
-import { User } from '@/models/User';
-import TracerButton from '@/components/TracerButton';
+import { Section as SectionModel } from '@/models/section';
+import { TracerStreamExtended, TracerStream } from '@/models/tracer-stream';
+import { User } from '@/models/user';
+import TracerButton from '@/components/tracer-button.component';
 import { HiPlus } from 'react-icons/hi';
-import { fileManagementService } from '@/services/FileManagement.service';
-import { userAuthenticationService } from '@/services/UserAuthentication.service';
-import LoadingOverlay from '@/components/LoadingOverlay';
+import { fileManagementService } from '@/services/file-management.service';
+import { userAuthenticationService } from '@/services/user-authentication.service';
+import LoadingOverlay from '@/components/loading-overlay.component';
 import withAuth from '@/hoc/auth';
-import TeamStatuses from '@/components/TeamStatuses'; // Import TeamStatuses
-import { Status } from '@/models/Status'; // Import Status
+import TeamStatuses from '@/components/team-statuses.component'; // Import TeamStatuses
+import { Status } from '@/models/status'; // Import Status
 import { v4 as uuidv4 } from 'uuid';
-import { organizationManagementProxy } from '@/proxies/OrganizationManagement.proxy';
-import ExportModal from '@/components/ExportModal';
-import { Site } from '@/models/Site';
-import { activityLogProxy } from '@/proxies/ActivityLog.proxy';
-import { ActivityLog } from '@/models/ActivityLog';
-import ActivityLogModal from '@/components/ActivityLogModal';
-import { ActivityType } from '@/models/enum/ActivityType';
+import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
+import ExportModal from '@/components/modals/export-modal.component';
+import { Site } from '@/models/site';
+import { activityLogProxy } from '@/proxies/activity-log.proxy';
+import { ActivityLog } from '@/models/activity-log';
+import ActivityLogModal from '@/components/modals/activity-log-modal.component';
+import { ActivityType } from '@/models/enum/activity-type';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Group } from '@/models/Group';
-import { emailService } from '@/services/Email.service';
-import SiblingProductOrdersModal from '@/components/SiblingProductOrdersModal';
-import { SiblingProductOrder } from '@/models/SiblingProductOrder';
+import { Group } from '@/models/group';
+import { emailService } from '@/services/email.service';
+import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
+import { SiblingProductOrder } from '@/models/sibling-product-order';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();

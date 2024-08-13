@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import Layout from '../../../app/layout';
 import styled from 'styled-components';
-import ProdcutOrder from '@/components/ProductOrderItem';
+import ProdcutOrder from '@/components/product-order-item.component';
 import Link from 'next/link';
 import withAuth from '@/hoc/auth';
 

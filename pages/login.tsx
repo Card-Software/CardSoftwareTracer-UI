@@ -1,8 +1,8 @@
-import { userAuthenticationService } from '@/services/UserAuthentication.service';
+import { userAuthenticationService } from '@/services/user-authentication.service';
 import { useState, KeyboardEvent, useEffect } from 'react';
 import '../app/globals.css';
 import router from 'next/router';
-import LoadingOverlay from '@/components/LoadingOverlay';
+import LoadingOverlay from '@/components/loading-overlay.component';
 
 const Login = () => {
   const [username, setUsername] = useState('');

@@ -1,5 +1,5 @@
-import { Site } from './Site';
-import { User } from './User';
+import { Site } from './site';
+import { User } from './user';
 
 export interface Organization {
   id: string; // Optional

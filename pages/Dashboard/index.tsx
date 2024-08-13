@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/dashboard.css';
-import TracerButton from '@/components/TracerButton';
+import TracerButton from '@/components/tracer-button.component';
 import { HiPlus, HiFilter } from 'react-icons/hi';
-import ProductOrderItem from '@/components/ProductOrderItem';
+import ProductOrderItem from '@/components/product-order-item.component';
 import { useRouter } from 'next/router';
-import { orderManagementApiProxy } from '@/proxies/OrderManagement.proxy';
-import { ProductOrder } from '@/models/ProductOrder';
+import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
+import { ProductOrder } from '@/models/product-order';
 import withAuth from '@/hoc/auth';
-import LoadingOverlay from '@/components/LoadingOverlay';
-import { AllResponse } from '@/models/AllResponse';
-import { PoSearchFilters } from '@/models/PoSearchFilters';
+import LoadingOverlay from '@/components/loading-overlay.component';
+import { AllResponse } from '@/models/all-response';
+import { PoSearchFilters } from '@/models/po-search-filter';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
 import { Statuses } from '@/models/enum/statuses';
-import { Site } from '@/models/Site';
-import { userAuthenticationService } from '@/services/UserAuthentication.service';
-import { User } from '@/models/User';
+import { Site } from '@/models/site';
+import { userAuthenticationService } from '@/services/user-authentication.service';
+import { User } from '@/models/user';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
