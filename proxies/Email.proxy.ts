@@ -1,4 +1,4 @@
-import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/email';
+import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/Email';
 
 class EmailProxy {
   private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';

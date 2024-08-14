@@ -1,8 +1,8 @@
-import { Note } from './note';
-import { Organization } from './organization';
-import { Section } from './section';
+import { Note } from './Note';
+import { Organization } from './Organization';
+import { Section } from './Section';
 import { SiblingProductOrder } from './sibling-product-order';
-import { Status } from './status';
+import { Status } from './Status';
 import { TeamLabel } from './team-label';
 import { TracerStream, TracerStreamExtended } from './tracer-stream';
 import { User } from './user';

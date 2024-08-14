@@ -17,7 +17,7 @@ import TracerStreamModal from '@/components/modals/tracer-stream-modal.component
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
 import { ProductOrder } from '@/models/product-order';
 import Link from 'next/link';
-import { Section as SectionModel } from '@/models/section';
+import { Section as SectionModel } from '@/models/Section';
 import { TracerStreamExtended, TracerStream } from '@/models/tracer-stream';
 import { User } from '@/models/user';
 import TracerButton from '@/components/tracer-button.component';
@@ -27,7 +27,7 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import LoadingOverlay from '@/components/loading-overlay.component';
 import withAuth from '@/hoc/auth';
 import TeamStatuses from '@/components/team-statuses.component'; // Import TeamStatuses
-import { Status } from '@/models/status'; // Import Status
+import { Status } from '@/models/Status'; // Import Status
 import { v4 as uuidv4 } from 'uuid';
 import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
 import ExportModal from '@/components/modals/export-modal.component';
@@ -38,10 +38,11 @@ import ActivityLogModal from '@/components/modals/activity-log-modal.component';
 import { ActivityType } from '@/models/enum/activity-type';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Group } from '@/models/group';
-import { emailService } from '@/services/email.service';
+import { Group } from '@/models/Group';
+import { emailService } from '@/services/Email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
+import ProductOrderDetails from '@/components/product-order-details';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -163,6 +164,14 @@ const PurchaseOrderPage: React.FC = () => {
     }
   }, []);
 
+  // test function
+
+  const handleFeildChange = (value: string | Date, field: string) => {
+    handleProductOrderChange({
+      target: { name: field, value: value },
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
+
   const handleProductOrderChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -185,10 +194,10 @@ const PurchaseOrderPage: React.FC = () => {
         activityType === ActivityType.StatusChange
           ? allActivityLogs.filter((log) => log.activityType === activityType)
           : allActivityLogs.filter(
-              (log) =>
-                log.activityType === activityType &&
-                log.traceabilityStream === tracerStreamId,
-            );
+            (log) =>
+              log.activityType === activityType &&
+              log.traceabilityStream === tracerStreamId,
+          );
       setActivityLogsToDisplay(filteredLogs);
     } else {
       console.error('allActivityLogs is not an array', allActivityLogs);
@@ -348,17 +357,17 @@ const PurchaseOrderPage: React.FC = () => {
       const updatedStreams = prevOrder.childrenTracerStreams.map((stream) =>
         stream.id === selectedStream.id
           ? {
-              ...stream,
-              sections: stream.sections.some(
-                (section) => section.sectionId === updatedSection.sectionId,
+            ...stream,
+            sections: stream.sections.some(
+              (section) => section.sectionId === updatedSection.sectionId,
+            )
+              ? stream.sections.map((section) =>
+                section.sectionId === updatedSection.sectionId
+                  ? updatedSection
+                  : section,
               )
-                ? stream.sections.map((section) =>
-                    section.sectionId === updatedSection.sectionId
-                      ? updatedSection
-                      : section,
-                  )
-                : [...stream.sections, updatedSection],
-            }
+              : [...stream.sections, updatedSection],
+          }
           : stream,
       );
 
@@ -578,16 +587,28 @@ const PurchaseOrderPage: React.FC = () => {
             )}
           </div>
 
+          {/* Start of component */}
+
           <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Product Order
               </label>
               <span className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900">
                 {productOrder.productOrderNumber}
               </span>
-            </div>
-            <div className="form-box">
+            </div> */}
+
+            <ProductOrderDetails
+              field="productOrderNumber"
+              label="Product Order"
+              elementType="span"
+              value={productOrder.productOrderNumber}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900"
+            />
+            
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Reference
               </label>
@@ -599,7 +620,15 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
+            <ProductOrderDetails
+              field="referenceNumber"
+              label="Reference"
+              elementType="input"
+              value={productOrder.referenceNumber}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
             <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Lot
@@ -775,6 +804,8 @@ const PurchaseOrderPage: React.FC = () => {
               />
             </div>
           </div>
+
+          {/* end of component */}
 
           <div className="my-6">
             <button

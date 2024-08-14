@@ -1,7 +1,7 @@
 import { User } from '@/models/user';
 import { userAuthenticationService } from './user-authentication.service';
-import { emailProxy } from '@/proxies/email.proxy';
-import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/email';
+import { emailProxy } from '@/proxies/Email.proxy';
+import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/Email';
 
 class EmailService {
   user = userAuthenticationService.getUser() as User;
