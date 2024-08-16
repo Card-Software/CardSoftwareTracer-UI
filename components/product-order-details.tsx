@@ -2,10 +2,10 @@ import React from "react";
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 
-type ElementType = 'input' | 'span' | 'datePicker' | 'select';
+type ElementType = 'input' | 'span' | 'datePicker' | 'select' | 'textarea';
 
 interface Option {
-    value: string;
+    value: string | undefined;
     label: string;
 }
 
@@ -13,7 +13,7 @@ interface ProductOrderDetailsProps {
     field: string;
     label: string;
     elementType: ElementType;
-    value?: string | Date;
+    value?: string | Date | number | undefined;
     onChangeHandler: (value: string | Date, field: string) => void;
     classNameInput?: string;
     showErrorMessage?: boolean;
@@ -72,18 +72,27 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
             )}
             {elementType === 'select' && options && (
                 <select
-                    id={field}
                     value={value as string}
                     onChange={handleValueChange}
-                    onBlur={handleInputBlur}
-                    className={classNameInput}
+                    className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 "
                 >
+                    <option value="">Select an option</option>
                     {options.map((option) => (
                         <option key={option.value} value={option.value}>
                             {option.label}
                         </option>
                     ))}
                 </select>
+            )}
+            {elementType === 'textarea' && (
+                <textarea
+                    id={field}
+                    name={field}
+                    value={value as string}
+                    onChange={handleValueChange}
+                    onBlur={handleInputBlur}
+                    className={classNameInput}
+                />
             )}
         </div>
     );

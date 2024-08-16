@@ -164,7 +164,7 @@ const PurchaseOrderPage: React.FC = () => {
     }
   }, []);
 
-  // test function
+  // test function  
 
   const handleFeildChange = (value: string | Date, field: string) => {
     handleProductOrderChange({
@@ -210,6 +210,14 @@ const PurchaseOrderPage: React.FC = () => {
     setIsActivityLogOpen(false);
     setActivityLogsToDisplay([]);
   };
+
+
+  // test function2
+  const handleUserChange = (value: string | Date, field: string) => {
+    handleAssignedUserChange({
+      target: { name: field, value: value },
+    } as React.ChangeEvent<HTMLSelectElement>);
+  }
 
   const handleAssignedUserChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -590,6 +598,7 @@ const PurchaseOrderPage: React.FC = () => {
           {/* Start of component */}
 
           <div className="space-between mb-4 flex gap-5">
+            {/* Product Order */}
             {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Product Order
@@ -598,7 +607,6 @@ const PurchaseOrderPage: React.FC = () => {
                 {productOrder.productOrderNumber}
               </span>
             </div> */}
-
             <ProductOrderDetails
               field="productOrderNumber"
               label="Product Order"
@@ -607,7 +615,9 @@ const PurchaseOrderPage: React.FC = () => {
               onChangeHandler={handleFeildChange}
               classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900"
             />
-            
+
+
+            {/* Reference */}
             {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Reference
@@ -629,7 +639,10 @@ const PurchaseOrderPage: React.FC = () => {
               onChangeHandler={handleFeildChange}
               classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
-            <div className="form-box">
+
+
+            {/* Lot */}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Lot
               </label>
@@ -641,8 +654,19 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
-            <div className="form-box">
+            </div> */}
+            <ProductOrderDetails
+              field="lot"
+              label="Lot"
+              elementType="input"
+              value={productOrder.lot}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+
+
+            {/* External Product Order */}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 External Product Order
               </label>
@@ -654,11 +678,20 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
+            <ProductOrderDetails
+              field="externalProductOrderNumber"
+              label="External Product Order"
+              elementType="input"
+              value={productOrder.externalProductOrderNumber}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
 
           <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
+            {/* Site */}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Site
               </label>
@@ -674,9 +707,23 @@ const PurchaseOrderPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
+            <ProductOrderDetails
+              field="siteRef"
+              label="Site"
+              elementType="select"
+              value={productOrder.siteRef || ''}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              options={allSites.map((site) => ({
+                value: site.id,
+                label: site.name,
+              }))}
+            />
 
-            <div className="form-box">
+
+            {/* Provider*/}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Provider
               </label>
@@ -688,8 +735,19 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
-            <div className="form-box">
+            </div> */}
+            <ProductOrderDetails
+              field="provider"
+              label="Provider"
+              elementType="input"
+              value={productOrder.provider}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+
+
+            {/* Client */}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Client
               </label>
@@ -701,10 +759,21 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
+            <ProductOrderDetails
+              field="client"
+              label="Client"
+              elementType="input"
+              value={productOrder.client}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
+
+
           <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
+            {/* Assigned to */}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Assigned to
               </label>
@@ -720,9 +789,24 @@ const PurchaseOrderPage: React.FC = () => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
+            <ProductOrderDetails
+              field='assignedUser'
+              label='Assigned to'
+              elementType='select'
+              value={productOrder.assignedUser?.id || ''}
+              onChangeHandler={handleUserChange}
+              classNameInput='block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+              options={allUsers.map((user) => ({
+                value: user.id,
+                label: `${user.firstName} ${user.lastname}`,
+              }))}
+            />
+
+
             <div>
-              <label
+              {/* Date Created */}
+              {/* <label
                 htmlFor="createdDate"
                 className="mb-2 block text-sm font-bold text-gray-700"
               >
@@ -737,10 +821,19 @@ const PurchaseOrderPage: React.FC = () => {
                 }
                 className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 dateFormat="dd/MM/yyyy"
+              /> */}
+              <ProductOrderDetails
+                field="createdDate"
+                label="Date Created"
+                elementType="datePicker"
+                value={productOrder.createdDate}
+                onChangeHandler={handleFeildChange}
+                classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label
+              {/* Invoice Date */}
+              {/* <label
                 htmlFor="invoiceDate"
                 className="mb-2 block text-sm font-bold text-gray-700"
               >
@@ -753,11 +846,23 @@ const PurchaseOrderPage: React.FC = () => {
                 }
                 className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 dateFormat="dd/MM/yyyy"
+              /> */}
+              <ProductOrderDetails
+                field="invoiceDate"
+                label="Invoice Date"
+                elementType="datePicker"
+                value={productOrder.invoiceDate}
+                onChangeHandler={handleFeildChange}
+                classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
+
+
+
           <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
+            {/* Quantity */}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Quantity
               </label>
@@ -774,8 +879,19 @@ const PurchaseOrderPage: React.FC = () => {
                 }
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
-            <div className="form-box">
+            </div> */}
+            <ProductOrderDetails
+              field="quantity"
+              label="Quantity"
+              elementType="input"
+              value={productOrder.quantity}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
+
+
+            {/* Product */}
+            {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Product
               </label>
@@ -787,10 +903,21 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
+            <ProductOrderDetails
+              field="product"
+              label="Product"
+              elementType="input"
+              value={productOrder.product}
+              onChangeHandler={handleFeildChange}
+              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
+
+
           <div className="space-between mb-4 flex gap-5">
-            <div className="form-box w-full">
+            {/* Description */}
+            {/* <div className="form-box w-full">
               <label className="mb-2 block text-sm font-bold text-gray-700">
                 Description
               </label>
@@ -801,6 +928,16 @@ const PurchaseOrderPage: React.FC = () => {
                 value={productOrder.description}
                 onChange={handleProductOrderChange}
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div> */}
+            <div className='w-full'>
+              <ProductOrderDetails
+                field="description"
+                label="Description"
+                elementType="textarea"
+                value={productOrder.description}
+                onChangeHandler={handleFeildChange}
+                classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
