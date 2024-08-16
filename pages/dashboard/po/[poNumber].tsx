@@ -164,7 +164,7 @@ const PurchaseOrderPage: React.FC = () => {
     }
   }, []);
 
-  // test function  
+  // test function
 
   const handleFeildChange = (value: string | Date, field: string) => {
     handleProductOrderChange({
@@ -194,10 +194,10 @@ const PurchaseOrderPage: React.FC = () => {
         activityType === ActivityType.StatusChange
           ? allActivityLogs.filter((log) => log.activityType === activityType)
           : allActivityLogs.filter(
-            (log) =>
-              log.activityType === activityType &&
-              log.traceabilityStream === tracerStreamId,
-          );
+              (log) =>
+                log.activityType === activityType &&
+                log.traceabilityStream === tracerStreamId,
+            );
       setActivityLogsToDisplay(filteredLogs);
     } else {
       console.error('allActivityLogs is not an array', allActivityLogs);
@@ -211,13 +211,12 @@ const PurchaseOrderPage: React.FC = () => {
     setActivityLogsToDisplay([]);
   };
 
-
   // test function2
   const handleUserChange = (value: string | Date, field: string) => {
     handleAssignedUserChange({
       target: { name: field, value: value },
     } as React.ChangeEvent<HTMLSelectElement>);
-  }
+  };
 
   const handleAssignedUserChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
@@ -365,17 +364,17 @@ const PurchaseOrderPage: React.FC = () => {
       const updatedStreams = prevOrder.childrenTracerStreams.map((stream) =>
         stream.id === selectedStream.id
           ? {
-            ...stream,
-            sections: stream.sections.some(
-              (section) => section.sectionId === updatedSection.sectionId,
-            )
-              ? stream.sections.map((section) =>
-                section.sectionId === updatedSection.sectionId
-                  ? updatedSection
-                  : section,
+              ...stream,
+              sections: stream.sections.some(
+                (section) => section.sectionId === updatedSection.sectionId,
               )
-              : [...stream.sections, updatedSection],
-          }
+                ? stream.sections.map((section) =>
+                    section.sectionId === updatedSection.sectionId
+                      ? updatedSection
+                      : section,
+                  )
+                : [...stream.sections, updatedSection],
+            }
           : stream,
       );
 
@@ -616,7 +615,6 @@ const PurchaseOrderPage: React.FC = () => {
               classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900"
             />
 
-
             {/* Reference */}
             {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -640,7 +638,6 @@ const PurchaseOrderPage: React.FC = () => {
               classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
 
-
             {/* Lot */}
             {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -663,7 +660,6 @@ const PurchaseOrderPage: React.FC = () => {
               onChangeHandler={handleFeildChange}
               classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
-
 
             {/* External Product Order */}
             {/* <div className="form-box">
@@ -721,7 +717,6 @@ const PurchaseOrderPage: React.FC = () => {
               }))}
             />
 
-
             {/* Provider*/}
             {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -744,7 +739,6 @@ const PurchaseOrderPage: React.FC = () => {
               onChangeHandler={handleFeildChange}
               classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
-
 
             {/* Client */}
             {/* <div className="form-box">
@@ -770,7 +764,6 @@ const PurchaseOrderPage: React.FC = () => {
             />
           </div>
 
-
           <div className="space-between mb-4 flex gap-5">
             {/* Assigned to */}
             {/* <div className="form-box">
@@ -791,18 +784,17 @@ const PurchaseOrderPage: React.FC = () => {
               </select>
             </div> */}
             <ProductOrderDetails
-              field='assignedUser'
-              label='Assigned to'
-              elementType='select'
+              field="assignedUser"
+              label="Assigned to"
+              elementType="select"
               value={productOrder.assignedUser?.id || ''}
               onChangeHandler={handleUserChange}
-              classNameInput='block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500'
+              classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               options={allUsers.map((user) => ({
                 value: user.id,
                 label: `${user.firstName} ${user.lastname}`,
               }))}
             />
-
 
             <div>
               {/* Date Created */}
@@ -858,8 +850,6 @@ const PurchaseOrderPage: React.FC = () => {
             </div>
           </div>
 
-
-
           <div className="space-between mb-4 flex gap-5">
             {/* Quantity */}
             {/* <div className="form-box">
@@ -889,7 +879,6 @@ const PurchaseOrderPage: React.FC = () => {
               classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
             />
 
-
             {/* Product */}
             {/* <div className="form-box">
               <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -914,7 +903,6 @@ const PurchaseOrderPage: React.FC = () => {
             />
           </div>
 
-
           <div className="space-between mb-4 flex gap-5">
             {/* Description */}
             {/* <div className="form-box w-full">
@@ -930,7 +918,7 @@ const PurchaseOrderPage: React.FC = () => {
                 className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
               />
             </div> */}
-            <div className='w-full'>
+            <div className="w-full">
               <ProductOrderDetails
                 field="description"
                 label="Description"

@@ -22,7 +22,7 @@ import { Status } from '@/models/Status';
 import { Site } from '@/models/site';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { emailService } from '@/services/Email.service';
+import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 
