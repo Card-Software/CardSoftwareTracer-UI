@@ -287,7 +287,7 @@ const Dashboard: React.FC = () => {
           <TracerButton
             name="Add New PO"
             icon={<HiPlus />}
-            onClick={() => router.push('/Dashboard/NewProductOrder')}
+            onClick={() => router.push('/dashboard/new-product-order')}
           />
         </div>
         <div className="ml-auto">

@@ -983,7 +983,7 @@ const PurchaseOrderPage: React.FC = () => {
                       {po.productOrderNumber} - {po.client}
                     </h3>
                     <p className="text-sm text-gray-500">{po.description}</p>
-                    <Link href={`/Dashboard/po/${po.productOrderNumber}`}>
+                    <Link href={`/dashboard/po/${po.productOrderNumber}`}>
                       <p className="">View Details</p>
                     </Link>
                   </div>

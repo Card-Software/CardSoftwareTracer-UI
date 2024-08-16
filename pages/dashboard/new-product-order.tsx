@@ -175,7 +175,7 @@ const NewProductOrder: React.FC = () => {
 
       alert('PO successfully created');
 
-      router.push(`/Dashboard`);
+      router.push(`/dashboard`);
     } catch (error) {
       console.error('Failed to save Product Order', error);
     } finally {
@@ -202,7 +202,7 @@ const NewProductOrder: React.FC = () => {
       <LoadingOverlay show={isLoading} />
       <div className="mb-4">
         <Link
-          href="/Dashboard"
+          href="/dashboard"
           className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
         >
           Dashboard

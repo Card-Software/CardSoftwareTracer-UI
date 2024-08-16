@@ -103,7 +103,7 @@ const ManagerDashboard: React.FC = () => {
   let loadingOrders = false;
 
   const handleNewProductOrder = () => {
-    router.push('/Dashboard/NewProductOrder');
+    router.push('/dashboard/new-product-order');
   };
 
   useEffect(() => {
@@ -284,7 +284,7 @@ const ManagerDashboard: React.FC = () => {
 
   const handleRowClick = (productOrderNumber: string) => {
     if (!isModalOpen) {
-      router.push(`/Dashboard/po/${productOrderNumber}`);
+      router.push(`/dashboard/po/${productOrderNumber}`);
     }
   };
 
