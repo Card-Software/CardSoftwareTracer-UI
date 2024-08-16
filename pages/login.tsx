@@ -14,7 +14,7 @@ const Login = () => {
   useEffect(() => {
     const loggedIn = userAuthenticationService.isLoggedIn();
     if (loggedIn) {
-      router.push('/Dashboard');
+      router.push('/dashboard');
     }
   }, []);
 
@@ -31,7 +31,7 @@ const Login = () => {
       alert('Invalid username or password');
       return;
     } else {
-      router.push('/Dashboard');
+      router.push('/dashboard');
     }
   };
 

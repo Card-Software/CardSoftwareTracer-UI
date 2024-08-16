@@ -39,7 +39,7 @@ const NewWholeSaleOrder: React.FC = () => {
     <Layout>
       <div className="mb-4">
         <Link
-          href="/Dashboard"
+          href="/dashboard"
           className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
         >
           Wholesale Order

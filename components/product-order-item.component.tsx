@@ -32,7 +32,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
     : 'N/A';
 
   return (
-    <Link href={`/Dashboard/po/${poNumberUri}`}>
+    <Link href={`/dashboard/po/${poNumberUri}`}>
       <Container>
         <Header>
           <h2>PO {poNumber}</h2>

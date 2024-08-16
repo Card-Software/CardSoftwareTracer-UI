@@ -12,9 +12,9 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 2, label: 'Trac. Stream', link: '/TraceabilityStream' },
-  { id: 3, label: 'Dashboard', link: '/Dashboard' },
-  { id: 4, label: 'Man. Dashboard', link: '/Manager-Dashboard' },
+  { id: 2, label: 'Trac. Stream', link: '/traceability-stream' },
+  { id: 3, label: 'Dashboard', link: '/dashboard' },
+  { id: 4, label: 'Man. Dashboard', link: '/manager-dashboard' },
 ];
 
 const Sidebar: React.FC = () => {

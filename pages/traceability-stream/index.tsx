@@ -50,11 +50,11 @@ const TraceabilityStream = () => {
 
   const handleTracerClick =
     (id: string) => (event: React.MouseEvent<HTMLTableRowElement>) => {
-      router.push('/TraceabilityStream/Details?id=' + id);
+      router.push('/traceability-stream/details?id=' + id);
     };
 
   const handleRedirect = () => {
-    router.push('/TraceabilityStream/Details');
+    router.push('/traceability-stream/details');
   };
 
   const user: User = userAuthenticationService.getUser() as User;
