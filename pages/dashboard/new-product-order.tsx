@@ -18,7 +18,7 @@ import { TeamLabel } from '@/models/team-label';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
 import { useForm, Controller, set } from 'react-hook-form';
 import TeamStatuses from '@/components/team-statuses.component'; // Import the TeamStatuses component
-import { Status } from '@/models/Status';
+import { Status } from '@/models/status';
 import { Site } from '@/models/site';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';

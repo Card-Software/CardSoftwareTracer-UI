@@ -17,7 +17,7 @@ import TracerStreamModal from '@/components/modals/tracer-stream-modal.component
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
 import { ProductOrder } from '@/models/product-order';
 import Link from 'next/link';
-import { Section as SectionModel } from '@/models/Section';
+import { Section as SectionModel } from '@/models/section';
 import { TracerStreamExtended, TracerStream } from '@/models/tracer-stream';
 import { User } from '@/models/user';
 import TracerButton from '@/components/tracer-button.component';
@@ -27,7 +27,7 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import LoadingOverlay from '@/components/loading-overlay.component';
 import withAuth from '@/hoc/auth';
 import TeamStatuses from '@/components/team-statuses.component'; // Import TeamStatuses
-import { Status } from '@/models/Status'; // Import Status
+import { Status } from '@/models/status'; // Import Status
 import { v4 as uuidv4 } from 'uuid';
 import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
 import ExportModal from '@/components/modals/export-modal.component';
@@ -38,8 +38,8 @@ import ActivityLogModal from '@/components/modals/activity-log-modal.component';
 import { ActivityType } from '@/models/enum/activity-type';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Group } from '@/models/Group';
-import { emailService } from '@/services/Email.service';
+import { Group } from '@/models/group';
+import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
