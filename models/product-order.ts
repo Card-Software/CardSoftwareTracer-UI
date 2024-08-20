@@ -11,7 +11,7 @@ export interface ProductOrder {
   ownerRef: string;
   description: string;
   notes: Note[];
-  assignedUser?: User;
+  assignedUser?: User | null;
   createdDate: Date;
   client: string;
   statuses: Status[];
@@ -24,7 +24,7 @@ export interface ProductOrder {
   siteRef?: string;
   lot?: string;
   referenceNumber?: string;
-  invoiceDate?: Date;
+  invoiceDate?: Date | null;
   provider?: string;
   siblingProductOrders: SiblingProductOrder[];
 }

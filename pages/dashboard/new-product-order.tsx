@@ -16,7 +16,7 @@ import withAuth from '@/hoc/auth';
 import LoadingOverlay from '@/components/loading-overlay.component'; // Ensure you import the LoadingOverlay component
 import { TeamLabel } from '@/models/team-label';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
-import { useForm, Controller, set } from 'react-hook-form';
+import { useForm, Controller, set, Control } from 'react-hook-form';
 import TeamStatuses from '@/components/team-statuses.component'; // Import the TeamStatuses component
 import { Status } from '@/models/status';
 import { Site } from '@/models/site';
@@ -184,6 +184,9 @@ const NewProductOrder: React.FC = () => {
     }
   };
 
+  const handleProductOrderDetailsChange = (data: Control) => {
+    console.log(data);
+  };
   const handleConnectTracerStream = (
     tracerStreamExtended: TracerStreamExtended,
   ) => {
@@ -229,8 +232,8 @@ const NewProductOrder: React.FC = () => {
 
       <ProductOrderDetails1
         initialProductOrderDetails={null}
-        onChange={(productOrderDetails) => {
-          console.log(productOrderDetails);
+        onChange={(data) => {
+          handleProductOrderDetailsChange(data);
         }}
       />
 
