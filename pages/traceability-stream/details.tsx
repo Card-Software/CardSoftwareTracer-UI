@@ -159,10 +159,11 @@ const Details = () => {
       position: tracerStream.sections.length + 1,
       notes: [],
       files: [],
-      fileNameOnExport: '',
+      fileNameOnExport: null,
       isRequired: true,
       ownerRef: organization.id,
       teamLabels: [],
+      assignedUser: null,
     });
   };
 
@@ -176,7 +177,7 @@ const Details = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentProcess(null);
-    window.scrollTo(0, scrollPosition); // Restore the scroll position
+    window.scrollTo(0, scrollPosition);
   };
 
   const saveSection = (
@@ -236,19 +237,33 @@ const Details = () => {
       <div className="mb-20">
         <div>
           <Link
-            href="/TraceabilityStream"
+            href="/traceability-stream"
             className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
           >
             Traceability Stream
           </Link>
           <span className="text-sm text-gray-500"> &gt; Details</span>
         </div>
-
-        <div className="me-8 text-xl">
-          <h1>
-            {isEditing ? 'Edit Traceability Stream' : 'Add Traceability Stream'}
-          </h1>
+        <div className="tool-bar">
+          <div className="tool-bar-title">
+            <h1>
+              {isEditing
+                ? 'Edit Traceability Stream'
+                : 'Add Traceability Stream'}
+            </h1>
+          </div>
+          <div className="tool-bar-buttons">
+            {IsAdmin && (
+              <TracerButton
+                name="Section"
+                icon={<HiPlus />}
+                onClick={handleAddSection}
+              />
+            )}
+          </div>
         </div>
+
+        <div className="my-2 w-full border-b-4 border-teal-700"></div>
 
         {error && <p className="text-red-500">{error}</p>}
 
@@ -262,7 +277,7 @@ const Details = () => {
             name="name"
             value={tracerStream.name}
             onChange={handleTracerStreamChange}
-            className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            className="input-custom"
           />
         </div>
 
@@ -275,18 +290,11 @@ const Details = () => {
             name="description"
             value={tracerStream.description}
             onChange={handleTracerStreamChange}
-            className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            className="input-custom"
           />
         </div>
 
         <div className="mb-4">
-          {IsAdmin && (
-            <TracerButton
-              name="Add New Section"
-              icon={<HiPlus />}
-              onClick={handleAddSection}
-            />
-          )}
           <p>
             Traceability stream starts from top to bottom. E.g., Position 1 is
             the first stage, and position n is the last stage.
@@ -346,7 +354,7 @@ const Details = () => {
                             </button>
                             <button
                               onClick={() => deleteProcess(section.sectionId)}
-                              className="text-red-500 hover:text-red-700"
+                              className="square text-red-500 hover:text-red-700"
                             >
                               <FaTrash className="h-5 w-5" />
                             </button>
@@ -362,15 +370,14 @@ const Details = () => {
           </DragDropContext>
         </div>
 
-        {isModalOpen && (
-          <SectionModal
-            onClose={closeModal}
-            onSave={saveSection}
-            originalSection={currentProcess as Section}
-            mode={'sectionCreation'}
-            totalSections={tracerStream.sections.length}
-          />
-        )}
+        <SectionModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onSave={(section, move) => saveSection(section, move)}
+          initialSection={currentProcess as Section}
+          mode={'sectionCreation'}
+          totalSections={tracerStream.sections.length}
+        />
       </div>
 
       <footer className="stream-footer flex justify-between bg-gray-200 p-4">

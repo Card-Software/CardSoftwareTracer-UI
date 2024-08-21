@@ -1,0 +1,145 @@
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.modal-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px 0 0 8px;
+  animation-duration: 0.3s;
+  animation-fill-mode: forwards;
+}
+
+.modal-wrapper.open .modal-content {
+  animation-name: slideInRight;
+}
+
+.modal-wrapper.closing .modal-content {
+  animation-name: slideOutRight;
+}
+
+.modal-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s;
+  z-index: 1000;
+}
+
+.modal-wrapper.open {
+  width: 40%;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+.modal-wrapper.closing .modal-overlay {
+  animation-name: fadeOut;
+  animation-duration: 0.3s;
+  animation-fill-mode: forwards;
+}
+
+.modal-header {
+  background: #2d3748;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 8px;
+  box-shadow: 0 1px 3px #0009;
+}
+
+.modal-header h1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 20px;
+  background: #2d3748;
+  text-align: right;
+  border-bottom-left-radius: 8px;
+  box-shadow: 0 -1px 3px #0009;
+}
+
+.cancel-button {
+  background: #6b7280;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  box-shadow: 0 1px 3px #0009;
+}
+
+.cancel-button:hover {
+  background: #4b5563;
+}
+
+.save-button {
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.save-button:hover {
+  background: #1d4ed8;
+}

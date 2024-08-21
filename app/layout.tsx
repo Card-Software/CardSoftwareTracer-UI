@@ -13,7 +13,7 @@ const Layout: React.FC<Props> = ({ children }) => {
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto p-4">{children}</main>
+        <main className="flex-1 overflow-y-auto px-8 py-4">{children}</main>
       </div>
     </div>
   );

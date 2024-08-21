@@ -265,6 +265,9 @@ const PurchaseOrderPage: React.FC = () => {
     section: SectionModel,
     stream: TracerStreamExtended,
   ) => {
+    section.fileNameOnExport =
+      section.fileNameOnExport === '' ? null : section.fileNameOnExport;
+    section.assignedUser = section.assignedUser || null;
     setSelectedSection(section);
     setSelectedStream(stream);
     setIsSectionModalOpen(true);
@@ -846,7 +849,7 @@ const PurchaseOrderPage: React.FC = () => {
                         </button>
 
                         <button
-                          className="ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
+                          className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteStream(stream);
@@ -878,7 +881,7 @@ const PurchaseOrderPage: React.FC = () => {
                               />
                             )}
                             <DeleteButton
-                              className="flex justify-end"
+                              className="square flex justify-end"
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevents parent click event from firing
                                 handleDeleteSection(stream, section); // Call delete function
@@ -1007,21 +1010,20 @@ const PurchaseOrderPage: React.FC = () => {
           Save
         </button>
       </footer>
-      {isSectionModalOpen && selectedSection && selectedStream && (
-        <SectionModal
-          productOrder={productOrder.productOrderNumber}
-          tracerStreamId={selectedStream.id}
-          originalSection={selectedSection}
-          onClose={handleCloseSectionModal}
-          onSave={handleSaveSection}
-          mode={
-            selectedSection.sectionId
-              ? 'edit'
-              : 'sectionCreationOnExistingTracer'
-          }
-          totalSections={selectedStream.sections.length}
-        />
-      )}
+      <SectionModal
+        isOpen={isSectionModalOpen}
+        productOrder={productOrder.productOrderNumber}
+        tracerStreamId={selectedStream?.id || undefined}
+        initialSection={selectedSection as SectionModel}
+        onClose={handleCloseSectionModal}
+        onSave={handleSaveSection}
+        mode={
+          selectedSection?.sectionId
+            ? 'edit'
+            : 'sectionCreationOnExistingTracer'
+        }
+        totalSections={selectedStream?.sections.length}
+      />
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal
           originalTracerStream={
