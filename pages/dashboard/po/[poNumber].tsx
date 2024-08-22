@@ -42,7 +42,7 @@ import { Group } from '@/models/group';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
-import ProductOrderDetails from '@/components/product-order-details';
+import ProductOrderDetails1 from '@/components/product-order-details';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -166,21 +166,32 @@ const PurchaseOrderPage: React.FC = () => {
 
   // test function
 
-  const handleFeildChange = (value: string | Date, field: string) => {
-    handleProductOrderChange({
-      target: { name: field, value: value },
-    } as React.ChangeEvent<HTMLInputElement>);
-  };
+  // const handleFeildChange = (value: string | Date, field: string) => {
+  //   handleProductOrderChange({
+  //     target: { name: field, value: value },
+  //   } as React.ChangeEvent<HTMLInputElement>);
+  // };
 
-  const handleProductOrderChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
+  // const handleProductOrderChange = (
+  //   e: React.ChangeEvent<
+  //     HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  //   >,
+  // ) => {
+  //   const { name, value } = e.target;
+  //   setProductOrder((prevOrder) => ({
+  //     ...prevOrder!,
+  //     [name]: value,
+  //   }));
+  // };
+
+  const handleProductOrderChange = (data: {
+    value: string | Date;
+    field: string;
+  }) => {
+    const { value, field } = data;
     setProductOrder((prevOrder) => ({
       ...prevOrder!,
-      [name]: value,
+      [field]: value,
     }));
   };
 
@@ -593,345 +604,10 @@ const PurchaseOrderPage: React.FC = () => {
               </div>
             )}
           </div>
-
-          {/* Start of component */}
-          // #region Product Order Details
-          <div className="space-between mb-4 flex gap-5">
-            {/* Product Order */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Product Order
-              </label>
-              <span className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900">
-                {productOrder.productOrderNumber}
-              </span>
-            </div> */}
-            <ProductOrderDetails
-              field="productOrderNumber"
-              label="Product Order"
-              elementType="span"
-              value={productOrder.productOrderNumber}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900"
-            />
-
-            {/* Reference */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Reference
-              </label>
-              <input
-                type="text"
-                id="referenceNumber"
-                name="referenceNumber"
-                value={productOrder.referenceNumber}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <ProductOrderDetails
-              field="referenceNumber"
-              label="Reference"
-              elementType="input"
-              value={productOrder.referenceNumber}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-
-            {/* Lot */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Lot
-              </label>
-              <input
-                type="text"
-                id="lot"
-                name="lot"
-                value={productOrder.lot}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <ProductOrderDetails
-              field="lot"
-              label="Lot"
-              elementType="input"
-              value={productOrder.lot}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-
-            {/* External Product Order */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                External Product Order
-              </label>
-              <input
-                type="text"
-                id="externalProductOrderNumber"
-                name="externalProductOrderNumber"
-                value={productOrder.externalProductOrderNumber}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <ProductOrderDetails
-              field="externalProductOrderNumber"
-              label="External Product Order"
-              elementType="input"
-              value={productOrder.externalProductOrderNumber}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="space-between mb-4 flex gap-5">
-            {/* Site */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Site
-              </label>
-              <select
-                value={productOrder.siteRef || ''}
-                onChange={handleSiteChange}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Select an site</option>
-                {allSites.map((site) => (
-                  <option key={site.id} value={site.id}>
-                    {site.name}
-                  </option>
-                ))}
-              </select>
-            </div> */}
-            <ProductOrderDetails
-              field="siteRef"
-              label="Site"
-              elementType="select"
-              value={productOrder.siteRef || ''}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              options={allSites.map((site) => ({
-                value: site.id,
-                label: site.name,
-              }))}
-            />
-
-            {/* Provider*/}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Provider
-              </label>
-              <input
-                type="text"
-                id="provider"
-                name="provider"
-                value={productOrder.provider}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <ProductOrderDetails
-              field="provider"
-              label="Provider"
-              elementType="input"
-              value={productOrder.provider}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-
-            {/* Client */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Client
-              </label>
-              <input
-                type="text"
-                id="client"
-                name="client"
-                value={productOrder.client}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <ProductOrderDetails
-              field="client"
-              label="Client"
-              elementType="input"
-              value={productOrder.client}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="space-between mb-4 flex gap-5">
-            {/* Assigned to */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Assigned to
-              </label>
-              <select
-                value={productOrder.assignedUser?.id}
-                onChange={handleAssignedUserChange}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Select an associate</option>
-                {allUsers.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.firstName} {user.lastname}
-                  </option>
-                ))}
-              </select>
-            </div> */}
-            <ProductOrderDetails
-              field="assignedUser"
-              label="Assigned to"
-              elementType="select"
-              value={productOrder.assignedUser?.id || ''}
-              onChangeHandler={handleUserChange}
-              classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              options={allUsers.map((user) => ({
-                value: user.id,
-                label: `${user.firstName} ${user.lastname}`,
-              }))}
-            />
-
-            <div>
-              {/* Date Created */}
-              {/* <label
-                htmlFor="createdDate"
-                className="mb-2 block text-sm font-bold text-gray-700"
-              >
-                Date Created
-              </label>
-              <DatePicker
-                id="createdDate"
-                name="createdDate"
-                selected={productOrder.createdDate}
-                onChange={(e) =>
-                  setProductOrder({ ...productOrder, createdDate: e as Date })
-                }
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                dateFormat="dd/MM/yyyy"
-              /> */}
-              <ProductOrderDetails
-                field="createdDate"
-                label="Date Created"
-                elementType="datePicker"
-                value={productOrder.createdDate}
-                onChangeHandler={handleFeildChange}
-                classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              {/* Invoice Date */}
-              {/* <label
-                htmlFor="invoiceDate"
-                className="mb-2 block text-sm font-bold text-gray-700"
-              >
-                Invoice Date
-              </label>
-              <DatePicker
-                selected={productOrder.invoiceDate}
-                onChange={(e) =>
-                  setProductOrder({ ...productOrder, invoiceDate: e as Date })
-                }
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                dateFormat="dd/MM/yyyy"
-              /> */}
-              <ProductOrderDetails
-                field="invoiceDate"
-                label="Invoice Date"
-                elementType="datePicker"
-                value={productOrder.invoiceDate}
-                onChangeHandler={handleFeildChange}
-                classNameInput="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div className="space-between mb-4 flex gap-5">
-            {/* Quantity */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Quantity
-              </label>
-              <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                value={productOrder.quantity}
-                onChange={(e) =>
-                  setProductOrder({
-                    ...productOrder,
-                    quantity: Number(e.target.value),
-                  })
-                }
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <ProductOrderDetails
-              field="quantity"
-              label="Quantity"
-              elementType="input"
-              value={productOrder.quantity}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-
-            {/* Product */}
-            {/* <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Product
-              </label>
-              <input
-                type="text"
-                id="product"
-                name="product"
-                value={productOrder.product}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <ProductOrderDetails
-              field="product"
-              label="Product"
-              elementType="input"
-              value={productOrder.product}
-              onChangeHandler={handleFeildChange}
-              classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="space-between mb-4 flex gap-5">
-            {/* Description */}
-            {/* <div className="form-box w-full">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Description
-              </label>
-              <textarea
-                placeholder="Provide Description"
-                id="description"
-                name="description"
-                value={productOrder.description}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div> */}
-            <div className="w-full">
-              <ProductOrderDetails
-                field="description"
-                label="Description"
-                elementType="textarea"
-                value={productOrder.description}
-                onChangeHandler={handleFeildChange}
-                classNameInput="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          // #endregion Product Order Details
-          {/* end of component */}
-
+          <ProductOrderDetails1
+            initialProductOrderDetails={productOrder}
+            onChange={handleProductOrderChange}
+          />
           <div className="my-6">
             <button
               className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
@@ -951,7 +627,6 @@ const PurchaseOrderPage: React.FC = () => {
               onChange={handleStatusChange}
             />
           </div>
-
           <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>

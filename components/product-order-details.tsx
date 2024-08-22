@@ -12,6 +12,7 @@ import type { Organization } from '@/models/organization';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import styled from 'styled-components';
 import { Site } from '@/models/site';
+
 const isUserValid = (value: any): value is User => {
   return (
     value &&
@@ -61,7 +62,7 @@ const productOrderFromGroupSchema = Yup.object().shape({
 
 interface ProductOrderDetailsProps {
   initialProductOrderDetails: ProductOrder | null;
-  onChange: (productOrderDetailsFormControl: any) => void;
+  onChange: (productOrderDetailsFormControl: any ) => void;
 }
 
 const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
