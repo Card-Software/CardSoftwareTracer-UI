@@ -292,6 +292,9 @@ const PurchaseOrderPage: React.FC = () => {
     section: SectionModel,
     stream: TracerStreamExtended,
   ) => {
+    section.fileNameOnExport =
+      section.fileNameOnExport === '' ? null : section.fileNameOnExport;
+    section.assignedUser = section.assignedUser || null;
     setSelectedSection(section);
     setSelectedStream(stream);
     setIsSectionModalOpen(true);
@@ -538,7 +541,7 @@ const PurchaseOrderPage: React.FC = () => {
         if (response.status === 204) {
           insertLogs();
           getUpdatedLogs(productOrder.productOrderNumber);
-          router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
+          router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
@@ -573,11 +576,11 @@ const PurchaseOrderPage: React.FC = () => {
           <span className="text-sm text-gray-500"> &gt; PO Details</span>
         </div>
         <Section>
-          <div className="mb-5 flex flex-row items-center">
-            <div className="me-8 text-xl">
+          <div className="tool-bar">
+            <div className="tool-bar-title">
               <h1>Product Order Details</h1>
             </div>
-            <div className="flex flex-row flex-nowrap space-x-4">
+            <div className="tool-bar-buttons">
               <TracerButton
                 name="Add Tracer Stream"
                 icon={<HiPlus />}
@@ -589,20 +592,18 @@ const PurchaseOrderPage: React.FC = () => {
                 name={`${siblingPoTextDisplay} Sibling Pos`}
                 onClick={() => setIsSiblingProductOrderModalOpen(true)}
               />
-            </div>
-            {isAdmin && (
-              <div className="pl-2">
+              {isAdmin && (
                 <button
                   onClick={async () => {
                     await handleDeleteProductOrder(productOrder);
                     router.push('/Dashboard');
                   }}
-                  className="rounded border-2 border-red-500 px-4 py-2 font-medium text-black hover:bg-red-500 hover:text-white"
+                  className="border-1 rounded border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
                 >
                   Delete PO
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           <ProductOrderDetails1
             initialProductOrderDetails={productOrder}
@@ -677,7 +678,7 @@ const PurchaseOrderPage: React.FC = () => {
                         </button>
 
                         <button
-                          className="ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
+                          className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteStream(stream);
@@ -709,7 +710,7 @@ const PurchaseOrderPage: React.FC = () => {
                               />
                             )}
                             <DeleteButton
-                              className="flex justify-end"
+                              className="square flex justify-end"
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevents parent click event from firing
                                 handleDeleteSection(stream, section); // Call delete function
@@ -838,21 +839,20 @@ const PurchaseOrderPage: React.FC = () => {
           Save
         </button>
       </footer>
-      {isSectionModalOpen && selectedSection && selectedStream && (
-        <SectionModal
-          productOrder={productOrder.productOrderNumber}
-          tracerStreamId={selectedStream.id}
-          originalSection={selectedSection}
-          onClose={handleCloseSectionModal}
-          onSave={handleSaveSection}
-          mode={
-            selectedSection.sectionId
-              ? 'edit'
-              : 'sectionCreationOnExistingTracer'
-          }
-          totalSections={selectedStream.sections.length}
-        />
-      )}
+      <SectionModal
+        isOpen={isSectionModalOpen}
+        productOrder={productOrder.productOrderNumber}
+        tracerStreamId={selectedStream?.id || undefined}
+        initialSection={selectedSection as SectionModel}
+        onClose={handleCloseSectionModal}
+        onSave={handleSaveSection}
+        mode={
+          selectedSection?.sectionId
+            ? 'edit'
+            : 'sectionCreationOnExistingTracer'
+        }
+        totalSections={selectedStream?.sections.length}
+      />
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal
           originalTracerStream={
@@ -885,6 +885,7 @@ const PurchaseOrderPage: React.FC = () => {
       )}
       {isExportModalOpen && streamToExport && (
         <ExportModal
+          isOpen={isExportModalOpen}
           stream={streamToExport}
           onClose={() => {
             setIsExportModalOpen(false);

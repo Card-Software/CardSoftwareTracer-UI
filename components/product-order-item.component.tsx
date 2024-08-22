@@ -38,6 +38,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
           <h2>PO {poNumber}</h2>
           {isAdmin && (
             <DeleteButton
+              className="square"
               onClick={(e) => {
                 e.preventDefault(); // Prevents navigation
                 e.stopPropagation(); // Prevents parent click event from firing
