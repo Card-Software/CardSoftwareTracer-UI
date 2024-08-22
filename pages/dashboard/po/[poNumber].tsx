@@ -595,7 +595,7 @@ const PurchaseOrderPage: React.FC = () => {
           </div>
 
           {/* Start of component */}
-
+          // #region Product Order Details
           <div className="space-between mb-4 flex gap-5">
             {/* Product Order */}
             {/* <div className="form-box">
@@ -929,7 +929,7 @@ const PurchaseOrderPage: React.FC = () => {
               />
             </div>
           </div>
-
+          // #endregion Product Order Details
           {/* end of component */}
 
           <div className="my-6">

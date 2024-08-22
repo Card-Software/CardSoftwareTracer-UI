@@ -29,17 +29,17 @@ const productOrderDetailsSchema = Yup.object().shape({
     .required('Product Order Number is required')
     .matches(
       /^[A-Za-z0-9\s-]+$/,
-      'Only letters, numbers, spaces, and dashes are allowed',
+      'Only letters, numbers, spaces,\n and dashes are allowed',
     ),
   referenceNumber: Yup.string(),
   lot: Yup.string(),
   externProductOrderNumber: Yup.string().matches(
     /^[A-Za-z0-9\s-]+$/,
-    'Only letters, numbers, spaces, and dashes are allowed',
+    'Only letters, numbers, spaces,\n and dashes are allowed',
   ),
   siteRef: Yup.string(),
   provider: Yup.string(),
-  client: Yup.string(),
+  client: Yup.string().required('Client is required'),
   assignedUser: Yup.mixed<User>()
     .nullable()
     .test('is-valid-user', 'Assigned User is not valid', (value) => {
@@ -51,8 +51,8 @@ const productOrderDetailsSchema = Yup.object().shape({
   dateCreated: Yup.date().required('Date Created is required'),
   invoiceDate: Yup.date().nullable(),
   quantity: Yup.number(),
-  product: Yup.string(),
-  description: Yup.string(),
+  product: Yup.string().required('Product is required'),
+  description: Yup.string().required('Description is required'),
 });
 
 const productOrderFromGroupSchema = Yup.object().shape({
@@ -145,14 +145,19 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
   const getUserObject = (userId: string): User => {
     return allUsers.find((user) => user.id === userId) as User;
   };
+
+  const getSiteObject = (siteId: string): Site => {
+    return allSites.find((site) => site.id === siteId) as Site;
+  };
   // #endregion
 
   return (
-    <div>
-      {' '}
-      <form>
+    <>
+      <div className="space-between mb-4 flex gap-5">
         <div className="form-box">
-          <label>Product Order Number</label>
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Product Order Number
+          </label>
           <Controller
             name={'productOrderDetails.productOrderNumber'}
             control={control}
@@ -160,39 +165,116 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
               <StyledInput type="string" {...field} value={field.value ?? ''} />
             )}
           />
-          <span className="error">
+          <p className="whitespace-pre-line text-sm text-red-500">
             {errors.productOrderDetails?.productOrderNumber?.message}
-          </span>
+          </p>
         </div>
         <div className="form-box">
-          <label>Date Created</label>
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Reference Number
+          </label>
           <Controller
-            name={'productOrderDetails.dateCreated'}
+            name={'productOrderDetails.referenceNumber'}
             control={control}
             render={({ field }) => (
-              <DatePicker
-                selected={field.value}
-                onChange={(date) => field.onChange(date)}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                dateFormat="dd/MM/yyyy"
-              />
+              <StyledInput type="string" {...field} value={field.value ?? ''} />
             )}
           />
-          <span className="error">
-            {errors.productOrderDetails?.dateCreated?.message}
-          </span>
         </div>
         <div className="form-box">
-          <label>Assigned To:</label>
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Lot
+          </label>
+          <Controller
+            name={'productOrderDetails.lot'}
+            control={control}
+            render={({ field }) => (
+              <StyledInput type="string" {...field} value={field.value ?? ''} />
+            )}
+          />
+        </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            External Product Order Number
+          </label>
+          <Controller
+            name={'productOrderDetails.externProductOrderNumber'}
+            control={control}
+            render={({ field }) => (
+              <StyledInput type="string" {...field} value={field.value ?? ''} />
+            )}
+          />
+          <p className="whitespace-pre-line text-sm text-red-500">
+            {errors.productOrderDetails?.externProductOrderNumber?.message}
+          </p>
+        </div>
+      </div>
+      <div className="space-between mb-4 flex gap-5">
+        <div className="form-box">
+          <label className="mb-3 block text-sm font-bold text-gray-700">
+            Site
+          </label>
+          <Controller
+            name={'productOrderDetails.siteRef'}
+            control={control}
+            render={({ field }) => (
+              <select
+                onChange={(e) => field.onChange(getSiteObject(e.target.value))}
+                className="block w-full rounded-md border border-gray-300 px-[25px] py-2.5 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">Select Site</option>
+                {allSites.map((site) => (
+                  <option key={site.id} value={site.id}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+        </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Provider
+          </label>
+          <Controller
+            name={'productOrderDetails.provider'}
+            control={control}
+            render={({ field }) => (
+              <StyledInput type="string" {...field} value={field.value ?? ''} />
+            )}
+          />
+        </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Client
+          </label>
+          <Controller
+            name={'productOrderDetails.client'}
+            control={control}
+            render={({ field }) => (
+              <StyledInput type="string" {...field} value={field.value ?? ''} />
+            )}
+          />
+          <p className="whitespace-pre-line text-sm text-red-500">
+            {errors.productOrderDetails?.client?.message}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-between mb-4 flex gap-5">
+        <div className="form-box">
+          <label className="mb-3 block text-sm font-bold text-gray-700">
+            Assigned To
+          </label>
           <Controller
             name={'productOrderDetails.assignedUser'}
             control={control}
             render={({ field }) => (
               <select
                 onChange={(e) => field.onChange(getUserObject(e.target.value))}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="block w-full rounded-md border border-gray-300 px-[15px] py-2.5 pl-7 pr-5 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
-                <option value={field.value?.id}>Select an associate</option>
+                <option value="">Select User</option>
                 {allUsers.map((user) => (
                   <option key={user.id} value={user.id}>
                     {user.firstName} {user.lastname}
@@ -201,12 +283,88 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
               </select>
             )}
           />
-          <span className="error">
-            {errors.productOrderDetails?.dateCreated?.message}
-          </span>
         </div>
-      </form>
-    </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Date Created
+          </label>
+          <Controller
+            name={'productOrderDetails.dateCreated'}
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                selected={field.value}
+                onChange={(date) => field.onChange(date)}
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-1 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            )}
+          />
+          <p className="whitespace-pre-line text-sm text-red-500">
+            {errors.productOrderDetails?.dateCreated?.message}
+          </p>
+        </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Invoice Date
+          </label>
+          <Controller
+            name={'productOrderDetails.invoiceDate'}
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                selected={field.value}
+                onChange={(date) => field.onChange(date)}
+                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-0 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            )}
+          />
+        </div>
+      </div>
+      <div className="space-between mb-4 flex gap-5">
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Quantity
+          </label>
+          <Controller
+            name={'productOrderDetails.quantity'}
+            control={control}
+            render={({ field }) => (
+              <StyledInput type="number" {...field} value={field.value ?? ''} />
+            )}
+          />
+        </div>
+        <div className="form-box">
+          <label className="mb-2 block text-sm font-bold text-gray-700">
+            Product
+          </label>
+          <Controller
+            name={'productOrderDetails.product'}
+            control={control}
+            render={({ field }) => (
+              <StyledInput type="string" {...field} value={field.value ?? ''} />
+            )}
+          />
+          <p className="whitespace-pre-line text-sm text-red-500">
+            {errors.productOrderDetails?.product?.message}
+          </p>
+        </div>
+      </div>
+      <div className="mb-6">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Description
+        </label>
+        <Controller
+          name={'productOrderDetails.description'}
+          control={control}
+          render={({ field }) => (
+            <textarea
+              {...field}
+              className="block w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          )}
+        />
+      </div>
+    </>
   );
 };
 
