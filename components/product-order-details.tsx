@@ -2,16 +2,15 @@ import React, { use, useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import * as Yup from 'yup';
-import { useForm, useFieldArray, Controller, Control } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { User } from '@/models/user';
 import { ProductOrder } from '@/models/product-order';
-import { is } from 'date-fns/locale';
-import { init } from 'next/dist/compiled/webpack/webpack';
 import type { Organization } from '@/models/organization';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import styled from 'styled-components';
 import { Site } from '@/models/site';
+// import * as _ from 'lodash'; 
 
 const isUserValid = (value: any): value is User => {
   return (
@@ -62,7 +61,7 @@ const productOrderFromGroupSchema = Yup.object().shape({
 
 interface ProductOrderDetailsProps {
   initialProductOrderDetails: ProductOrder | null;
-  onChange: (productOrderDetailsFormControl: any ) => void;
+  onChange: (productOrderDetailsFormControl: any) => void;
 }
 
 const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
@@ -137,9 +136,18 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
     }
   }, []);
 
+  // useEffect(() => {
+  //   onChange(control);
+  // }, [formValues]);
+  const previousValues = useRef(formValues);
   useEffect(() => {
-    onChange(control);
-  }, [formValues]);
+    // _.isEqual(previousValues.current, formValues);
+    if (JSON.stringify(previousValues.current) !== JSON.stringify(formValues)) {
+      onChange(control);
+      previousValues.current = formValues;
+    }
+  }, [formValues, onChange, control]);
+
   // #endregion
 
   // #region Helper Functions
