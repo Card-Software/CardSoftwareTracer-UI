@@ -279,23 +279,21 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="flex flex-row items-center">
-        <div className="me-8 text-xl">
-          <h1>Dashboard</h1>
+      <div className="tool-bar">
+        <div className="tool-bar-title">
+          <h1>Traceability Stream</h1>
         </div>
-        <div>
+        <div className="tool-bar-buttons">
           <TracerButton
             name="Add New PO"
             icon={<HiPlus />}
             onClick={() => router.push('/dashboard/new-product-order')}
           />
-        </div>
-        <div className="ml-auto">
           <button
             onClick={toggleFilterVisibility}
-            className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+            className="flex items-center rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
           >
-            <HiFilter className="mr-2 inline-block" />
+            <HiFilter className="mr-2" />
             Filter
           </button>
         </div>
@@ -498,7 +496,7 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      <div className="my-8 w-full border-b-4 border-teal-700"></div>
+      <div className="my-4 w-full border-b-4 border-teal-700"></div>
       <div className="grid grid-cols-3 gap-4">
         {filteredProductOrders.length > 0 ? (
           filteredProductOrders.map((order) => (

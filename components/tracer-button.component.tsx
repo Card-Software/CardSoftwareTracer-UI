@@ -5,19 +5,22 @@ interface TracerButtonProps {
   name: string;
   icon?: React.ReactNode;
   disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 const TracerButton: React.FC<TracerButtonProps> = ({
   onClick,
   name,
   icon,
+  type = 'button',
   disabled,
 }) => {
   return (
     <button
       onClick={onClick}
+      type={type}
       disabled={disabled}
-      className={`w-full text-nowrap rounded-md px-4 py-2 text-white ${
+      className={`w-fit-content text-nowrap rounded-md px-4 py-2 text-white ${
         disabled
           ? 'cursor-not-allowed bg-gray-400'
           : 'bg-teal-700 hover:bg-teal-600'

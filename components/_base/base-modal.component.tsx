@@ -11,6 +11,7 @@ interface BaseModalProps {
   onClose: () => void;
   onSave?: () => void;
   canSave?: boolean;
+  saveButtonDisplayText?: string;
   title: string;
   children: React.ReactNode;
 }
@@ -21,6 +22,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
   onClose,
   onSave,
   canSave,
+  saveButtonDisplayText = 'Save',
   title,
   children,
 }) => {
@@ -67,7 +69,12 @@ const BaseModal: React.FC<BaseModalProps> = ({
         <div className="modal-footer ">
           <div className="flex w-fit gap-3">
             {onSave && (
-              <TracerButton name="Save" onClick={onSave} disabled={!canSave} />
+              <TracerButton
+                type="submit"
+                name={saveButtonDisplayText}
+                onClick={onSave}
+                disabled={!canSave}
+              />
             )}
             <button className="cancel-button" onClick={onClose}>
               Close

@@ -5,6 +5,8 @@ import { SiblingProductOrder } from '@/models/sibling-product-order';
 import * as Yup from 'yup';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import BaseModal from '../_base/base-modal.component';
+import TracerButton from '../tracer-button.component';
 
 const siblingProductOrderSchema = Yup.object().shape({
   internalPo: Yup.number()
@@ -59,235 +61,112 @@ const SiblingProductOrderModal: React.FC<sibPosProps> = ({
   };
 
   return (
-    <ModalWrapper className="open">
-      <ModalOverlay onClick={onClose} />
-      <ModalContent>
-        <ModalHeader>
-          <h1>Sibling Product Orders</h1>
-          <button onClick={onClose} className="close-button">
-            <FaTimes size={24} />
-          </button>
-        </ModalHeader>
-        <ModalBody>
-          <form>
-            {fields.map((item, index) => (
-              <PillWrapper key={item.id}>
-                <RemoveButton onClick={() => remove(index)}>
-                  Remove
-                </RemoveButton>
+    <BaseModal
+      isOpen={true}
+      onSave={() => handleSubmit(onSubmit)}
+      onClose={onClose}
+      title="Sibling Product Orders"
+      loading={false}
+      canSave={isValid}
+    >
+      <form>
+        {fields.map((item, index) => (
+          <PillWrapper key={item.id}>
+            <RemoveButton onClick={() => remove(index)}>Remove</RemoveButton>
 
-                <InputWrapper>
-                  <StyledLabel>Internal PO</StyledLabel>
-                  <Controller
-                    name={`siblingProductOrders.${index}.internalPo` as const}
-                    control={control}
-                    render={({ field }) => (
-                      <StyledInput
-                        type="number"
-                        {...field}
-                        value={field.value ?? ''}
-                      />
-                    )}
+            <InputWrapper>
+              <StyledLabel>Internal PO</StyledLabel>
+              <Controller
+                name={`siblingProductOrders.${index}.internalPo` as const}
+                control={control}
+                render={({ field }) => (
+                  <StyledInput
+                    type="number"
+                    {...field}
+                    value={field.value ?? ''}
                   />
-                  <ErrorMessage>
-                    {errors.siblingProductOrders?.[index]?.internalPo
-                      ?.message ?? ''}
-                  </ErrorMessage>
-                </InputWrapper>
+                )}
+              />
+              <ErrorMessage>
+                {errors.siblingProductOrders?.[index]?.internalPo?.message ??
+                  ''}
+              </ErrorMessage>
+            </InputWrapper>
 
-                <InputWrapper>
-                  <StyledLabel>Quantity</StyledLabel>
-                  <Controller
-                    name={`siblingProductOrders.${index}.quantity` as const}
-                    control={control}
-                    render={({ field }) => (
-                      <StyledInput
-                        type="number"
-                        {...field}
-                        value={field.value ?? ''}
-                      />
-                    )}
+            <InputWrapper>
+              <StyledLabel>Quantity</StyledLabel>
+              <Controller
+                name={`siblingProductOrders.${index}.quantity` as const}
+                control={control}
+                render={({ field }) => (
+                  <StyledInput
+                    type="number"
+                    {...field}
+                    value={field.value ?? ''}
                   />
-                  <ErrorMessage>
-                    {errors.siblingProductOrders?.[index]?.quantity?.message ??
-                      ''}
-                  </ErrorMessage>
-                </InputWrapper>
+                )}
+              />
+              <ErrorMessage>
+                {errors.siblingProductOrders?.[index]?.quantity?.message ?? ''}
+              </ErrorMessage>
+            </InputWrapper>
 
-                <InputWrapper>
-                  <StyledLabel>Lot</StyledLabel>
-                  <Controller
-                    name={`siblingProductOrders.${index}.lot` as const}
-                    control={control}
-                    render={({ field }) => (
-                      <StyledInput type="text" {...field} />
-                    )}
-                  />
-                  <ErrorMessage>
-                    {errors.siblingProductOrders?.[index]?.lot?.message ?? ''}
-                  </ErrorMessage>
-                </InputWrapper>
-                <InputWrapper>
-                  <StyledLabel>Mill</StyledLabel>
-                  <Controller
-                    name={`siblingProductOrders.${index}.mill` as const}
-                    control={control}
-                    render={({ field }) => (
-                      <StyledInput type="text" {...field} />
-                    )}
-                  />
-                  <ErrorMessage>
-                    {errors.siblingProductOrders?.[index]?.mill?.message ?? ''}
-                  </ErrorMessage>
-                </InputWrapper>
-                <InputWrapper>
-                  <StyledLabel>Reference Number</StyledLabel>
-                  <Controller
-                    name={
-                      `siblingProductOrders.${index}.referenceNumber` as const
-                    }
-                    control={control}
-                    render={({ field }) => (
-                      <StyledInput type="text" {...field} />
-                    )}
-                  />
-                  <ErrorMessage>
-                    {errors.siblingProductOrders?.[index]?.referenceNumber
-                      ?.message ?? ''}
-                  </ErrorMessage>
-                </InputWrapper>
-              </PillWrapper>
-            ))}
-            <Button
-              type="button"
-              onClick={() =>
-                append({
-                  internalPo: 0,
-                  referenceNumber: '',
-                  quantity: 0,
-                  lot: '',
-                  mill: '',
-                })
-              }
-              disabled={!isValid}
-            >
-              +
-            </Button>
-          </form>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            style={{ marginRight: '1rem' }}
-            type="submit"
-            onClick={handleSubmit(onSubmit)}
-            disabled={!isValid}
-          >
-            Save
-          </Button>
-          <CancelButton onClick={onClose}>Close</CancelButton>
-        </ModalFooter>
-      </ModalContent>
-    </ModalWrapper>
+            <InputWrapper>
+              <StyledLabel>Lot</StyledLabel>
+              <Controller
+                name={`siblingProductOrders.${index}.lot` as const}
+                control={control}
+                render={({ field }) => <StyledInput type="text" {...field} />}
+              />
+              <ErrorMessage>
+                {errors.siblingProductOrders?.[index]?.lot?.message ?? ''}
+              </ErrorMessage>
+            </InputWrapper>
+            <InputWrapper>
+              <StyledLabel>Mill</StyledLabel>
+              <Controller
+                name={`siblingProductOrders.${index}.mill` as const}
+                control={control}
+                render={({ field }) => <StyledInput type="text" {...field} />}
+              />
+              <ErrorMessage>
+                {errors.siblingProductOrders?.[index]?.mill?.message ?? ''}
+              </ErrorMessage>
+            </InputWrapper>
+            <InputWrapper>
+              <StyledLabel>Reference Number</StyledLabel>
+              <Controller
+                name={`siblingProductOrders.${index}.referenceNumber` as const}
+                control={control}
+                render={({ field }) => <StyledInput type="text" {...field} />}
+              />
+              <ErrorMessage>
+                {errors.siblingProductOrders?.[index]?.referenceNumber
+                  ?.message ?? ''}
+              </ErrorMessage>
+            </InputWrapper>
+          </PillWrapper>
+        ))}
+        <TracerButton
+          type="submit"
+          onClick={() =>
+            append({
+              internalPo: 0,
+              referenceNumber: '',
+              quantity: 0,
+              lot: '',
+              mill: '',
+            })
+          }
+          name="+"
+          disabled={!isValid}
+        />
+      </form>
+    </BaseModal>
   );
 };
 
 export default SiblingProductOrderModal;
-
-const ModalWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: 0;
-  overflow: hidden;
-  transition: width 0.3s;
-  z-index: 1000;
-
-  &.open {
-    width: 40%;
-  }
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-`;
-
-const ModalContent = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: 100%;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  z-index: 1001;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px 0 0 8px;
-`;
-
-const ModalHeader = styled.div`
-  background: #2d3748;
-  color: #fff;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top-left-radius: 8px;
-`;
-
-const ModalBody = styled.div`
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-`;
-
-const ModalFooter = styled.div`
-  padding: 20px;
-  background: #2d3748;
-  text-align: right;
-  border-bottom-left-radius: 8px;
-`;
-
-const Button = styled.button`
-  background: rgb(15 118 110);
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 10px;
-
-  &:hover {
-    background: rgb(13 148 136);
-  }
-
-  &:disabled {
-    background: #b0b0b0;
-    cursor: not-allowed;
-  }
-`;
-
-const CancelButton = styled.button`
-  background: #6b7280; /* bg-gray-500 */
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.3s;
-
-  &:hover {
-    background: #4b5563; /* hover:bg-gray-600 */
-  }
-`;
 
 const PillWrapper = styled.div`
   display: grid;

@@ -514,7 +514,7 @@ const PurchaseOrderPage: React.FC = () => {
         if (response.status === 204) {
           insertLogs();
           getUpdatedLogs(productOrder.productOrderNumber);
-          router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
+          router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
@@ -549,11 +549,11 @@ const PurchaseOrderPage: React.FC = () => {
           <span className="text-sm text-gray-500"> &gt; PO Details</span>
         </div>
         <Section>
-          <div className="mb-5 flex flex-row items-center">
-            <div className="me-8 text-xl">
+          <div className="tool-bar">
+            <div className="tool-bar-title">
               <h1>Product Order Details</h1>
             </div>
-            <div className="flex flex-row flex-nowrap space-x-4">
+            <div className="tool-bar-buttons">
               <TracerButton
                 name="Add Tracer Stream"
                 icon={<HiPlus />}
@@ -565,21 +565,20 @@ const PurchaseOrderPage: React.FC = () => {
                 name={`${siblingPoTextDisplay} Sibling Pos`}
                 onClick={() => setIsSiblingProductOrderModalOpen(true)}
               />
-            </div>
-            {isAdmin && (
-              <div className="pl-2">
+              {isAdmin && (
                 <button
                   onClick={async () => {
                     await handleDeleteProductOrder(productOrder);
                     router.push('/Dashboard');
                   }}
-                  className="rounded border-2 border-red-500 px-4 py-2 font-medium text-black hover:bg-red-500 hover:text-white"
+                  className="border-1 rounded border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
                 >
                   Delete PO
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+          <div className="my-4 w-full border-b-4 border-teal-700"></div>
 
           <div className="space-between mb-4 flex gap-5">
             <div className="form-box">
@@ -1056,6 +1055,7 @@ const PurchaseOrderPage: React.FC = () => {
       )}
       {isExportModalOpen && streamToExport && (
         <ExportModal
+          isOpen={isExportModalOpen}
           stream={streamToExport}
           onClose={() => {
             setIsExportModalOpen(false);

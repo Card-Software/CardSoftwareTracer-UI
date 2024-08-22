@@ -473,7 +473,6 @@ const SectionModal: React.FC<SectionModalProps> = ({
                   <DragAndDropArea
                     onDrop={handleDrop}
                     onFileSelect={handleFileSelect}
-                    label="Custom label if needed"
                   />
                 </>
               )}

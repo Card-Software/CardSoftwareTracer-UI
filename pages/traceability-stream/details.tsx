@@ -7,7 +7,6 @@ import { HiPlus } from 'react-icons/hi';
 import dynamic from 'next/dynamic';
 import { FaTrash } from 'react-icons/fa';
 import { useRouter } from 'next/router';
-import { useSearchParams } from 'next/navigation';
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
 import { Section } from '@/models/section';
 import { TracerStream } from '@/models/tracer-stream';
@@ -20,35 +19,10 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import withAuth from '@/hoc/auth';
 import { User } from '@/models/user';
 
-interface SectionWithId extends Section {
-  id: string;
-}
-
 const Details = () => {
-  const DragDropContext = dynamic(
-    () => import('react-beautiful-dnd').then((mod) => mod.DragDropContext),
-    {
-      ssr: false,
-    },
-  );
-
-  const Droppable = dynamic(
-    () => import('react-beautiful-dnd').then((mod) => mod.Droppable),
-    {
-      ssr: false,
-    },
-  );
-
-  const Draggable = dynamic(
-    () => import('react-beautiful-dnd').then((mod) => mod.Draggable),
-    {
-      ssr: false,
-    },
-  );
-
+  // #region States
   const router = useRouter();
   const { query } = router;
-  const searchParams = useSearchParams();
   const [originalTracerStream, setOriginalTracerStream] =
     useState<TracerStream | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,6 +39,22 @@ const Details = () => {
     sections: [],
   });
 
+  const organization: Organization =
+    userAuthenticationService.getOrganization() as Organization;
+  const user: User = userAuthenticationService.getUser() as User;
+  const IsAdmin = user.role.includes('Admin');
+  const isEditing = !!query.id;
+  // #endregion
+
+  // #region Use Effects
+  useEffect(() => {
+    if (isEditing && query.id) {
+      fetchTraceability(query.id as string);
+    }
+  }, [isEditing, query]);
+  // #endregion
+
+  // #region controller functions
   const handleTracerStreamChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -72,49 +62,6 @@ const Details = () => {
       ...tracerStream,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const organization: Organization =
-    userAuthenticationService.getOrganization() as Organization;
-
-  const user: User = userAuthenticationService.getUser() as User;
-
-  const IsAdmin = user.role.includes('Admin');
-
-  const isEditing = !!query.id;
-
-  useEffect(() => {
-    if (isEditing && query.id) {
-      fetchTraceability(query.id as string);
-    }
-  }, [isEditing, query]);
-
-  const fetchTraceability = async (id: string) => {
-    try {
-      setIsLoading(true);
-      const data = await orderManagementApiProxy.getTraceability(id);
-      setOriginalTracerStream(data);
-      setTracerStream(data as TracerStream);
-    } catch (error) {
-      setError('Failed to fetch traceability details.');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOnDragEnd = (result: any) => {
-    if (!result.destination) return;
-
-    const items = Array.from(tracerStream.sections);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    items.forEach((item, index) => {
-      item.position = index + 1;
-    });
-
-    setTracerStream({ ...tracerStream, sections: items });
   };
 
   const deleteProcess = (id: string) => {
@@ -169,6 +116,9 @@ const Details = () => {
 
   const openModal = (title: string, section: Section) => {
     setModalTitle(title);
+    section.fileNameOnExport =
+      section.fileNameOnExport !== '' ? section.fileNameOnExport : null;
+    section.assignedUser = section.assignedUser || null;
     setCurrentProcess(section);
     setIsModalOpen(true);
     setScrollPosition(window.scrollY); // Save the scroll position
@@ -230,6 +180,59 @@ const Details = () => {
       setIsLoading(false);
     }
   };
+
+  //#endregion
+  const fetchTraceability = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const data = await orderManagementApiProxy.getTraceability(id);
+      setOriginalTracerStream(data);
+      setTracerStream(data as TracerStream);
+    } catch (error) {
+      setError('Failed to fetch traceability details.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  //# region Drag and Drop function
+  const handleOnDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(tracerStream.sections);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    items.forEach((item, index) => {
+      item.position = index + 1;
+    });
+
+    setTracerStream({ ...tracerStream, sections: items });
+  };
+
+  //#endregion
+
+  const DragDropContext = dynamic(
+    () => import('react-beautiful-dnd').then((mod) => mod.DragDropContext),
+    {
+      ssr: false,
+    },
+  );
+
+  const Droppable = dynamic(
+    () => import('react-beautiful-dnd').then((mod) => mod.Droppable),
+    {
+      ssr: false,
+    },
+  );
+
+  const Draggable = dynamic(
+    () => import('react-beautiful-dnd').then((mod) => mod.Draggable),
+    {
+      ssr: false,
+    },
+  );
 
   return (
     <Layout>

@@ -175,6 +175,8 @@ input[type='number'] {
 
 button {
   box-shadow: 0 1px 3px #0009;
+  height: fit-content;
+  padding: 0.5rem 1rem;
 }
 
 button.square {
@@ -187,6 +189,10 @@ button.square {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  button {
+    height: fit-content;
+  }
 }
 
 .tool-bar-title {
