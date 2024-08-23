@@ -6,5 +6,5 @@ export interface Organization {
   name: string;
   users: User[];
   s3BucketName: string;
-  sites?: Site[];
+  sites: Site[];
 }

@@ -1,4 +1,3 @@
-import ProdcutOrder from '@/components/product-order-item.component';
 import { AllResponse } from '@/models/all-response';
 import { PoSearchFilters } from '@/models/po-search-filter';
 import { ProductOrder } from '@/models/product-order';
@@ -14,9 +13,7 @@ class OrderManagementApiProxy {
   async createTraceability(traceability: TracerStream): Promise<TracerStream> {
     const response = await fetch(`${this.baseUrl}TracerStreams/CreateStream`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(traceability),
     });
     return await response.json();

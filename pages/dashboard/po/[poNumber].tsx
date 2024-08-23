@@ -42,6 +42,7 @@ import { Group } from '@/models/group';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
+import ProductOrderDetails from '@/components/product-order-details';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -163,15 +164,14 @@ const PurchaseOrderPage: React.FC = () => {
     }
   }, []);
 
-  const handleProductOrderChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >,
-  ) => {
-    const { name, value } = e.target;
+  const handleProductOrderChange = (data: {
+    value: string | Date;
+    field: string;
+  }) => {
+    const { value, field } = data;
     setProductOrder((prevOrder) => ({
       ...prevOrder!,
-      [name]: value,
+      [field]: value,
     }));
   };
 
@@ -200,6 +200,13 @@ const PurchaseOrderPage: React.FC = () => {
   const handleActivityLogClose = () => {
     setIsActivityLogOpen(false);
     setActivityLogsToDisplay([]);
+  };
+
+  // test function2
+  const handleUserChange = (value: string | Date, field: string) => {
+    handleAssignedUserChange({
+      target: { name: field, value: value },
+    } as React.ChangeEvent<HTMLSelectElement>);
   };
 
   const handleAssignedUserChange = (
@@ -265,6 +272,9 @@ const PurchaseOrderPage: React.FC = () => {
     section: SectionModel,
     stream: TracerStreamExtended,
   ) => {
+    section.fileNameOnExport =
+      section.fileNameOnExport === '' ? null : section.fileNameOnExport;
+    section.assignedUser = section.assignedUser || null;
     setSelectedSection(section);
     setSelectedStream(stream);
     setIsSectionModalOpen(true);
@@ -511,7 +521,7 @@ const PurchaseOrderPage: React.FC = () => {
         if (response.status === 204) {
           insertLogs();
           getUpdatedLogs(productOrder.productOrderNumber);
-          router.push(`/Dashboard/po/${productOrder.productOrderNumber}`);
+          router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
@@ -538,7 +548,7 @@ const PurchaseOrderPage: React.FC = () => {
       <Container>
         <div>
           <Link
-            href="/Dashboard"
+            href="/dashboard"
             className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
           >
             Dashboard
@@ -546,11 +556,11 @@ const PurchaseOrderPage: React.FC = () => {
           <span className="text-sm text-gray-500"> &gt; PO Details</span>
         </div>
         <Section>
-          <div className="mb-5 flex flex-row items-center">
-            <div className="me-8 text-xl">
+          <div className="tool-bar">
+            <div className="tool-bar-title">
               <h1>Product Order Details</h1>
             </div>
-            <div className="flex flex-row flex-nowrap space-x-4">
+            <div className="tool-bar-buttons">
               <TracerButton
                 name="Add Tracer Stream"
                 icon={<HiPlus />}
@@ -562,218 +572,24 @@ const PurchaseOrderPage: React.FC = () => {
                 name={`${siblingPoTextDisplay} Sibling Pos`}
                 onClick={() => setIsSiblingProductOrderModalOpen(true)}
               />
-            </div>
-            {isAdmin && (
-              <div className="pl-2">
+              {isAdmin && (
                 <button
                   onClick={async () => {
                     await handleDeleteProductOrder(productOrder);
                     router.push('/Dashboard');
                   }}
-                  className="rounded border-2 border-red-500 px-4 py-2 font-medium text-black hover:bg-red-500 hover:text-white"
+                  className="border-1 rounded border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
                 >
                   Delete PO
                 </button>
-              </div>
-            )}
-          </div>
-
-          <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Product Order
-              </label>
-              <span className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900">
-                {productOrder.productOrderNumber}
-              </span>
-            </div>
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Reference
-              </label>
-              <input
-                type="text"
-                id="referenceNumber"
-                name="referenceNumber"
-                value={productOrder.referenceNumber}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Lot
-              </label>
-              <input
-                type="text"
-                id="lot"
-                name="lot"
-                value={productOrder.lot}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                External Product Order
-              </label>
-              <input
-                type="text"
-                id="externalProductOrderNumber"
-                name="externalProductOrderNumber"
-                value={productOrder.externalProductOrderNumber}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
+              )}
             </div>
           </div>
-
-          <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Site
-              </label>
-              <select
-                value={productOrder.siteRef || ''}
-                onChange={handleSiteChange}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Select an site</option>
-                {allSites.map((site) => (
-                  <option key={site.id} value={site.id}>
-                    {site.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Provider
-              </label>
-              <input
-                type="text"
-                id="provider"
-                name="provider"
-                value={productOrder.provider}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Client
-              </label>
-              <input
-                type="text"
-                id="client"
-                name="client"
-                value={productOrder.client}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Assigned to
-              </label>
-              <select
-                value={productOrder.assignedUser?.id}
-                onChange={handleAssignedUserChange}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Select an associate</option>
-                {allUsers.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.firstName} {user.lastname}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="createdDate"
-                className="mb-2 block text-sm font-bold text-gray-700"
-              >
-                Date Created
-              </label>
-              <DatePicker
-                id="createdDate"
-                name="createdDate"
-                selected={productOrder.createdDate}
-                onChange={(e) =>
-                  setProductOrder({ ...productOrder, createdDate: e as Date })
-                }
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                dateFormat="dd/MM/yyyy"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="invoiceDate"
-                className="mb-2 block text-sm font-bold text-gray-700"
-              >
-                Invoice Date
-              </label>
-              <DatePicker
-                selected={productOrder.invoiceDate}
-                onChange={(e) =>
-                  setProductOrder({ ...productOrder, invoiceDate: e as Date })
-                }
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                dateFormat="dd/MM/yyyy"
-              />
-            </div>
-          </div>
-          <div className="space-between mb-4 flex gap-5">
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Quantity
-              </label>
-              <input
-                type="number"
-                id="quantity"
-                name="quantity"
-                value={productOrder.quantity}
-                onChange={(e) =>
-                  setProductOrder({
-                    ...productOrder,
-                    quantity: Number(e.target.value),
-                  })
-                }
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <div className="form-box">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Product
-              </label>
-              <input
-                type="text"
-                id="product"
-                name="product"
-                value={productOrder.product}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="space-between mb-4 flex gap-5">
-            <div className="form-box w-full">
-              <label className="mb-2 block text-sm font-bold text-gray-700">
-                Description
-              </label>
-              <textarea
-                placeholder="Provide Description"
-                id="description"
-                name="description"
-                value={productOrder.description}
-                onChange={handleProductOrderChange}
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
+          <div className="mt-3">
+            <ProductOrderDetails
+              initialProductOrderDetails={productOrder}
+              onChange={handleProductOrderChange}
+            />
           </div>
 
           <div className="my-6">
@@ -795,7 +611,6 @@ const PurchaseOrderPage: React.FC = () => {
               onChange={handleStatusChange}
             />
           </div>
-
           <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>
@@ -846,7 +661,7 @@ const PurchaseOrderPage: React.FC = () => {
                         </button>
 
                         <button
-                          className="ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
+                          className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteStream(stream);
@@ -878,7 +693,7 @@ const PurchaseOrderPage: React.FC = () => {
                               />
                             )}
                             <DeleteButton
-                              className="flex justify-end"
+                              className="square flex justify-end"
                               onClick={(e) => {
                                 e.stopPropagation(); // Prevents parent click event from firing
                                 handleDeleteSection(stream, section); // Call delete function
@@ -1007,21 +822,20 @@ const PurchaseOrderPage: React.FC = () => {
           Save
         </button>
       </footer>
-      {isSectionModalOpen && selectedSection && selectedStream && (
-        <SectionModal
-          productOrder={productOrder.productOrderNumber}
-          tracerStreamId={selectedStream.id}
-          originalSection={selectedSection}
-          onClose={handleCloseSectionModal}
-          onSave={handleSaveSection}
-          mode={
-            selectedSection.sectionId
-              ? 'edit'
-              : 'sectionCreationOnExistingTracer'
-          }
-          totalSections={selectedStream.sections.length}
-        />
-      )}
+      <SectionModal
+        isOpen={isSectionModalOpen}
+        productOrder={productOrder.productOrderNumber}
+        tracerStreamId={selectedStream?.id || undefined}
+        initialSection={selectedSection as SectionModel}
+        onClose={handleCloseSectionModal}
+        onSave={handleSaveSection}
+        mode={
+          selectedSection?.sectionId
+            ? 'edit'
+            : 'sectionCreationOnExistingTracer'
+        }
+        totalSections={selectedStream?.sections.length}
+      />
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal
           originalTracerStream={
@@ -1054,6 +868,7 @@ const PurchaseOrderPage: React.FC = () => {
       )}
       {isExportModalOpen && streamToExport && (
         <ExportModal
+          isOpen={isExportModalOpen}
           stream={streamToExport}
           onClose={() => {
             setIsExportModalOpen(false);

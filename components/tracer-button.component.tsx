@@ -4,13 +4,27 @@ interface TracerButtonProps {
   onClick?: () => void;
   name: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
 }
 
-const TracerButton: React.FC<TracerButtonProps> = ({ onClick, name, icon }) => {
+const TracerButton: React.FC<TracerButtonProps> = ({
+  onClick,
+  name,
+  icon,
+  type = 'button',
+  disabled,
+}) => {
   return (
     <button
       onClick={onClick}
-      className="no w-full text-nowrap rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none"
+      type={type}
+      disabled={disabled}
+      className={`w-fit-content text-nowrap rounded-md px-4 py-2 text-white ${
+        disabled
+          ? 'cursor-not-allowed bg-gray-400'
+          : 'bg-teal-700 hover:bg-teal-600'
+      }`}
     >
       {icon && <span className="mr-2 inline-block">{icon}</span>}
       <span>{name}</span>

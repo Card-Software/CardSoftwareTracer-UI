@@ -1,10 +1,7 @@
 import { Note } from './note';
-import { Organization } from './organization';
-import { Section } from './section';
 import { SiblingProductOrder } from './sibling-product-order';
 import { Status } from './status';
-import { TeamLabel } from './team-label';
-import { TracerStream, TracerStreamExtended } from './tracer-stream';
+import { TracerStreamExtended } from './tracer-stream';
 import { User } from './user';
 
 export interface ProductOrder {
@@ -14,7 +11,7 @@ export interface ProductOrder {
   ownerRef: string;
   description: string;
   notes: Note[];
-  assignedUser?: User;
+  assignedUser?: User | null;
   createdDate: Date;
   client: string;
   statuses: Status[];
@@ -27,7 +24,7 @@ export interface ProductOrder {
   siteRef?: string;
   lot?: string;
   referenceNumber?: string;
-  invoiceDate?: Date;
+  invoiceDate?: Date | null;
   provider?: string;
   siblingProductOrders: SiblingProductOrder[];
 }

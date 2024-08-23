@@ -16,7 +16,7 @@ import withAuth from '@/hoc/auth';
 import LoadingOverlay from '@/components/loading-overlay.component'; // Ensure you import the LoadingOverlay component
 import { TeamLabel } from '@/models/team-label';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
-import { useForm, Controller, set } from 'react-hook-form';
+import { useForm, Controller, set, Control } from 'react-hook-form';
 import TeamStatuses from '@/components/team-statuses.component'; // Import the TeamStatuses component
 import { Status } from '@/models/status';
 import { Site } from '@/models/site';
@@ -25,6 +25,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
+import ProductOrderDetails from '@/components/product-order-details';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -183,6 +184,9 @@ const NewProductOrder: React.FC = () => {
     }
   };
 
+  const handleProductOrderDetailsChange = (data: Control) => {
+    console.log(data);
+  };
   const handleConnectTracerStream = (
     tracerStreamExtended: TracerStreamExtended,
   ) => {
@@ -227,178 +231,12 @@ const NewProductOrder: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '5rem' }}>
-        <div className="space-between mb-4 flex gap-5">
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Product Order
-            </label>
-            <input
-              type="text"
-              {...register('productOrderNumber', {
-                required: true,
-                pattern: {
-                  value: /^[A-Za-z0-9\s-]+$/,
-                  message:
-                    'Only letters, numbers, spaces, and dashes are allowed',
-                },
-              })}
-              className={`block w-full rounded-lg border p-2.5 text-sm focus:border-blue-500 focus:ring-blue-500
-          ${errors.productOrderNumber ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'}
-        `}
-            />
-            {errors.productOrderNumber && (
-              <p className="text-sm text-red-500">
-                {errors.productOrderNumber.message}
-              </p>
-            )}
-          </div>
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Reference
-            </label>
-            <input
-              type="text"
-              {...register('referenceNumber')}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Lot
-            </label>
-            <input
-              type="text"
-              {...register('lot')}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              External Product Order
-            </label>
-            <input
-              type="text"
-              {...register('externalProductOrderNumber')}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-        <div className="space-between mb-4 flex gap-5">
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Site
-            </label>
-            <select
-              onChange={handleSiteChange}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">Select an site</option>
-              {allSites.map((site) => (
-                <option key={site.id} value={site.id}>
-                  {site.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Provider
-            </label>
-            <input
-              type="text"
-              {...register('provider')}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Client
-            </label>
-            <input
-              type="text"
-              {...register('client')}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-        <div className="space-between mb-4 flex gap-5">
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Assign To
-            </label>
-            <select
-              onChange={handleAssignUser}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">Select an associate</option>
-              {sampleUsers.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.firstName} {user.lastname}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="createdDate"
-              className="mb-2 block text-sm font-bold text-gray-700"
-            >
-              Date Created
-            </label>
-            <DatePicker
-              selected={createdDate}
-              onChange={(date) => handleDateChange('createdDate', date)}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              dateFormat="dd/MM/yyyy"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="invoiceDate"
-              className="mb-2 block text-sm font-bold text-gray-700"
-            >
-              Invoice Date
-            </label>
-            <DatePicker
-              selected={invoiceDate}
-              onChange={(date) => handleDateChange('invoiceDate', date)}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              dateFormat="dd/MM/yyyy"
-            />
-          </div>
-        </div>
-        <div className="space-between mb-4 flex gap-5">
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Quantity
-            </label>
-            <input
-              type="number"
-              {...register('quantity')}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-          <div className="form-box">
-            <label className="mb-2 block text-sm font-bold text-gray-700">
-              Product
-            </label>
-            <input
-              type="text"
-              {...register('product')}
-              className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-        <div className="mb-6">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Description
-          </label>
-          <textarea
-            {...register('description')}
-            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+        <ProductOrderDetails
+          initialProductOrderDetails={null}
+          onChange={(data) => {
+            handleProductOrderDetailsChange(data);
+          }}
+        />
         <div className="mb-6">
           <TeamStatuses
             originalStatus={statuses}

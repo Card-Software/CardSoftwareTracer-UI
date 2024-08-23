@@ -7,7 +7,6 @@ import { HiPlus } from 'react-icons/hi';
 import dynamic from 'next/dynamic';
 import { FaTrash } from 'react-icons/fa';
 import { useRouter } from 'next/router';
-import { useSearchParams } from 'next/navigation';
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
 import { Section } from '@/models/section';
 import { TracerStream } from '@/models/tracer-stream';
@@ -20,35 +19,10 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import withAuth from '@/hoc/auth';
 import { User } from '@/models/user';
 
-interface SectionWithId extends Section {
-  id: string;
-}
-
 const Details = () => {
-  const DragDropContext = dynamic(
-    () => import('react-beautiful-dnd').then((mod) => mod.DragDropContext),
-    {
-      ssr: false,
-    },
-  );
-
-  const Droppable = dynamic(
-    () => import('react-beautiful-dnd').then((mod) => mod.Droppable),
-    {
-      ssr: false,
-    },
-  );
-
-  const Draggable = dynamic(
-    () => import('react-beautiful-dnd').then((mod) => mod.Draggable),
-    {
-      ssr: false,
-    },
-  );
-
+  // #region States
   const router = useRouter();
   const { query } = router;
-  const searchParams = useSearchParams();
   const [originalTracerStream, setOriginalTracerStream] =
     useState<TracerStream | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,6 +39,22 @@ const Details = () => {
     sections: [],
   });
 
+  const organization: Organization =
+    userAuthenticationService.getOrganization() as Organization;
+  const user: User = userAuthenticationService.getUser() as User;
+  const IsAdmin = user.role.includes('Admin');
+  const isEditing = !!query.id;
+  // #endregion
+
+  // #region Use Effects
+  useEffect(() => {
+    if (isEditing && query.id) {
+      fetchTraceability(query.id as string);
+    }
+  }, [isEditing, query]);
+  // #endregion
+
+  // #region controller functions
   const handleTracerStreamChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -72,49 +62,6 @@ const Details = () => {
       ...tracerStream,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const organization: Organization =
-    userAuthenticationService.getOrganization() as Organization;
-
-  const user: User = userAuthenticationService.getUser() as User;
-
-  const IsAdmin = user.role.includes('Admin');
-
-  const isEditing = !!query.id;
-
-  useEffect(() => {
-    if (isEditing && query.id) {
-      fetchTraceability(query.id as string);
-    }
-  }, [isEditing, query]);
-
-  const fetchTraceability = async (id: string) => {
-    try {
-      setIsLoading(true);
-      const data = await orderManagementApiProxy.getTraceability(id);
-      setOriginalTracerStream(data);
-      setTracerStream(data as TracerStream);
-    } catch (error) {
-      setError('Failed to fetch traceability details.');
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOnDragEnd = (result: any) => {
-    if (!result.destination) return;
-
-    const items = Array.from(tracerStream.sections);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    items.forEach((item, index) => {
-      item.position = index + 1;
-    });
-
-    setTracerStream({ ...tracerStream, sections: items });
   };
 
   const deleteProcess = (id: string) => {
@@ -159,15 +106,19 @@ const Details = () => {
       position: tracerStream.sections.length + 1,
       notes: [],
       files: [],
-      fileNameOnExport: '',
+      fileNameOnExport: null,
       isRequired: true,
       ownerRef: organization.id,
       teamLabels: [],
+      assignedUser: null,
     });
   };
 
   const openModal = (title: string, section: Section) => {
     setModalTitle(title);
+    section.fileNameOnExport =
+      section.fileNameOnExport !== '' ? section.fileNameOnExport : null;
+    section.assignedUser = section.assignedUser || null;
     setCurrentProcess(section);
     setIsModalOpen(true);
     setScrollPosition(window.scrollY); // Save the scroll position
@@ -176,7 +127,7 @@ const Details = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setCurrentProcess(null);
-    window.scrollTo(0, scrollPosition); // Restore the scroll position
+    window.scrollTo(0, scrollPosition);
   };
 
   const saveSection = (
@@ -230,25 +181,92 @@ const Details = () => {
     }
   };
 
+  //#endregion
+  const fetchTraceability = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const data = await orderManagementApiProxy.getTraceability(id);
+      setOriginalTracerStream(data);
+      setTracerStream(data as TracerStream);
+    } catch (error) {
+      setError('Failed to fetch traceability details.');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  //# region Drag and Drop function
+  const handleOnDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(tracerStream.sections);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    items.forEach((item, index) => {
+      item.position = index + 1;
+    });
+
+    setTracerStream({ ...tracerStream, sections: items });
+  };
+
+  //#endregion
+
+  const DragDropContext = dynamic(
+    () => import('react-beautiful-dnd').then((mod) => mod.DragDropContext),
+    {
+      ssr: false,
+    },
+  );
+
+  const Droppable = dynamic(
+    () => import('react-beautiful-dnd').then((mod) => mod.Droppable),
+    {
+      ssr: false,
+    },
+  );
+
+  const Draggable = dynamic(
+    () => import('react-beautiful-dnd').then((mod) => mod.Draggable),
+    {
+      ssr: false,
+    },
+  );
+
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
       <div className="mb-20">
         <div>
           <Link
-            href="/TraceabilityStream"
+            href="/traceability-stream"
             className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
           >
             Traceability Stream
           </Link>
           <span className="text-sm text-gray-500"> &gt; Details</span>
         </div>
-
-        <div className="me-8 text-xl">
-          <h1>
-            {isEditing ? 'Edit Traceability Stream' : 'Add Traceability Stream'}
-          </h1>
+        <div className="tool-bar">
+          <div className="tool-bar-title">
+            <h1>
+              {isEditing
+                ? 'Edit Traceability Stream'
+                : 'Add Traceability Stream'}
+            </h1>
+          </div>
+          <div className="tool-bar-buttons">
+            {IsAdmin && (
+              <TracerButton
+                name="Section"
+                icon={<HiPlus />}
+                onClick={handleAddSection}
+              />
+            )}
+          </div>
         </div>
+
+        <div className="my-2 w-full border-b-4 border-teal-700"></div>
 
         {error && <p className="text-red-500">{error}</p>}
 
@@ -262,7 +280,7 @@ const Details = () => {
             name="name"
             value={tracerStream.name}
             onChange={handleTracerStreamChange}
-            className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            className="input-custom"
           />
         </div>
 
@@ -275,18 +293,11 @@ const Details = () => {
             name="description"
             value={tracerStream.description}
             onChange={handleTracerStreamChange}
-            className="mt-1 block w-full rounded-md border shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            className="input-custom"
           />
         </div>
 
         <div className="mb-4">
-          {IsAdmin && (
-            <TracerButton
-              name="Add New Section"
-              icon={<HiPlus />}
-              onClick={handleAddSection}
-            />
-          )}
           <p>
             Traceability stream starts from top to bottom. E.g., Position 1 is
             the first stage, and position n is the last stage.
@@ -346,7 +357,7 @@ const Details = () => {
                             </button>
                             <button
                               onClick={() => deleteProcess(section.sectionId)}
-                              className="text-red-500 hover:text-red-700"
+                              className="square text-red-500 hover:text-red-700"
                             >
                               <FaTrash className="h-5 w-5" />
                             </button>
@@ -362,15 +373,14 @@ const Details = () => {
           </DragDropContext>
         </div>
 
-        {isModalOpen && (
-          <SectionModal
-            onClose={closeModal}
-            onSave={saveSection}
-            originalSection={currentProcess as Section}
-            mode={'sectionCreation'}
-            totalSections={tracerStream.sections.length}
-          />
-        )}
+        <SectionModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onSave={(section, move) => saveSection(section, move)}
+          initialSection={currentProcess as Section}
+          mode={'sectionCreation'}
+          totalSections={tracerStream.sections.length}
+        />
       </div>
 
       <footer className="stream-footer flex justify-between bg-gray-200 p-4">
