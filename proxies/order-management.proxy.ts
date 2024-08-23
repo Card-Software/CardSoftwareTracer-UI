@@ -5,8 +5,6 @@ import { SnapshotPaginatedResult } from '@/models/snapshot-paginated-result';
 import { TracerStream } from '@/models/tracer-stream';
 import axiosInstance from '@/utils/axiosInstance';
 class OrderManagementApiProxy {
-  private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
-
   //#region
   // Stream controller
   async createTraceability(traceability: TracerStream): Promise<TracerStream> {
@@ -210,11 +208,13 @@ class OrderManagementApiProxy {
             'Content-Type': 'application/json',
           },
           responseType: 'blob',
-        }
+        },
       );
       return response.data;
     } catch (error) {
-      throw new Error('An error occurred while converting the snapshot search to excel');
+      throw new Error(
+        'An error occurred while converting the snapshot search to excel',
+      );
     }
   }
   //#endregion
