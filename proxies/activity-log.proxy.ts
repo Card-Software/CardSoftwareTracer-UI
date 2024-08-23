@@ -1,7 +1,6 @@
 import { ActivityLog } from '@/models/activity-log';
 import axiosInstance from '@/utils/axiosInstance';
 class ActivityLogProxy {
-  private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
 
   async insertActivityLog(activityLog: ActivityLog): Promise<boolean> {
     try {
@@ -22,7 +21,7 @@ class ActivityLogProxy {
       );
       return response.data;
     } catch (error) {
-      throw new Error('An error occurred while getting the activity log by PO');      
+      throw new Error('An error occurred while getting the activity log by PO');
     }
   }
 }
