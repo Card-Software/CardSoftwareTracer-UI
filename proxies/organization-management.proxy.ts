@@ -1,24 +1,12 @@
 import { Organization } from '@/models/organization';
 import { User } from '@/models/user';
+import axiosInstance from '@/utils/axiosInstance';
 
 class OrganizationManagementProxy {
   private baseUrl = process.env.NEXT_PUBLIC_TRACER_APP_API_URL;
 
   //#region
   // Organization controller
-  async CreateOrganization(organization: Organization): Promise<Organization> {
-    const response = await fetch(
-      `${this.baseUrl}OrganizationController/create`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(organization),
-      },
-    );
-    return await response.json();
-  }
 
   async GetOrganization(id: string): Promise<Organization> {
     const response = await fetch(
