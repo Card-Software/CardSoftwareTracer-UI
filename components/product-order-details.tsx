@@ -1,4 +1,4 @@
-import React, { use, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import * as Yup from 'yup';
@@ -10,7 +10,7 @@ import type { Organization } from '@/models/organization';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import styled from 'styled-components';
 import { Site } from '@/models/site';
-// import * as _ from 'lodash'; 
+import _ from 'lodash';
 
 const isUserValid = (value: any): value is User => {
   return (
@@ -136,13 +136,9 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
     }
   }, []);
 
-  // useEffect(() => {
-  //   onChange(control);
-  // }, [formValues]);
   const previousValues = useRef(formValues);
   useEffect(() => {
-    // _.isEqual(previousValues.current, formValues);
-    if (JSON.stringify(previousValues.current) !== JSON.stringify(formValues)) {
+    if (!_.isEqual(previousValues.current, formValues)) {
       onChange(control);
       previousValues.current = formValues;
     }
@@ -162,7 +158,7 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
 
   return (
     <>
-      <div className="space-between mb-4 flex gap-5">
+      <div className="space-between mb-4 flex gap-5 mt-10">
         <div className="form-box">
           <label className="mb-2 block text-sm font-bold text-gray-700">
             Product Order Number
