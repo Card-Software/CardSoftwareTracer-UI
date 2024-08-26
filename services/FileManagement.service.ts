@@ -36,7 +36,7 @@ class FileManagementService {
     const productOrderNumber = productOrder.externalProductOrderNumber
       ? productOrder.externalProductOrderNumber
       : productOrder.productOrderNumber;
-    const folder = zip.folder(`P-0000${productOrderNumber}`);
+    const folder = zip.folder(`${productOrderNumber}`);
 
     if (!folder) {
       throw new Error('Failed to create folder in zip file.');
@@ -66,11 +66,11 @@ class FileManagementService {
       const sectionId = file.name.split('/')[2];
       const sectionName = sectionNames[sectionId];
       const fileExtension = file.name.split('.').pop();
-      let fileName = `P-0000${productOrderNumber}_${sectionName}.${fileExtension}`;
+      let fileName = `${productOrderNumber}_${sectionName}.${fileExtension}`;
 
       let counter = 1;
       while (folder.file(fileName)) {
-        fileName = `P-0000${productOrderNumber}_${sectionName}${counter}.${fileExtension}`;
+        fileName = `${productOrderNumber}_${sectionName}${counter}.${fileExtension}`;
         counter++;
       }
 
@@ -85,7 +85,7 @@ class FileManagementService {
 
     const content = await zip.generateAsync({ type: 'blob' });
 
-    saveAs(content, `P-0000${productOrderNumber}.zip`);
+    saveAs(content, `${productOrderNumber}.zip`);
     return true;
   }
 

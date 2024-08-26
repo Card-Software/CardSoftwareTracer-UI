@@ -45,6 +45,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bucketName = userAuthenticationService.getOrganization()?.s3BucketName;
   const prefix = `${productOrder}/${tracerStreamId}/${section.sectionId}`;
+  const loadedStates = useRef({ loadedTeamLabels: false });
 
   useEffect(() => {
     setSection(originalSection);
@@ -96,8 +97,10 @@ const SectionModal: React.FC<SectionModalProps> = ({
       );
       setTeamLabels(teamLabels);
     };
-
-    fetchTeamLabels();
+    if (!loadedStates.current.loadedTeamLabels) {
+      loadedStates.current.loadedTeamLabels = true;
+      fetchTeamLabels();
+    }
   }, [organization]);
 
   // #region File Handling
