@@ -203,20 +203,15 @@ const SectionModal: React.FC<SectionModalProps> = ({
 
   const handleFileDelete = async (s3Object: S3ObjectDto) => {
     if (confirm('Are you sure you want to delete this file?')) {
-      const response = await fileManagementApiProxy.DeleteFile(
-        bucketName!,
-        s3Object.name!,
-      );
+      await fileManagementApiProxy.DeleteFile(bucketName!, s3Object.name!);
       try {
         const allFiles = await fileManagementApiProxy.getAllFiles(
           bucketName!,
           prefix,
         );
         setValue('section.files', allFiles);
-        console.log('File deleted:', response);
       } catch (error) {
         console.error('Error fetching files:', error);
-        console.log(response);
       }
     }
   };
@@ -232,8 +227,16 @@ const SectionModal: React.FC<SectionModalProps> = ({
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const fileInput = event.target;
     const file = event.target.files?.[0];
-    console.log('File selected:', file);
+
+    if (file) {
+      uploadFile(file);
+      console.log('File selected', file);
+
+      fileInput.value = '';
+    }
   };
   // #endregion
 
