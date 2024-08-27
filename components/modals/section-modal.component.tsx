@@ -10,7 +10,6 @@ import { TeamLabel } from '@/models/team-label';
 import { ActivityLog } from '@/models/activity-log';
 import { ActivityType } from '@/models/enum/activity-type';
 import { User } from '@/models/user';
-import styled from 'styled-components';
 import { activityLogProxy } from '@/proxies/activity-log.proxy';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -81,7 +80,6 @@ const SectionModal: React.FC<SectionModalProps> = ({
 }) => {
   const {
     control,
-    handleSubmit,
     formState: { errors, isValid },
     setValue,
     watch,
@@ -185,16 +183,16 @@ const SectionModal: React.FC<SectionModalProps> = ({
         initialSection.sectionId,
         file,
       );
-
-      if (response.ok) {
+      try {
         const allFiles = await fileManagementApiProxy.getAllFiles(
           bucketName,
           prefix,
         );
         insertLogs(file.name, form.section.sectionName);
         setValue('section.files', allFiles);
-      } else {
-        console.error('Failed to upload file');
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching files:', error);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -209,14 +207,16 @@ const SectionModal: React.FC<SectionModalProps> = ({
         bucketName!,
         s3Object.name!,
       );
-      if (response.ok) {
+      try {
         const allFiles = await fileManagementApiProxy.getAllFiles(
           bucketName!,
           prefix,
         );
         setValue('section.files', allFiles);
-      } else {
-        console.error('Failed to delete file');
+        console.log('File deleted:', response);
+      } catch (error) {
+        console.error('Error fetching files:', error);
+        console.log(response);
       }
     }
   };
@@ -460,6 +460,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
                                 onClick={() => {
                                   handleFileDelete(s3Object);
                                 }}
+                                type="button"
                               >
                                 Delete
                               </button>
