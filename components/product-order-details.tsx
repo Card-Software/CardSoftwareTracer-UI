@@ -8,9 +8,9 @@ import { User } from '@/models/user';
 import { ProductOrder } from '@/models/product-order';
 import type { Organization } from '@/models/organization';
 import { userAuthenticationService } from '@/services/user-authentication.service';
-import styled from 'styled-components';
 import { Site } from '@/models/site';
 import _ from 'lodash';
+import Notes from './_base/notes';
 
 const isUserValid = (value: any): value is User => {
   return (
@@ -412,6 +412,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
           )}
         />
       </div>
+      <Notes />
     </div>
   );
 };

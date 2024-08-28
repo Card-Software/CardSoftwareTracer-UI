@@ -839,7 +839,7 @@ const PurchaseOrderPage: React.FC = () => {
             ? 'edit'
             : 'sectionCreationOnExistingTracer'
         }
-        totalSections={selectedStream?.sections.length}
+        // totalSections={selectedStream?.sections.length}
       />
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal

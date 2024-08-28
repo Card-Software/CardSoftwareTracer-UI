@@ -61,7 +61,7 @@ interface SectionModalProps {
   tracerStreamId?: string;
   initialSection: Section;
   mode: 'edit' | 'sectionCreation' | 'sectionCreationOnExistingTracer';
-  totalSections?: number;
+  totalSections?: number ;
 }
 
 const validationSchema = Yup.object().shape({

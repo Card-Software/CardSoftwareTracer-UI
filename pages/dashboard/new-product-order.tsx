@@ -20,7 +20,6 @@ import { useForm, Controller, set, Control } from 'react-hook-form';
 import TeamStatuses from '@/components/team-statuses.component'; // Import the TeamStatuses component
 import { Status } from '@/models/status';
 import { Site } from '@/models/site';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
