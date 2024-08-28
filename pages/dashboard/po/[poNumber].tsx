@@ -42,7 +42,7 @@ import { Group } from '@/models/group';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
-import ProductOrderDetails1 from '@/components/product-order-details';
+import ProductOrderDetails from '@/components/product-order-details';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -163,26 +163,6 @@ const PurchaseOrderPage: React.FC = () => {
       fetchUsers();
     }
   }, []);
-
-  // test function
-
-  // const handleFeildChange = (value: string | Date, field: string) => {
-  //   handleProductOrderChange({
-  //     target: { name: field, value: value },
-  //   } as React.ChangeEvent<HTMLInputElement>);
-  // };
-
-  // const handleProductOrderChange = (
-  //   e: React.ChangeEvent<
-  //     HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-  //   >,
-  // ) => {
-  //   const { name, value } = e.target;
-  //   setProductOrder((prevOrder) => ({
-  //     ...prevOrder!,
-  //     [name]: value,
-  //   }));
-  // };
 
   const handleProductOrderChange = (data: {
     value: string | Date;
@@ -568,7 +548,7 @@ const PurchaseOrderPage: React.FC = () => {
       <Container>
         <div>
           <Link
-            href="/Dashboard"
+            href="/dashboard"
             className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
           >
             Dashboard
@@ -605,10 +585,13 @@ const PurchaseOrderPage: React.FC = () => {
               )}
             </div>
           </div>
-          <ProductOrderDetails1
-            initialProductOrderDetails={productOrder}
-            onChange={handleProductOrderChange}
-          />
+          <div className="mt-3">
+            <ProductOrderDetails
+              initialProductOrderDetails={productOrder}
+              onChange={handleProductOrderChange}
+            />
+          </div>
+
           <div className="my-6">
             <button
               className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import * as Yup from 'yup';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { User } from '@/models/user';
 import { ProductOrder } from '@/models/product-order';
@@ -64,7 +64,7 @@ interface ProductOrderDetailsProps {
   onChange: (productOrderDetailsFormControl: any) => void;
 }
 
-const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
+const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
   initialProductOrderDetails,
   onChange,
 }) => {
@@ -99,8 +99,7 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
 
   const {
     control,
-    formState: { errors, isValid },
-    watch,
+    formState: { errors },
   } = useForm({
     defaultValues: {
       productOrderDetails: populateProductOrderDetails(),
@@ -117,7 +116,7 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
 
   // #region Use Refs and watchers
   const hasPageBeenRendered = useRef({ organizationLoaded: false });
-  const formValues = watch();
+  const formValues = useWatch({ control });
 
   // #endregion
 
@@ -157,204 +156,251 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
   // #endregion
 
   return (
-    <>
-      <div className="space-between mb-4 flex gap-5 mt-10">
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Product Order Number
-          </label>
-          <Controller
-            name={'productOrderDetails.productOrderNumber'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="string" {...field} value={field.value ?? ''} />
-            )}
-          />
-          <p className="whitespace-pre-line text-sm text-red-500">
-            {errors.productOrderDetails?.productOrderNumber?.message}
-          </p>
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Reference Number
-          </label>
-          <Controller
-            name={'productOrderDetails.referenceNumber'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="string" {...field} value={field.value ?? ''} />
-            )}
-          />
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Lot
-          </label>
-          <Controller
-            name={'productOrderDetails.lot'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="string" {...field} value={field.value ?? ''} />
-            )}
-          />
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            External Product Order Number
-          </label>
-          <Controller
-            name={'productOrderDetails.externProductOrderNumber'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="string" {...field} value={field.value ?? ''} />
-            )}
-          />
-          <p className="whitespace-pre-line text-sm text-red-500">
-            {errors.productOrderDetails?.externProductOrderNumber?.message}
-          </p>
-        </div>
-      </div>
-      <div className="space-between mb-4 flex gap-5">
-        <div className="form-box">
-          <label className="mb-3 block text-sm font-bold text-gray-700">
-            Site
-          </label>
-          <Controller
-            name={'productOrderDetails.siteRef'}
-            control={control}
-            render={({ field }) => (
-              <select
-                onChange={(e) => field.onChange(getSiteObject(e.target.value))}
-                className="block w-full rounded-md border border-gray-300 px-[25px] py-2.5 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Select Site</option>
-                {allSites.map((site) => (
-                  <option key={site.id} value={site.id}>
-                    {site.name}
-                  </option>
-                ))}
-              </select>
-            )}
-          />
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Provider
-          </label>
-          <Controller
-            name={'productOrderDetails.provider'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="string" {...field} value={field.value ?? ''} />
-            )}
-          />
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Client
-          </label>
-          <Controller
-            name={'productOrderDetails.client'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="string" {...field} value={field.value ?? ''} />
-            )}
-          />
-          <p className="whitespace-pre-line text-sm text-red-500">
-            {errors.productOrderDetails?.client?.message}
-          </p>
-        </div>
+    <div className="grid grid-cols-4 grid-rows-5 gap-4">
+      {/* Row 1: 5 Columns */}
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Product Order Number
+        </label>
+        <Controller
+          name={'productOrderDetails.productOrderNumber'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="text"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
+        <p className="whitespace-pre-line text-sm text-red-500">
+          {errors.productOrderDetails?.productOrderNumber?.message}
+        </p>
       </div>
 
-      <div className="space-between mb-4 flex gap-5">
-        <div className="form-box">
-          <label className="mb-3 block text-sm font-bold text-gray-700">
-            Assigned To
-          </label>
-          <Controller
-            name={'productOrderDetails.assignedUser'}
-            control={control}
-            render={({ field }) => (
-              <select
-                onChange={(e) => field.onChange(getUserObject(e.target.value))}
-                className="block w-full rounded-md border border-gray-300 px-[15px] py-2.5 pl-7 pr-5 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">Select User</option>
-                {allUsers.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.firstName} {user.lastname}
-                  </option>
-                ))}
-              </select>
-            )}
-          />
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Date Created
-          </label>
-          <Controller
-            name={'productOrderDetails.dateCreated'}
-            control={control}
-            render={({ field }) => (
-              <DatePicker
-                selected={field.value}
-                onChange={(date) => field.onChange(date)}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-1 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            )}
-          />
-          <p className="whitespace-pre-line text-sm text-red-500">
-            {errors.productOrderDetails?.dateCreated?.message}
-          </p>
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Invoice Date
-          </label>
-          <Controller
-            name={'productOrderDetails.invoiceDate'}
-            control={control}
-            render={({ field }) => (
-              <DatePicker
-                selected={field.value}
-                onChange={(date) => field.onChange(date)}
-                className="block w-full rounded-md border border-gray-300 px-4 py-2 pr-0 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-            )}
-          />
-        </div>
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Reference Number
+        </label>
+        <Controller
+          name={'productOrderDetails.referenceNumber'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="text"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
       </div>
-      <div className="space-between mb-4 flex gap-5">
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Quantity
-          </label>
-          <Controller
-            name={'productOrderDetails.quantity'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="number" {...field} value={field.value ?? ''} />
-            )}
-          />
-        </div>
-        <div className="form-box">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Product
-          </label>
-          <Controller
-            name={'productOrderDetails.product'}
-            control={control}
-            render={({ field }) => (
-              <StyledInput type="string" {...field} value={field.value ?? ''} />
-            )}
-          />
-          <p className="whitespace-pre-line text-sm text-red-500">
-            {errors.productOrderDetails?.product?.message}
-          </p>
-        </div>
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Lot
+        </label>
+        <Controller
+          name={'productOrderDetails.lot'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="text"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
       </div>
-      <div className="mb-6">
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          External Product Order Number
+        </label>
+        <Controller
+          name={'productOrderDetails.externProductOrderNumber'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="text"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
+        <p className="whitespace-pre-line text-sm text-red-500">
+          {errors.productOrderDetails?.externProductOrderNumber?.message}
+        </p>
+      </div>
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Assigned To
+        </label>
+        <Controller
+          name={'productOrderDetails.assignedUser'}
+          control={control}
+          render={({ field }) => (
+            <select
+              onChange={(e) => field.onChange(getUserObject(e.target.value))}
+              className="input-custom"
+            >
+              <option value="">Select User</option>
+              {allUsers.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.firstName} {user.lastname}
+                </option>
+              ))}
+            </select>
+          )}
+        />
+      </div>
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Site
+        </label>
+        <Controller
+          name={'productOrderDetails.siteRef'}
+          control={control}
+          render={({ field }) => (
+            <select
+              onChange={(e) => field.onChange(getSiteObject(e.target.value))}
+              className="input-custom"
+            >
+              <option value="">Select Site</option>
+              {allSites.map((site) => (
+                <option key={site.id} value={site.id}>
+                  {site.name}
+                </option>
+              ))}
+            </select>
+          )}
+        />
+      </div>
+
+      {/* Row 2: 4 Columns */}
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Provider
+        </label>
+        <Controller
+          name={'productOrderDetails.provider'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="text"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
+      </div>
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Client
+        </label>
+        <Controller
+          name={'productOrderDetails.client'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="text"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
+        <p className="whitespace-pre-line text-sm text-red-500">
+          {errors.productOrderDetails?.client?.message}
+        </p>
+      </div>
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Date Created
+        </label>
+        <Controller
+          name={'productOrderDetails.dateCreated'}
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              selected={field.value}
+              onChange={(date) => field.onChange(date)}
+              className="input-custom"
+            />
+          )}
+        />
+        <p className="whitespace-pre-line text-sm text-red-500">
+          {errors.productOrderDetails?.dateCreated?.message}
+        </p>
+      </div>
+
+      {/* Row 3: 4 Columns */}
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Invoice Date
+        </label>
+        <Controller
+          name={'productOrderDetails.invoiceDate'}
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              selected={field.value}
+              onChange={(date) => field.onChange(date)}
+              className="input-custom"
+            />
+          )}
+        />
+      </div>
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Quantity
+        </label>
+        <Controller
+          name={'productOrderDetails.quantity'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="number"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
+      </div>
+
+      <div className="form-box col-span-1">
+        <label className="mb-2 block text-sm font-bold text-gray-700">
+          Product
+        </label>
+        <Controller
+          name={'productOrderDetails.product'}
+          control={control}
+          render={({ field }) => (
+            <input
+              className="input-custom"
+              type="text"
+              {...field}
+              value={field.value ?? ''}
+            />
+          )}
+        />
+        <p className="whitespace-pre-line text-sm text-red-500">
+          {errors.productOrderDetails?.product?.message}
+        </p>
+      </div>
+
+      {/* Row 4: 1 Column Spanning All 4 Columns */}
+      <div className="form-box col-span-4">
         <label className="mb-2 block text-sm font-bold text-gray-700">
           Description
         </label>
@@ -362,27 +408,12 @@ const ProductOrderDetails1: React.FC<ProductOrderDetailsProps> = ({
           name={'productOrderDetails.description'}
           control={control}
           render={({ field }) => (
-            <textarea
-              {...field}
-              className="block w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <textarea {...field} className="input-custom" />
           )}
         />
       </div>
-    </>
+    </div>
   );
 };
 
-export default ProductOrderDetails1;
-
-const StyledInput = styled.input`
-  margin-top: 0.25rem;
-  padding: 0.5rem;
-  border: 1px solid #cbd5e0; /* Tailwind border-gray-300 */
-  border-radius: 0.375rem; /* Tailwind rounded */
-  &:focus {
-    outline: none;
-    border-color: #63b3ed; /* Tailwind focus:border-blue-400 */
-    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5); /* Tailwind focus:ring */
-  }
-`;
+export default ProductOrderDetails;

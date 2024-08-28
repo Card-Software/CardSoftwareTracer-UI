@@ -25,7 +25,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
-import ProductOrderDetails1 from '@/components/product-order-details';
+import ProductOrderDetails from '@/components/product-order-details';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -231,7 +231,7 @@ const NewProductOrder: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '5rem' }}>
-        <ProductOrderDetails1
+        <ProductOrderDetails
           initialProductOrderDetails={null}
           onChange={(data) => {
             handleProductOrderDetailsChange(data);
