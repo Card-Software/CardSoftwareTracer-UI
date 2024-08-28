@@ -1,5 +1,3 @@
-import { S3ObjectDto } from '@/models/s3-object-dto';
-
 class UserAuthenticationProxy {
   private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
 

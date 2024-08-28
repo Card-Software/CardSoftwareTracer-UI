@@ -1,45 +1,27 @@
 import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/email';
+import axiosInstance from '@/utils/axiosInstance';
 
 class EmailProxy {
-  private baseUrl: string = process.env.NEXT_PUBLIC_TRACER_APP_API_URL || '';
-
-  async EmailPoStatusUpdate(
-    recipient: string,
-    poNumber: string,
-    firstName: string,
-  ): Promise<Response> {
-    const response = await fetch(
-      `${this.baseUrl}Email/EmailPO?recipient=${recipient}&PO=${poNumber}&Name=${firstName}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    return response;
-  }
 
   async EmailPoCreation(body: ProductOrderCreatedEmail): Promise<Response> {
-    const response = await fetch(`${this.baseUrl}Email/EmailPOCreated`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    return response;
+    try {
+      const response = await axiosInstance.post('Email/EmailPOCreated', body);
+      return response.data;
+    } catch (error) {
+      throw new Error('An error occurred while sending the email');
+    }
   }
 
   async EmailPoStatusChanged(body: PoStatusChanged) {
-    const response = await fetch(`${this.baseUrl}Email/EmailStatusChange`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    return response;
+    try {
+      const response = await axiosInstance.post(
+        'Email/EmailStatusChange',
+        body,
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error('An error occurred while sending the email');
+    }
   }
 }
 
