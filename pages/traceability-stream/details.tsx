@@ -10,7 +10,6 @@ import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
 import { Section } from '@/models/section';
 import { TracerStream } from '@/models/tracer-stream';
-import { v4 as uuidv4 } from 'uuid';
 import Link from 'next/link';
 import { Organization } from '@/models/organization';
 import SectionModal from '@/components/modals/section-modal.component';
@@ -18,6 +17,7 @@ import LoadingOverlay from '@/components/loading-overlay.component'; // Ensure t
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import withAuth from '@/hoc/auth';
 import { User } from '@/models/user';
+import { ObjectId } from 'bson';
 
 const Details = () => {
   // #region States
@@ -100,7 +100,7 @@ const Details = () => {
 
   const handleAddSection = () => {
     openModal('Add New Section', {
-      sectionId: uuidv4(),
+      sectionId: new ObjectId().toString(),
       sectionName: '',
       sectionDescription: '',
       position: tracerStream.sections.length + 1,

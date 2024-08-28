@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import '../../../styles/dashboard.css';
 import styled from 'styled-components';
+import { ObjectId } from 'bson';
 import {
   FaExclamationCircle,
   FaArrowRight,
@@ -27,8 +28,7 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import LoadingOverlay from '@/components/loading-overlay.component';
 import withAuth from '@/hoc/auth';
 import TeamStatuses from '@/components/team-statuses.component'; // Import TeamStatuses
-import { Status } from '@/models/status'; // Import Status
-import { v4 as uuidv4 } from 'uuid';
+import { Status } from '@/models/status';
 import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
 import ExportModal from '@/components/modals/export-modal.component';
 import { Site } from '@/models/site';
@@ -758,7 +758,7 @@ const PurchaseOrderPage: React.FC = () => {
                         if (!user || !organization) return;
                         handleSectionClick(
                           {
-                            sectionId: uuidv4(),
+                            sectionId: new ObjectId().toString(),
                             sectionName: '',
                             sectionDescription: '',
                             assignedUser: user,
