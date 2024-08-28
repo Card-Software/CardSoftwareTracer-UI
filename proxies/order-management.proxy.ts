@@ -100,12 +100,16 @@ class OrderManagementApiProxy {
         `ProductOrderController/get/${encoedUri}`,
       );
       return response.data;
-    } catch (error) {
-      console.error(
-        'An error occurred while fetching the product order:',
-        error,
-      );
-      throw error;
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        throw null;
+      } else {
+        console.error(
+          'An error occurred while fetching the product order:',
+          error,
+        );
+        throw error;
+      }
     }
   }
 

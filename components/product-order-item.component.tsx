@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HiUser } from 'react-icons/hi';
 import { FaTrash } from 'react-icons/fa';
 import ProgressBar from './progress-bar.component';
@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { User } from '@/models/user';
 import { format } from 'date-fns';
-
+import { useRouter } from 'next/router';
 interface ProductOrderItemProps {
   productOrder: ProductOrder;
   handleDeleteProductOrder: (productOrder: ProductOrder) => void;
@@ -18,6 +18,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
   productOrder,
   handleDeleteProductOrder,
 }) => {
+  const router = useRouter();
   const poNumber = productOrder.productOrderNumber;
   const poNumberUri = encodeURIComponent(poNumber);
   const assignedTo = productOrder.assignedUser
@@ -30,6 +31,17 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
   const formattedDate = dateCreated
     ? format(new Date(dateCreated), 'dd/MM/yyyy')
     : 'N/A';
+
+  useEffect(() => {
+    if (!productOrder || !productOrder.id) {
+      alert('Product order not found');
+      router.push('/dashboard');
+    }
+  }, [productOrder, router]);
+
+  if (!productOrder || !productOrder.id) {
+    return null;
+  }
 
   return (
     <Link href={`/dashboard/po/${poNumberUri}`}>

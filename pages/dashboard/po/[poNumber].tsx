@@ -537,7 +537,12 @@ const PurchaseOrderPage: React.FC = () => {
   if (!productOrder) {
     return (
       <Layout>
-        <LoadingOverlay show={true} />
+        <LoadingOverlay show={false} />
+        <div>
+          <p>
+            No product order found :( Please go back to the Dashboard and try again. 
+          </p>
+        </div>
       </Layout>
     );
   }
