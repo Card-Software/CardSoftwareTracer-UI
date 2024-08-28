@@ -25,8 +25,9 @@ class FileManagementProxy {
 
   async DeleteFile(bucketName: string, key: string): Promise<any> {
     try {
+      const keyEncoded = encodeURIComponent(key);
       const response = await axiosInstance.delete(
-        `File/delete?bucketName=${bucketName}&key=${key}`,
+        `File/delete?bucketName=${bucketName}&key=${keyEncoded}`,
       );
       return response.data;
     } catch (error) {
