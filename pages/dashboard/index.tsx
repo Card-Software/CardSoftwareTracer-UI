@@ -281,7 +281,7 @@ const Dashboard: React.FC = () => {
       <LoadingOverlay show={isLoading} />
       <div className="tool-bar">
         <div className="tool-bar-title">
-          <h1>Traceability Stream</h1>
+          <h1>Dashboard</h1>
         </div>
         <div className="tool-bar-buttons">
           <TracerButton
