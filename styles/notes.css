@@ -1,4 +1,18 @@
 .note-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* Número máximo de líneas antes de truncar */
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  position: relative;
+}
+
+.note-content::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  height: 1.2em;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0), white 100%);
 }

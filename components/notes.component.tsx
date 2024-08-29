@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import '@/styles/notes.css';
-import BaseModal from './_base/base-modal.component';
 import NotesModal from './modals/notes-modal.component';
 
 const notesData = [
   {
     id: 1,
     content:
-      'UNA NOTA MUCHISIIMO MAS LARGA QUE LAS DEMAS VAMOS A COER SOMDOSAMODMAOSMDFOASDMOFAJMDO',
+      'Contet here is a note that is very long and should be truncated to a certain length asdfasdfasdfasdfasdfasdfasdfas',
     date: '04/02/2024',
     author: 'Jonathan',
   },
@@ -26,14 +25,14 @@ const Notes: React.FC = () => {
   };
 
   return (
-    <div className="max-w-sm rounded-lg bg-gray-800 p-6">
-      <div className="flex">
-        <h2 className="mb-4 text-xl font-semibold text-white">Notes</h2>
+    <div className="input-custom max-w-sm rounded-lg p-6 ">
+      <div className="mt-3 flex gap-64">
+        <h2 className="mb-4 mt-3 text-xl font-semibold text-gray-700">Notes</h2>
         <button onClick={openNotesModal} className="white">
           +
         </button>
       </div>
-      <div className="max-h-64 overflow-y-auto rounded-lg bg-white shadow-lg">
+      <div className="mx-2 mb-6 max-h-64 cursor-pointer overflow-y-auto rounded-lg bg-white drop-shadow-xl">
         {notesData.map((note) => (
           <div
             key={note.id}
