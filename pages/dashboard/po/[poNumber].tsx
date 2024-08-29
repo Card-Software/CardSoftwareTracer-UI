@@ -535,13 +535,16 @@ const PurchaseOrderPage: React.FC = () => {
     }
   };
 
+  const notes = productOrder?.notes;
+
   if (!productOrder) {
     return (
       <Layout>
         <LoadingOverlay show={false} />
         <div>
           <p>
-            No product order found :( Please go back to the Dashboard and try again. 
+            No product order found :( Please go back to the Dashboard and try
+            again.
           </p>
         </div>
       </Layout>
@@ -597,29 +600,25 @@ const PurchaseOrderPage: React.FC = () => {
               onChange={handleProductOrderChange}
             />
           </div>
-          <div className="mb'6">
-            <Notes/>
+          <div className="mb-6">
+            <Notes />
           </div>
-
-          <div className="my-6">
-            <button
-              className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
-              disabled={!allActivityLogs.length}
-              onClick={() => handleActivityLogClick(ActivityType.StatusChange)}
-              style={{
-                opacity: allActivityLogs.length === 0 ? 0.5 : 1,
-                cursor:
-                  allActivityLogs.length === 0 ? 'not-allowed' : 'pointer',
-              }}
-            >
-              <FaHistory />
-            </button>
-
-            <TeamStatuses
-              originalStatus={statuses}
-              onChange={handleStatusChange}
-            />
-          </div>
+          <article>
+            <h2 className="mb-4 text-xl font-bold">Notas</h2>
+            <div>
+              {notes && notes.length > 0 ? (
+                <ul>
+                  {notes.map((note, index) => (
+                    <li key={index} className="mb-2 rounded border p-2">
+                      {note.content}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No hay notas disponibles.</p>
+              )}
+            </div>
+          </article>
           <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>
