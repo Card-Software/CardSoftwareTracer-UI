@@ -19,6 +19,7 @@ const notesData = [
 
 const Notes: React.FC = () => {
   const [noteModalOpen, setNoteModalOpen] = useState(false);
+  const [notes, setNotes] = useState(notesData);
 
   const openNotesModal = () => {
     setNoteModalOpen(true);
@@ -33,7 +34,7 @@ const Notes: React.FC = () => {
         </button>
       </div>
       <div className="mx-2 mb-6 max-h-64 cursor-pointer overflow-y-auto rounded-lg bg-white drop-shadow-xl">
-        {notesData.map((note) => (
+        {notes.map((note) => (
           <div
             key={note.id}
             className="flex items-center border-b border-gray-200 p-4 last:border-none"
@@ -55,10 +56,11 @@ const Notes: React.FC = () => {
       </div>
       <NotesModal
         isOpen={noteModalOpen}
-        notes={notesData}
+        notes={notes}
         onClose={() => {
           setNoteModalOpen(false);
         }}
+        setNotes={setNotes}
       ></NotesModal>
     </div>
   );
