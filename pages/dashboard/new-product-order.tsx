@@ -25,6 +25,7 @@ import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
+import Notes from '@/components/notes.component';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -236,6 +237,9 @@ const NewProductOrder: React.FC = () => {
             handleProductOrderDetailsChange(data);
           }}
         />
+        <div className="mb-6">
+          <Notes />
+        </div>
         <div className="mb-6">
           <TeamStatuses
             originalStatus={statuses}

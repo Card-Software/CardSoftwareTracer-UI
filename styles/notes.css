@@ -1,0 +1,4 @@
+.note-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
