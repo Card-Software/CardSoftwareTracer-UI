@@ -14,5 +14,24 @@
   right: 0;
   width: 50%;
   height: 1.2em;
-  background: linear-gradient(to right, rgba(255, 255, 255, 0), white 100%);
 }
+
+.mx-2::-webkit-scrollbar {
+  width: 11px;
+}
+
+.mx-2::-webkit-scrollbar-track {
+  background: border-gray-200; 
+  border-radius: 3px;
+}
+
+.mx-2::-webkit-scrollbar-thumb {
+  background-color: #dcdcdc;
+  border-radius: 5px;
+  border: 2px solid #f1f1f1;
+}
+
+.mx-2::-webkit-scrollbar-thumb:hover {
+  background-color: #adadad;
+}
+

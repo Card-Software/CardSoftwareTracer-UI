@@ -43,6 +43,7 @@ import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
+import Notes from '@/components/notes.component';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -595,6 +596,9 @@ const PurchaseOrderPage: React.FC = () => {
               initialProductOrderDetails={productOrder}
               onChange={handleProductOrderChange}
             />
+          </div>
+          <div className="mb'6">
+            <Notes/>
           </div>
 
           <div className="my-6">
