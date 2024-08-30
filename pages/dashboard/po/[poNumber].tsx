@@ -44,6 +44,7 @@ import SiblingProductOrdersModal from '@/components/modals/sibling-product-order
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import Notes from '@/components/notes.component';
+import { Note } from '@/models/note';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -84,6 +85,9 @@ const PurchaseOrderPage: React.FC = () => {
 
   const groups: Group[] = userAuthenticationService.getGroups();
   const isAdmin = user.role.includes('Admin');
+  const [note, setNotes] = useState<Note[]>(productOrder?.notes || []);
+  const currentUser = userAuthenticationService.getUser() as User;
+
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -536,7 +540,7 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const notes = productOrder?.notes;
-
+  
   if (!productOrder) {
     return (
       <Layout>
@@ -601,19 +605,23 @@ const PurchaseOrderPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <Notes />
+            <Notes notes={productOrder.notes} currentUser={currentUser} setNotes={setNotes}/>
           </div>
           <article>
-            <h2 className="mb-4 text-xl font-bold">Notas</h2>
+            <h2 className="mb-4 text-2xl font-bold">Notas</h2>
             <div>
               {notes && notes.length > 0 ? (
-                <ul>
+                <div className="mb-2 rounded border p-2">
                   {notes.map((note, index) => (
-                    <li key={index} className="mb-2 rounded border p-2">
-                      {note.content}
-                    </li>
+                    <div key={index} className="text-m">
+                      <h1 className="font-bold">{note.content}</h1>
+                      <p>
+                        {note.enteredBy.firstName} {note.enteredBy.lastname} -{' '}
+                        {note.dateEntered.toString().split('T')[0].replace(/-/g, '/')}
+                      </p>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p>No hay notas disponibles.</p>
               )}
