@@ -16,10 +16,10 @@ class ActivityLogProxy {
     }
   }
 
-  async getActivityLogByPo(po: string): Promise<ActivityLog[]> {
+  async getActivityLogByPo(poRef: string): Promise<ActivityLog[]> {
     try {
       const response = await axiosInstance.get(
-        `ActivityLogController/getbyPo/${po}`,
+        `ActivityLogController/getbyPo/${poRef}`,
       );
       return response.data;
     } catch (error: any) {

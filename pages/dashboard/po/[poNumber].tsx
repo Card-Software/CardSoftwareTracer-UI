@@ -517,6 +517,7 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    console.log('productOrder to save', productOrder);
     if (productOrder) {
       try {
         setIsLoading(true);

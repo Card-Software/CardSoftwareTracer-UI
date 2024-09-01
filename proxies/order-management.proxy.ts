@@ -118,9 +118,9 @@ class OrderManagementApiProxy {
     originalProductOderId?: string,
   ): Promise<any> {
     try {
-      const poId = originalProductOderId || productOrder.id;
+      // const poId = originalProductOderId || productOrder.id;
       const response = await axiosInstance.put(
-        `ProductOrderController/update/${poId}`,
+        `ProductOrderController/update/${productOrder.id}`,
         productOrder,
       );
       return response;
