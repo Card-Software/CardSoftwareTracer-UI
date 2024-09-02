@@ -88,7 +88,6 @@ const PurchaseOrderPage: React.FC = () => {
   const [note, setNotes] = useState<Note[]>(productOrder?.notes || []);
   const currentUser = userAuthenticationService.getUser() as User;
 
-
   useEffect(() => {
     const fetchOrderDetails = async () => {
       if (poNumber) {
@@ -524,14 +523,25 @@ const PurchaseOrderPage: React.FC = () => {
         const response =
           await orderManagementApiProxy.updateProductOrder(productOrder);
         setIsLoading(false);
-        if (response.status === 204) {
+        if (response.status === 204 || response.status === 200) {
           insertLogs();
           getUpdatedLogs(productOrder.productOrderNumber);
           router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
+          console.log('Product Order updated', productOrder);
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
         }
+        // try {
+        //   insertLogs();
+        //   getUpdatedLogs(productOrder.productOrderNumber);
+        //   router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
+        //   alert('Product Order updated successfully!');
+        //   console.log('Product Order updated', productOrder);
+        // } catch (error) {
+        //   console.error('Failed to save Product Order', error);
+        //   alert(' Failed to save Product Order');
+        // }
       } catch (error) {
         setIsLoading(false);
         console.error('Failed to save Product Order', error);
@@ -541,15 +551,14 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const notes = productOrder?.notes;
-  
+
   if (!productOrder) {
     return (
       <Layout>
         <LoadingOverlay show={false} />
         <div>
           <p>
-            No product order found :( Please go back to the Dashboard and try
-            again.
+            No product order found
           </p>
         </div>
       </Layout>
@@ -606,28 +615,12 @@ const PurchaseOrderPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <Notes notes={productOrder.notes} currentUser={currentUser} setNotes={setNotes}/>
+            <Notes
+              notes={productOrder.notes}
+              currentUser={currentUser}
+              setNotes={setNotes}
+            />
           </div>
-          <article>
-            <h2 className="mb-4 text-2xl font-bold">Notas</h2>
-            <div>
-              {notes && notes.length > 0 ? (
-                <div className="mb-2 rounded border p-2">
-                  {notes.map((note, index) => (
-                    <div key={index} className="text-m">
-                      <h1 className="font-bold">{note.content}</h1>
-                      <p>
-                        {note.enteredBy.firstName} {note.enteredBy.lastname} -{' '}
-                        {note.dateEntered.toString().split('T')[0].replace(/-/g, '/')}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No hay notas disponibles.</p>
-              )}
-            </div>
-          </article>
           <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>

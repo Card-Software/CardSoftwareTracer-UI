@@ -26,6 +26,7 @@ import SiblingProductOrdersModal from '@/components/modals/sibling-product-order
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import Notes from '@/components/notes.component';
+import { Note } from '@/models/note';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -37,6 +38,8 @@ const NewProductOrder: React.FC = () => {
     watch,
   } = useForm<ProductOrder>();
   const [allProductOrders, setAllProductOrders] = useState<ProductOrder[]>([]);
+  const [productOrder, setProductOrder] = useState<ProductOrder | null>(null);
+
   const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
   const [sampleUsers, setSampleUsers] = useState<User[]>([]);
   const [allSites, setAllSites] = useState<Site[]>([]);
@@ -56,6 +59,9 @@ const NewProductOrder: React.FC = () => {
   const [isSiblingProductOrderModalOpen, setIsSiblingProductOrderModalOpen] =
     useState(false);
 
+    const [note, setNotes] = useState<Note[]>(productOrder?.notes || []);
+    const currentUser = userAuthenticationService.getUser() as User;
+  
   useEffect(() => {
     // Set the default value for the date input in the form
     setValue('createdDate', new Date());
@@ -237,8 +243,12 @@ const NewProductOrder: React.FC = () => {
             handleProductOrderDetailsChange(data);
           }}
         />
-        <div className="mt-6 mb-6">
-          <Notes />
+        <div className="mb-6 mt-6">
+          <Notes
+            // notes={productOrder.notes}
+            currentUser={currentUser}
+            setNotes={setNotes}
+          />{' '}
         </div>
         <div className="mb-6">
           <TeamStatuses

@@ -5,14 +5,14 @@ import { Note } from '@/models/note';
 import { User } from '@/models/user';
 
 interface NotesProps {
-  notes: Note[] | [];
+  notes?: Note[] | [];
   currentUser: User; // Añadido para pasar el usuario actual
   setNotes: React.Dispatch<React.SetStateAction<Note[]>>; // Para actualizar las notas en el componente padre
 }
 
 const Notes: React.FC<NotesProps> = ({ notes, currentUser, setNotes }) => {
   const [noteModalOpen, setNoteModalOpen] = useState(false);
-  const [currentNotes, setCurrentNotes] = useState(notes);
+  const [currentNotes, setCurrentNotes] = useState(notes ?? []);
 
   const openNotesModal = () => {
     setNoteModalOpen(true);
@@ -27,9 +27,9 @@ const Notes: React.FC<NotesProps> = ({ notes, currentUser, setNotes }) => {
         </button>
       </div>
       <div className="mx-2 mb-6 max-h-64 cursor-pointer overflow-y-auto rounded-lg bg-white drop-shadow-xl">
-        {currentNotes.map((note) => (
+        {currentNotes.map((note, index) => (
           <div
-            key={note.id}
+            key={index}
             className="flex items-center border-b border-gray-200 p-4 last:border-none"
             onClick={openNotesModal}
           >
