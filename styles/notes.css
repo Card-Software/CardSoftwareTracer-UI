@@ -21,7 +21,7 @@
 }
 
 .mx-2::-webkit-scrollbar-track {
-  background: border-gray-200; 
+  background: border-gray-200;
   border-radius: 3px;
 }
 
@@ -34,4 +34,3 @@
 .mx-2::-webkit-scrollbar-thumb:hover {
   background-color: #adadad;
 }
-
