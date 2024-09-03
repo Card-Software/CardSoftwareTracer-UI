@@ -20,16 +20,17 @@ const Notes: React.FC<NotesProps> = ({ notes, currentUser, onChange }) => {
     setNoteModalOpen(true);
   };
 
-  const handleNotesChanged = (updatedNotes: Note[]) => {
-    setCurrentNotes(updatedNotes);
-    onChange(updatedNotes);
+  const handleNotesChanged: React.Dispatch<React.SetStateAction<Note[]>> = (updatedNotes) => {
+    const newNotes = typeof updatedNotes === 'function' ? updatedNotes(currentNotes) : updatedNotes;
+    setCurrentNotes(newNotes);
+    onChange(newNotes);
   };
-
+  
   return (
     <div className="input-custom max-w-sm rounded-lg p-6">
-      <div className="mt-3 flex justify-between">
+      <div className="mt-3 flex justify-between drop-shadow-xl">
         <h2 className="mb-4 mt-3 text-xl font-semibold text-gray-700">Notes</h2>
-        <button onClick={openNotesModal} className="white">
+        <button onClick={openNotesModal} className="mx-2 mb-6 max-h-64 cursor-pointer rounded-lg bg-white border-none">
           +
         </button>
       </div>
@@ -64,7 +65,7 @@ const Notes: React.FC<NotesProps> = ({ notes, currentUser, onChange }) => {
         onClose={() => {
           setNoteModalOpen(false);
         }}
-        setNotes={setCurrentNotes}
+        setNotes={handleNotesChanged}
         currentUser={currentUser}
       />
     </div>

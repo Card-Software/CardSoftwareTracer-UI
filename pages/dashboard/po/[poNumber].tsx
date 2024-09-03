@@ -185,6 +185,7 @@ const PurchaseOrderPage: React.FC = () => {
       quantity: formValues.productOrderDetails.quantity,
       product: formValues.productOrderDetails.product,
       description: formValues.productOrderDetails.description,
+      notes: formValues.productOrderDetails.notes,
     }));
   };
 
@@ -427,8 +428,6 @@ const PurchaseOrderPage: React.FC = () => {
   const handleExportButton = (stream: TracerStreamExtended) => {
     setStreamToExport(stream);
     setIsExportModalOpen(true);
-    // if (!productOrder) return;
-    // fileManagementService.downloadFilesFromS3Bucket(stream, productOrder);
   };
 
   const handleCloseActivityLogModal = () => {
@@ -530,20 +529,11 @@ const PurchaseOrderPage: React.FC = () => {
           getUpdatedLogs(productOrder.productOrderNumber);
           router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
+          window.location.reload();
           console.log('Product Order updated', productOrder);
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
         }
-        // try {
-        //   insertLogs();
-        //   getUpdatedLogs(productOrder.productOrderNumber);
-        //   router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
-        //   alert('Product Order updated successfully!');
-        //   console.log('Product Order updated', productOrder);
-        // } catch (error) {
-        //   console.error('Failed to save Product Order', error);
-        //   alert(' Failed to save Product Order');
-        // }
       } catch (error) {
         setIsLoading(false);
         console.error('Failed to save Product Order', error);
@@ -616,7 +606,7 @@ const PurchaseOrderPage: React.FC = () => {
             <Notes
               notes={productOrder.notes}
               currentUser={currentUser}
-              setNotes={setNotes}
+              onChange={handleNotesChange}
             />
           </div>
           <CardContainer>
