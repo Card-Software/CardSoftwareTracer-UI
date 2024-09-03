@@ -3,19 +3,26 @@ import '@/styles/notes.css';
 import NotesModal from './modals/notes-modal.component';
 import { Note } from '@/models/note';
 import { User } from '@/models/user';
+import { set } from 'lodash';
 
 interface NotesProps {
   notes?: Note[] | [];
   currentUser: User; // Añadido para pasar el usuario actual
-  setNotes: React.Dispatch<React.SetStateAction<Note[]>>; // Para actualizar las notas en el componente padre
+  // setNotes: React.Dispatch<React.SetStateAction<Note[]>>; // Para actualizar las notas en el componente padre
+  onChange: (updatedNotes: Note[]) => void;
 }
 
-const Notes: React.FC<NotesProps> = ({ notes, currentUser, setNotes }) => {
+const Notes: React.FC<NotesProps> = ({ notes, currentUser, onChange }) => {
   const [noteModalOpen, setNoteModalOpen] = useState(false);
   const [currentNotes, setCurrentNotes] = useState(notes ?? []);
 
   const openNotesModal = () => {
     setNoteModalOpen(true);
+  };
+
+  const handleNotesChanged = (updatedNotes: Note[]) => {
+    setCurrentNotes(updatedNotes);
+    onChange(updatedNotes);
   };
 
   return (

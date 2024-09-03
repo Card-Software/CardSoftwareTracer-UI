@@ -83,9 +83,8 @@ const PurchaseOrderPage: React.FC = () => {
     useState(false);
   const [siblingPoTextDisplay, setSiblingPoTextDisplay] = useState<string>('');
 
-  const groups: Group[] = userAuthenticationService.getGroups();
   const isAdmin = user.role.includes('Admin');
-  const [note, setNotes] = useState<Note[]>(productOrder?.notes || []);
+  const [notes, setNotes] = useState<Note[]>(productOrder?.notes || []);
   const currentUser = userAuthenticationService.getUser() as User;
 
   useEffect(() => {
@@ -168,14 +167,31 @@ const PurchaseOrderPage: React.FC = () => {
     }
   }, []);
 
-  const handleProductOrderChange = (data: {
-    value: string | Date;
-    field: string;
-  }) => {
-    const { value, field } = data;
+  const handleProductOrderChange = (data: any) => {
+    const formValues = data._formValues;
     setProductOrder((prevOrder) => ({
       ...prevOrder!,
-      [field]: value,
+      productOrderNumber: formValues.productOrderDetails.productOrderNumber,
+      referenceNumber: formValues.productOrderDetails.referenceNumber,
+      lot: formValues.productOrderDetails.lot,
+      externalProductOrderNumber:
+        formValues.productOrderDetails.externalProductOrderNumber,
+      assignedUser: formValues.productOrderDetails.assignedUser,
+      siteRef: formValues.productOrderDetails.siteRef,
+      provider: formValues.productOrderDetails.provider,
+      client: formValues.productOrderDetails.client,
+      createdDate: formValues.productOrderDetails.createdDate,
+      invoiceDate: formValues.productOrderDetails.invoiceDate,
+      quantity: formValues.productOrderDetails.quantity,
+      product: formValues.productOrderDetails.product,
+      description: formValues.productOrderDetails.description,
+    }));
+  };
+
+  const handleNotesChange = (notes: Note[]) => {
+    setProductOrder((prevOrder) => ({
+      ...prevOrder!,
+      notes: notes,
     }));
   };
 
@@ -248,14 +264,6 @@ const PurchaseOrderPage: React.FC = () => {
     }
   };
 
-  const handleSiteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const siteRef = e.target.value;
-    setProductOrder((prevOrder) => ({
-      ...prevOrder!,
-      siteRef: siteRef,
-    }));
-  };
-
   const getChildrenPos = async (productOrderNumbers: string[]) => {
     const childrenPos = await Promise.all(
       productOrderNumbers.map((ref) =>
@@ -263,13 +271,6 @@ const PurchaseOrderPage: React.FC = () => {
       ),
     );
     SetChildrenPos(childrenPos);
-  };
-
-  const handleStatusChange = (newStatuses: Status[]) => {
-    setStatuses(newStatuses);
-    if (productOrder) {
-      setProductOrder({ ...productOrder, statuses: newStatuses });
-    }
   };
 
   const handleSectionClick = (
@@ -516,6 +517,7 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const handleSave = async () => {
+    console.log(notes);
     console.log('productOrder to save', productOrder);
     if (productOrder) {
       try {
@@ -550,16 +552,12 @@ const PurchaseOrderPage: React.FC = () => {
     }
   };
 
-  const notes = productOrder?.notes;
-
   if (!productOrder) {
     return (
       <Layout>
         <LoadingOverlay show={false} />
         <div>
-          <p>
-            No product order found
-          </p>
+          <p>No product order found</p>
         </div>
       </Layout>
     );
