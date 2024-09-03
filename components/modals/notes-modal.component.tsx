@@ -1,4 +1,122 @@
-import React, { useEffect, useRef, useState } from 'react';
+// import React, { useEffect, useRef, useState } from 'react';
+// import BaseModal from '../_base/base-modal.component';
+// import { Note } from '@/models/note';
+// import { User } from '@/models/user';
+// import '@/styles/notes.css';
+// import { FaEllipsisV } from 'react-icons/fa';
+
+// interface NotesModalProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   notes: Note[];
+//   setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
+//   currentUser: User;
+// }
+
+// const NotesModal: React.FC<NotesModalProps> = ({
+//   isOpen = false,
+//   onClose,
+//   notes = [],
+//   setNotes,
+//   currentUser,
+// }) => {
+//   const [newNoteContent, setNewNoteContent] = useState('');
+//   const [expandedNoteIndex, setExpandedNoteIndex] = useState<number | null>(
+//     null,
+//   );
+
+//   const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+//   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+//     setNewNoteContent(e.target.value);
+//   };
+
+//   const handleSaveNote = () => {
+//     if (newNoteContent.trim()) {
+//       const newNote: Note = {
+//         content: newNoteContent,
+//         enteredBy: currentUser,
+//         dateEntered: new Date(),
+//       };
+//       setNotes([...notes, newNote]);
+//       setNewNoteContent('');
+//     }
+//   };
+
+//   const toggleNoteExpansion = (index: number) => {
+//     setExpandedNoteIndex(expandedNoteIndex === index ? null : index);
+//   };
+
+//   useEffect(() => {
+//     if (expandedNoteIndex !== null && contentRefs.current[expandedNoteIndex]) {
+//       const element = contentRefs.current[expandedNoteIndex];
+//       element!.style.maxHeight = `${element!.scrollHeight}px`;
+//     }
+//   }, [expandedNoteIndex]);
+
+//   return (
+//     <BaseModal
+//       title="Add Note"
+//       onClose={onClose}
+//       isOpen={isOpen}
+//       loading={false}
+//       // typeSaveButton="button"
+//       // onSave={handleSaveNote}
+//       // canSave={newNoteContent.trim().length > 0}
+//     >
+//       <div className="mt-4">
+//         <textarea
+//           id="new-note"
+//           className="input-custom"
+//           rows={3}
+//           value={newNoteContent}
+//           onChange={handleInputChange}
+//           placeholder="Write a new note here..."
+//         />
+//         <div className="mb-8 mt-3 flex justify-end">
+//           <button
+//             className={`w-fit-content text-nowrap rounded-md px-4 py-2 text-white ${
+//               newNoteContent.trim().length === 0
+//                 ? 'cursor-not-allowed bg-gray-400'
+//                 : 'bg-teal-700 hover:bg-teal-600'
+//             }`}
+//             onClick={handleSaveNote}
+//             disabled={newNoteContent.trim().length === 0}
+//           >
+//             Add note
+//           </button>
+//         </div>
+//       </div>
+//       <div>
+//         {notes.map((note, index) => (
+//           <div
+//             key={index}
+//             className="flex items-center border-b border-gray-200 p-4 last:border-none"
+//           >
+//             <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 font-bold text-white">
+//               {note.enteredBy.firstName.charAt(0)}{' '}
+//               {note.enteredBy.lastname.charAt(0)}
+//             </div>
+//             <div className="ml-4">
+//               <p className=" font-semibold text-gray-900">
+//                 {note.content}
+//               </p>
+//               <p className="text-sm text-gray-600">
+//                 {note.dateEntered.toString().split('T')[0].replace(/-/g, '/')} •{' '}
+//                 {note.enteredBy.firstName} {note.enteredBy.lastname}
+//               </p>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </BaseModal>
+//   );
+// };
+
+// export default NotesModal;
+
+import React, { useState } from 'react';
+import { FaTrashAlt, FaEdit } from 'react-icons/fa'; // Importa los íconos
 import BaseModal from '../_base/base-modal.component';
 import { Note } from '@/models/note';
 import { User } from '@/models/user';
@@ -24,8 +142,6 @@ const NotesModal: React.FC<NotesModalProps> = ({
     null,
   );
 
-  const contentRefs = useRef<(HTMLDivElement | null)[]>([]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewNoteContent(e.target.value);
   };
@@ -46,12 +162,15 @@ const NotesModal: React.FC<NotesModalProps> = ({
     setExpandedNoteIndex(expandedNoteIndex === index ? null : index);
   };
 
-  useEffect(() => {
-    if (expandedNoteIndex !== null && contentRefs.current[expandedNoteIndex]) {
-      const element = contentRefs.current[expandedNoteIndex];
-      element!.style.maxHeight = `${element!.scrollHeight}px`;
-    }
-  }, [expandedNoteIndex]);
+  const handleEditNote = (index: number) => {
+    // Lógica para editar la nota
+    console.log(`Editando nota ${index}`);
+  };
+
+  const handleDeleteNote = (index: number) => {
+    const updatedNotes = notes.filter((_, i) => i !== index);
+    setNotes(updatedNotes);
+  };
 
   return (
     <BaseModal
@@ -59,62 +178,64 @@ const NotesModal: React.FC<NotesModalProps> = ({
       onClose={onClose}
       isOpen={isOpen}
       loading={false}
-      typeSaveButton="button"
-      onSave={handleSaveNote}
-      canSave={newNoteContent.trim().length > 0}
     >
       <div className="mt-4">
-        <label
-          htmlFor="new-note"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Add a Note
-        </label>
         <textarea
           id="new-note"
           className="input-custom"
           rows={3}
           value={newNoteContent}
           onChange={handleInputChange}
-          placeholder="Write your note here..."
+          placeholder="Write a new note here..."
         />
+        <div className="mb-8 mt-3 flex justify-end">
+          <button
+            className={`w-fit-content text-nowrap rounded-md px-4 py-2 text-white ${
+              newNoteContent.trim().length === 0
+                ? 'cursor-not-allowed bg-gray-400'
+                : 'bg-teal-700 hover:bg-teal-600'
+            }`}
+            onClick={handleSaveNote}
+            disabled={newNoteContent.trim().length === 0}
+          >
+            Add note
+          </button>
+        </div>
       </div>
-
-      <div className="mt-4">
+      <div>
         {notes.map((note, index) => (
-          <div key={index} className="mb-2">
-            <button
-              className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-left ${
-                expandedNoteIndex === index ? 'bg-gray-300 ' : 'bg-transparent'
-              }`}
-              onClick={() => toggleNoteExpansion(index)}
-            >
-              <span className="flex-1 truncate">{note.content}</span>
-              <span className="ml-4 text-xl">
-                {expandedNoteIndex === index ? '-' : '+'}
-              </span>
-            </button>
-            <div
-              ref={(el) => {
-                contentRefs.current[index] = el;
-              }}
-              className={`transition-max-height relative overflow-hidden duration-500 ease-in-out`}
-              style={{
-                maxHeight:
-                  expandedNoteIndex === index
-                    ? `${contentRefs.current[index]?.scrollHeight}px`
-                    : '0px',
-              }}
-            >
-              <div className="mt-2 rounded-b-lg bg-white p-4 text-gray-700">
-                <div className="max-h-20 overflow-hidden">
-                  <p>{note.content}</p>
-                </div>
-                <p className="mt-2 text-sm text-gray-600">
+          <div
+            key={index}
+            className="flex items-center justify-between border-b border-gray-200 p-4 last:border-none"
+          >
+            <div className="flex items-center">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-blue-500 font-bold text-white">
+                {note.enteredBy.firstName.charAt(0)}{' '}
+                {note.enteredBy.lastname.charAt(0)}
+              </div>
+              <div className="ml-4">
+                <p className="font-semibold text-gray-900">{note.content}</p>
+                <p className="text-sm text-gray-600">
                   {note.dateEntered.toString().split('T')[0].replace(/-/g, '/')}{' '}
                   • {note.enteredBy.firstName} {note.enteredBy.lastname}
                 </p>
               </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handleEditNote(index)}
+                className="p-2 text-gray-500 hover:text-yellow-500 focus:outline-none"
+                style={{ border: 'none', boxShadow: 'none' }}
+              >
+                <FaEdit />
+              </button>
+              <button
+                onClick={() => handleDeleteNote(index)}
+                className="p-2 text-gray-500 hover:text-red-500 focus:outline-none"
+                style={{ border: 'none', boxShadow: 'none' }}
+              >
+                <FaTrashAlt />
+              </button>
             </div>
           </div>
         ))}
