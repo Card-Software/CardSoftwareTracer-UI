@@ -529,7 +529,6 @@ const PurchaseOrderPage: React.FC = () => {
           getUpdatedLogs(productOrder.productOrderNumber);
           router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
-          window.location.reload();
           console.log('Product Order updated', productOrder);
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);

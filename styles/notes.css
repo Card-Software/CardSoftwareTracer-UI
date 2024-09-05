@@ -34,3 +34,47 @@
 .mx-2::-webkit-scrollbar-thumb:hover {
   background-color: #adadad;
 }
+
+/* Custom styles for ReactQuill */
+
+.ql-container {
+  margin-top: 0.25rem;
+  display: block;
+  width: 100%;
+  border-radius: 0 0 0.5rem 0.5rem;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  background-color: #ffffff;
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ql-container:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+}
+
+.ql-toolbar {
+  border-radius: 0.5rem 0.5rem 0 0;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  padding: 0.5rem;
+}
+
+.ql-editor {
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0.75rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background-color: #ffffff;
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ql-editor:focus {
+  outline: none;
+}
