@@ -45,7 +45,10 @@
   border: 1px solid #d1d5db;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0.5rem;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
   background-color: #ffffff;
   min-height: 150px;
   max-height: 300px;
@@ -77,4 +80,57 @@
 
 .ql-editor:focus {
   outline: none;
+  padding: 0px;
+}
+
+.ql-editor:not(:focus) {
+  padding: 0px;
+}
+
+.ql-tooltip {
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+.ql-tooltip input {
+  width: 150px;
+}
+
+.ql-tooltip a {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ql-action {
+  font-size: 14px !important;
+  background-color: #0f766e !important;
+  color: #ffffff !important;
+  width: 100px !important;
+  border-radius: 4px !important;
+  padding: 5px 10px !important;
+  margin-left: 5px !important;
+}
+
+.ql-action:hover {
+  background-color: #149186 !important;
+}
+
+.ql-snow .ql-tooltip a.ql-action::after {
+  margin-left: 0px !important;
+}
+
+.ql-tooltip.ql-editing .ql-action {
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+.ql-editor.ql-blank {
+  padding: 1px 2px;
+}
+.ql-editor.ql-blank::before {
+  padding: 1px 2px;
 }
