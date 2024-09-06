@@ -37,6 +37,8 @@ const NotesModal: React.FC<NotesModalProps> = ({
     setNewNoteContent(value);
   };
 
+  // const roleUser = currentUser.role.includes("Admin");
+
   const handleSaveNote = () => {
     if (newNoteContent.trim()) {
       const newNote: Note = {
@@ -117,7 +119,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
                   {note.enteredBy.firstName} {note.enteredBy.lastname}
                 </p>
               </div>
-              {currentUser.id === note.enteredBy.id ? (
+              {(currentUser.id === note.enteredBy.id || currentUser.role.includes("Admin"))  ? (
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleEditNote(index)}

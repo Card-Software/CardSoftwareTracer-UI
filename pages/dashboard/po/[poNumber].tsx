@@ -516,8 +516,6 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    console.log(notes);
-    console.log('productOrder to save', productOrder);
     if (productOrder) {
       try {
         setIsLoading(true);
@@ -529,7 +527,6 @@ const PurchaseOrderPage: React.FC = () => {
           getUpdatedLogs(productOrder.productOrderNumber);
           router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
           alert('Product Order updated successfully!');
-          console.log('Product Order updated', productOrder);
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
         }
