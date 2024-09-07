@@ -7,17 +7,18 @@ import { FiLogIn } from 'react-icons/fi'; // Importing a login icon from react-i
 const Navbar: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(true); // Change this to `true` or `false` to simulate login state
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
-  const [userName, setUserName] = useState(''); // Change this to the user's name
+  const [userName, setUserName] = useState(""); // Change this to the user's name
 
   useEffect(() => {
     const fullName = userAuthenticationService.getFullName();
     if (fullName) {
       setUserName(fullName);
     }
+    console.log(fullName);
   }, []);
 
   const handleProfile = () => {
-    router.push('/Profile');
+    router.push('/profile');
   };
 
   //use effect to now if the user is logged in

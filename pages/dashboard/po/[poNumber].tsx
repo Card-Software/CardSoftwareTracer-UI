@@ -46,6 +46,8 @@ import ProductOrderDetails from '@/components/product-order-details';
 import Notes from '@/components/notes.component';
 import { Note } from '@/models/note';
 
+import { Accordion, AccordionItem, Avatar } from '@nextui-org/react';
+
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
   const { poNumber } = router.query;
@@ -84,8 +86,17 @@ const PurchaseOrderPage: React.FC = () => {
   const [siblingPoTextDisplay, setSiblingPoTextDisplay] = useState<string>('');
 
   const isAdmin = user.role.includes('Admin');
-  const [notes, setNotes] = useState<Note[]>(productOrder?.notes || []);
   const currentUser = userAuthenticationService.getUser() as User;
+
+  //testing NextUI
+  const itemClasses = {
+    base: 'w-full',
+    title: 'font-normal text-xl',
+    trigger:
+      'px-4 py-4 data-[hover=true]: rounded-lg h-13 flex items-center transition-transform duration-300 transform hover:translate-y-0.5',
+    indicator: 'text-medium',
+    content: 'text-small px-2',
+  };
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -320,13 +331,6 @@ const PurchaseOrderPage: React.FC = () => {
     setSelectedStream(stream);
     setStreamModalMode(mode);
     setIsStreamModalOpen(true);
-  };
-
-  const isExportEnabled = (stream: TracerStreamExtended) => {
-    const requiredSections = stream.sections.filter(
-      (section) => section.isRequired,
-    );
-    return requiredSections.every((section) => section.files.length > 0);
   };
 
   const nextSection = () => {
@@ -598,35 +602,36 @@ const PurchaseOrderPage: React.FC = () => {
               onChange={handleProductOrderChange}
             />
           </div>
-          <div className="mb-6">
+          <div className="mt-6">
             <Notes
               notes={productOrder.notes}
               currentUser={currentUser}
               onChange={handleNotesChange}
             />
           </div>
+
           <CardContainer>
-            {productOrder.childrenTracerStreams.map((stream, index) => (
-              <React.Fragment key={stream.id}>
-                <Card>
-                  <CardTitle>
-                    <div className="flex w-full flex-row justify-between">
-                      <div className="flex flex-col">
-                        <p>
-                          <strong>Name:</strong> {stream.friendlyName}
-                        </p>
-                        <p>
-                          <strong>Product:</strong> {stream.product}
-                        </p>
-                        <p>
-                          <strong>Quantity:</strong> {stream.quantity}
-                        </p>
+            <Accordion
+              itemClasses={itemClasses}
+              showDivider={false}
+              className="pl-0"
+              selectionMode="multiple"
+              defaultExpandedKeys={['0']}
+            >
+              {productOrder.childrenTracerStreams.map((stream, index) => (
+                <AccordionItem
+                  key={index}
+                  title={
+                    <div className="flex w-full items-center justify-between">
+                      <div>
+                        <strong>{stream.friendlyName}</strong>{' '}
                       </div>
-                      <div className="flex max-h-14">
+                      <div className="">
                         <button
                           disabled={!allActivityLogs.length}
-                          className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          className="rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
                           onClick={(e) => {
+                            e.stopPropagation();
                             handleActivityLogClick(
                               ActivityType.FileUpload,
                               stream.id,
@@ -653,7 +658,6 @@ const PurchaseOrderPage: React.FC = () => {
                         >
                           <FaPencilAlt />
                         </button>
-
                         <button
                           className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
                           onClick={(e) => {
@@ -665,119 +669,117 @@ const PurchaseOrderPage: React.FC = () => {
                         </button>
                       </div>
                     </div>
-                  </CardTitle>
+                  }
+                  className="mb-4"
+                >
+                  <p>
+                    <strong>Product:</strong> {stream.product} |{' '}
+                    <strong>Quantity:</strong> {stream.quantity}
+                  </p>
                   <SectionContainer>
-                    {stream.sections.map((section, secIndex) => (
-                      <React.Fragment key={section.sectionId}>
-                        <SectionCard
-                          onClick={() => handleSectionClick(section, stream)}
-                          $isrequired={section.isRequired}
-                        >
-                          <CardTitle className="w-full">
-                            {section.sectionName}
-                            {section.files.length > 0 ? (
-                              <FaCheckCircle
-                                color="green"
-                                style={{ marginLeft: '10px' }}
-                              />
-                            ) : (
-                              <FaExclamationCircle
-                                color="red"
-                                style={{ marginLeft: '10px' }}
-                              />
-                            )}
-                            <DeleteButton
-                              className="square flex justify-end"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevents parent click event from firing
-                                handleDeleteSection(stream, section); // Call delete function
-                              }}
-                            >
-                              <FaTrash />
-                            </DeleteButton>
-                          </CardTitle>
-                          <CardDetails>
+                    {stream.sections.map((section) => (
+                      <SectionCard
+                        key={section.sectionId}
+                        $isrequired={section.isRequired}
+                        onClick={() => handleSectionClick(section, stream)}
+                      >
+                        <CardTitle className="w-full">
+                          {section.sectionName}
+                          {section.files.length > 0 ? (
+                            <FaCheckCircle
+                              color="green"
+                              style={{ marginLeft: '10px' }}
+                            />
+                          ) : (
+                            <FaExclamationCircle
+                              color="red"
+                              style={{ marginLeft: '10px' }}
+                            />
+                          )}
+                          <DeleteButton
+                            className="square flex justify-end"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSection(stream, section);
+                            }}
+                          >
+                            <FaTrash />
+                          </DeleteButton>
+                        </CardTitle>
+                        <CardDetails>
+                          <DetailItem>
+                            <strong>Description:</strong>{' '}
+                            {section.sectionDescription}
+                          </DetailItem>
+                          {section.assignedUser && (
                             <DetailItem>
-                              <strong>Description:</strong>{' '}
-                              {section.sectionDescription}
+                              <strong>Assigned to:</strong>{' '}
+                              {section.assignedUser.firstName}{' '}
+                              {section.assignedUser.lastname}
                             </DetailItem>
-                            {section.assignedUser && (
+                          )}
+                          {section.notes && section.notes.length > 0 && (
+                            <DetailItem>
+                              <strong>Notes:</strong>
+                              <ul>
+                                {section.notes.map((note) => (
+                                  <li key={note.id}>{note.content}</li>
+                                ))}
+                              </ul>
+                            </DetailItem>
+                          )}
+                          {section.teamLabels &&
+                            section.teamLabels.length > 0 && (
                               <DetailItem>
-                                <strong>Assigned to:</strong>{' '}
-                                {section.assignedUser.firstName}{' '}
-                                {section.assignedUser.lastname}
-                              </DetailItem>
-                            )}
-                            {section.notes && section.notes.length > 0 && (
-                              <DetailItem>
-                                <strong>Notes:</strong>
-                                <ul>
-                                  {section.notes.map((note) => (
-                                    <li key={note.id}>{note.content}</li>
+                                <strong>Labels:</strong>
+                                <ul className="flex gap-2">
+                                  {section.teamLabels.map((label) => (
+                                    <li
+                                      key={label.id}
+                                      className="max-w-[115px] truncate rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
+                                    >
+                                      {label.labelName}
+                                    </li>
                                   ))}
                                 </ul>
                               </DetailItem>
                             )}
-                            {section.teamLabels &&
-                              section.teamLabels.length > 0 && (
-                                <DetailItem>
-                                  <strong>Labels:</strong>
-                                  <ul className="flex gap-2">
-                                    {section.teamLabels.map((label) => (
-                                      <li
-                                        key={label.id}
-                                        className="max-w-[115px] truncate rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
-                                      >
-                                        {label.labelName}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </DetailItem>
-                              )}
-                          </CardDetails>
-                        </SectionCard>
-                        {secIndex < stream.sections.length - 1 && (
-                          <ArrowIcon>
-                            <FaArrowRight size={24} />
-                          </ArrowIcon>
-                        )}
-                      </React.Fragment>
+                        </CardDetails>
+                      </SectionCard>
                     ))}
-                    <ArrowIcon>
-                      <FaArrowRight size={24} />
-                    </ArrowIcon>
-                    <SectionCard
-                      $isrequired={false}
-                      onClick={() => {
-                        if (!user || !organization) return;
-                        handleSectionClick(
-                          {
-                            sectionId: new ObjectId().toString(),
-                            sectionName: '',
-                            sectionDescription: '',
-                            assignedUser: user,
-                            notes: [],
-                            position: 0,
-                            fileNameOnExport: '',
-                            files: [],
-                            isRequired: true,
-                            ownerRef: organization.id || '',
-                            teamLabels: [],
-                          },
-                          stream,
-                        );
-                      }}
-                    >
-                      <div className="flex h-full w-full items-center justify-center">
-                        <AddNewButton className="rounded bg-teal-700 px-4 py-2 text-white hover:bg-teal-600">
-                          Add New Section
-                        </AddNewButton>
-                      </div>
-                    </SectionCard>
                   </SectionContainer>
-                </Card>
-              </React.Fragment>
-            ))}
+                </AccordionItem>
+              ))}
+            </Accordion>
+
+            <ButtonAddContainer
+              $isrequired={true}
+              onClick={() => {
+                if (!user || !organization) return;
+                handleSectionClick(
+                  {
+                    sectionId: new ObjectId().toString(),
+                    sectionName: '',
+                    sectionDescription: '',
+                    assignedUser: user,
+                    notes: [],
+                    position: 0,
+                    fileNameOnExport: '',
+                    files: [],
+                    isRequired: true,
+                    ownerRef: organization.id || '',
+                    teamLabels: [],
+                  },
+                  {} as TracerStreamExtended,
+                );
+              }}
+            >
+              <div className="flex h-full w-full items-center justify-center">
+                <AddNewButton className="rounded bg-teal-700 px-4 py-2 text-white hover:bg-teal-600">
+                  Add New Section
+                </AddNewButton>
+              </div>
+            </ButtonAddContainer>
           </CardContainer>
           {childrenPos.length > 0 && (
             <div className="mt-8">
@@ -953,6 +955,12 @@ const SectionCard = styled.div<{ $isrequired: boolean }>`
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
   background-color: ${(props) => (props.$isrequired ? '#fff' : '#e5e7eb')};
+`;
+
+const ButtonAddContainer = styled.div<{ $isrequired: boolean }>`
+  display: flex;
+  width: 14%;
+  margin-bottom: 25px;
 `;
 
 const ArrowIcon = styled.div`

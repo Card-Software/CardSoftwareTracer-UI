@@ -34,7 +34,7 @@ const Notes: React.FC<NotesProps> = ({ notes, currentUser, onChange }) => {
   };
 
   return (
-    <div className="input-custom max-w-sm rounded-lg p-6">
+    <div className="input-custom max-w-sm rounded-lg p-6 mt-6 mb-6">
       <div className="mt-3 flex justify-between">
         <h2 className="mb-4 mt-3 text-xl font-semibold text-gray-700">Notes</h2>
         <button

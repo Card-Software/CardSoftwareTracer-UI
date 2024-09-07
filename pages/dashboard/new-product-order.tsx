@@ -245,9 +245,8 @@ const NewProductOrder: React.FC = () => {
         />
         <div className="mb-6 mt-6">
           <Notes
-            // notes={productOrder.notes}
             currentUser={currentUser}
-            setNotes={setNotes}
+            onChange={setNotes}
           />{' '}
         </div>
         <div className="mb-6">
