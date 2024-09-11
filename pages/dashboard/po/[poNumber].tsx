@@ -45,8 +45,8 @@ import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import Notes from '@/components/notes.component';
 import { Note } from '@/models/note';
-
-import { Accordion, AccordionItem, Avatar } from '@nextui-org/react';
+import { Accordion, AccordionItem } from '@nextui-org/react';
+import ProgressBar from '@/components/progress-bar.component';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -93,9 +93,10 @@ const PurchaseOrderPage: React.FC = () => {
     base: 'w-full',
     title: 'font-normal text-xl',
     trigger:
-      'px-4 py-4 data-[hover=true]: rounded-lg h-13 flex items-center transition-transform duration-300 transform hover:translate-y-0.5',
+      'border-x-inherit shadow-inherit px-4 py-4 data-[hover=true]: rounded-lg h-13 flex items-center transition-transform duration-300 transform hover:translate-y-0.5',
     indicator: 'text-medium',
-    content: 'text-small px-2',
+    content:
+      'text-small px-4 pb-7 border-x-2 border-b-2 border-[#c3c5c9] rounded-x-lg rounded-b-lg',
   };
 
   useEffect(() => {
@@ -211,7 +212,6 @@ const PurchaseOrderPage: React.FC = () => {
     activityType: ActivityType,
     tracerStreamId = '',
   ) => {
-    // Check if allActivityLogs is an array
     if (Array.isArray(allActivityLogs)) {
       const filteredLogs =
         activityType === ActivityType.StatusChange
@@ -227,31 +227,6 @@ const PurchaseOrderPage: React.FC = () => {
     }
     setActivityLogType(activityType);
     setIsActivityLogOpen(true);
-  };
-
-  const handleActivityLogClose = () => {
-    setIsActivityLogOpen(false);
-    setActivityLogsToDisplay([]);
-  };
-
-  // test function2
-  const handleUserChange = (value: string | Date, field: string) => {
-    handleAssignedUserChange({
-      target: { name: field, value: value },
-    } as React.ChangeEvent<HTMLSelectElement>);
-  };
-
-  const handleAssignedUserChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const userId = e.target.value;
-    const assignedUser = allUsers.find((user) => user.id === userId);
-    if (assignedUser) {
-      setProductOrder((prevOrder) => ({
-        ...prevOrder!,
-        assignedUser: assignedUser,
-      }));
-    }
   };
 
   const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
@@ -589,7 +564,7 @@ const PurchaseOrderPage: React.FC = () => {
                     await handleDeleteProductOrder(productOrder);
                     router.push('/Dashboard');
                   }}
-                  className="border-1 rounded border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
+                  className="rounded border-1 border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
                 >
                   Delete PO
                 </button>
@@ -623,10 +598,13 @@ const PurchaseOrderPage: React.FC = () => {
                   key={index}
                   title={
                     <div className="flex w-full items-center justify-between">
-                      <div>
+                      <div className='w-1/4'>
                         <strong>{stream.friendlyName}</strong>{' '}
                       </div>
-                      <div className="">
+                      <div className="w-2/4 flex justify-center">
+                        <ProgressBar stream={stream} />
+                      </div>
+                      <div className="flex w-1/4 justify-end space-x-2">
                         <button
                           disabled={!allActivityLogs.length}
                           className="rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
@@ -672,82 +650,89 @@ const PurchaseOrderPage: React.FC = () => {
                   }
                   className="mb-4"
                 >
-                  <p>
-                    <strong>Product:</strong> {stream.product} |{' '}
-                    <strong>Quantity:</strong> {stream.quantity}
-                  </p>
-                  <SectionContainer>
-                    {stream.sections.map((section) => (
-                      <SectionCard
-                        key={section.sectionId}
-                        $isrequired={section.isRequired}
-                        onClick={() => handleSectionClick(section, stream)}
-                      >
-                        <CardTitle className="w-full">
-                          {section.sectionName}
-                          {section.files.length > 0 ? (
-                            <FaCheckCircle
-                              color="green"
-                              style={{ marginLeft: '10px' }}
-                            />
-                          ) : (
-                            <FaExclamationCircle
-                              color="red"
-                              style={{ marginLeft: '10px' }}
-                            />
-                          )}
-                          <DeleteButton
-                            className="square flex justify-end"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteSection(stream, section);
-                            }}
+                  <div>
+                    <p>
+                      <strong>Product:</strong> {stream.product} |{' '}
+                      <strong>Quantity:</strong> {stream.quantity}
+                    </p>
+                    <SectionContainer>
+                      {stream.sections.map((section) => (
+                        <>
+                          <SectionCard
+                            key={section.sectionId}
+                            $isrequired={section.isRequired}
+                            onClick={() => handleSectionClick(section, stream)}
                           >
-                            <FaTrash />
-                          </DeleteButton>
-                        </CardTitle>
-                        <CardDetails>
-                          <DetailItem>
-                            <strong>Description:</strong>{' '}
-                            {section.sectionDescription}
-                          </DetailItem>
-                          {section.assignedUser && (
-                            <DetailItem>
-                              <strong>Assigned to:</strong>{' '}
-                              {section.assignedUser.firstName}{' '}
-                              {section.assignedUser.lastname}
-                            </DetailItem>
-                          )}
-                          {section.notes && section.notes.length > 0 && (
-                            <DetailItem>
-                              <strong>Notes:</strong>
-                              <ul>
-                                {section.notes.map((note) => (
-                                  <li key={note.id}>{note.content}</li>
-                                ))}
-                              </ul>
-                            </DetailItem>
-                          )}
-                          {section.teamLabels &&
-                            section.teamLabels.length > 0 && (
+                            <CardTitle className="w-full">
+                              {section.sectionName}
+                              {section.files.length > 0 ? (
+                                <FaCheckCircle
+                                  color="green"
+                                  style={{ marginLeft: '10px' }}
+                                />
+                              ) : (
+                                <FaExclamationCircle
+                                  color="red"
+                                  style={{ marginLeft: '10px' }}
+                                />
+                              )}
+                              <DeleteButton
+                                className="square flex justify-end"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteSection(stream, section);
+                                }}
+                              >
+                                <FaTrash />
+                              </DeleteButton>
+                            </CardTitle>
+                            <CardDetails>
                               <DetailItem>
-                                <strong>Labels:</strong>
-                                <ul className="flex gap-2">
-                                  {section.teamLabels.map((label) => (
-                                    <li
-                                      key={label.id}
-                                      className="max-w-[115px] truncate rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
-                                    >
-                                      {label.labelName}
-                                    </li>
-                                  ))}
-                                </ul>
+                                <strong>Description:</strong>{' '}
+                                {section.sectionDescription}
                               </DetailItem>
-                            )}
-                        </CardDetails>
-                      </SectionCard>
-                    ))}
-                  </SectionContainer>
+                              {section.assignedUser && (
+                                <DetailItem>
+                                  <strong>Assigned to:</strong>{' '}
+                                  {section.assignedUser.firstName}{' '}
+                                  {section.assignedUser.lastname}
+                                </DetailItem>
+                              )}
+                              {section.notes && section.notes.length > 0 && (
+                                <DetailItem>
+                                  <strong>Notes:</strong>
+                                  <ul>
+                                    {section.notes.map((note) => (
+                                      <li key={note.id}>{note.content}</li>
+                                    ))}
+                                  </ul>
+                                </DetailItem>
+                              )}
+                              {section.teamLabels &&
+                                section.teamLabels.length > 0 && (
+                                  <DetailItem>
+                                    <strong>Labels:</strong>
+                                    <ul className="flex gap-2">
+                                      {section.teamLabels.map((label) => (
+                                        <li
+                                          key={label.id}
+                                          className="max-w-[115px] truncate rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
+                                        >
+                                          {label.labelName}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </DetailItem>
+                                )}
+                            </CardDetails>
+                          </SectionCard>
+                          <ArrowIcon>
+                            <FaArrowRight size={24} />
+                          </ArrowIcon>
+                        </>
+                      ))}
+                    </SectionContainer>
+                  </div>
                 </AccordionItem>
               ))}
             </Accordion>
@@ -903,32 +888,10 @@ const Section = styled.section`
   margin-bottom: 40px;
 `;
 
-const SectionTitle = styled.h2`
-  border-bottom: 2px solid #ccc;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  text-align: center;
-`;
-
 const CardContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 20px;
-  position: relative;
-  flex-grow: 1;
-`;
-
-const Card = styled.div`
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: box-shadow 0.3s ease;
-  &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
 `;
 
 const SectionContainer = styled.div`
@@ -937,23 +900,28 @@ const SectionContainer = styled.div`
   gap: 20px;
   margin-top: 20px;
   align-items: center;
+  padding-left: 5%;
 `;
 
 const SectionCard = styled.div<{ $isrequired: boolean }>`
-  flex: 1 1 calc(25% - 20px);
-  min-width: 250px;
-  max-width: 300px;
-  margin-bottom: 20px;
-  word-wrap: break-word;
-  padding: 20px;
-  border: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: calc(25% - 20px);
+  position: relative;
+  min-width: 300px;
+  max-width: 350px;
+  min-height: 200px;
+  padding: 17px;
+  box-sizing: border-box;
+  border: 1px solid #c3c5c9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: box-shadow 0.3s ease;
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
+  };
   background-color: ${(props) => (props.$isrequired ? '#fff' : '#e5e7eb')};
 `;
 
@@ -982,6 +950,14 @@ const CardTitle = styled.h3`
 
 const CardDetails = styled.div`
   font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+  min-height: 70px;
+  height: auto;
+  padding: 10px;
+  box-sizing: border-box;
 `;
 
 const DetailItem = styled.div`
@@ -1003,6 +979,7 @@ const AddNewButton = styled.button`
 const DeleteButton = styled.button`
   background-color: transparent;
   border: none;
+  color: #f56565;
   padding: 0;
   margin-left: 5px;
   cursor: pointer;
