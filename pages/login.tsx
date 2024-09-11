@@ -90,7 +90,7 @@ const Login = () => {
             <button
               type="button"
               onClick={togglePasswordVisibility}
-              className="absolute right-3 top-8 text-gray-700"
+              className="absolute right-2 top-7 border-none border-white bg-none text-sm text-gray-500 shadow-none"
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
