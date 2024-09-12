@@ -496,7 +496,10 @@ const Dashboard: React.FC = () => {
         </div>
       )}
 
-      <div className="my-4 w-full border-b-4 border-teal-700"></div>
+      <div
+        className="my-4 mt-3 w-full border-b-4"
+        style={{ borderColor: 'var(--primary-color)' }}
+      ></div>
       <div className="grid grid-cols-3 gap-4">
         {filteredProductOrders.length > 0 ? (
           filteredProductOrders.map((order) => (
