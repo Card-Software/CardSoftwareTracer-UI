@@ -513,9 +513,17 @@ const Dashboard: React.FC = () => {
           <p>No product orders available.</p>
         )}
       </div>
-      <footer className="footer-class sticky bottom-0 mb-2 flex items-center justify-between bg-gray-800 p-4">
+
+      {/* <footer
+        className="stream-footer fixed bottom-0 flex w-full items-center justify-between p-4"
+        style={{
+          backgroundColor: 'var(--primary-color)',
+          maxWidth: 'calc(100% - 175px)',
+        }}
+      >
         <span className="text-white">Total Results: {totalResults}</span>
-        <div>
+
+        <div className="flex items-center">
           <button
             onClick={() => handlePageChange(pageNumber - 1)}
             disabled={pageNumber === 1}
@@ -523,7 +531,11 @@ const Dashboard: React.FC = () => {
           >
             Previous
           </button>
-          <span className="mx-4 text-white">Page {pageNumber}</span>
+
+          <span className="mx-4 text-white">
+            Page {pageNumber} of {Math.ceil(totalResults / pageSize)}
+          </span>
+
           <button
             onClick={() => handlePageChange(pageNumber + 1)}
             disabled={pageNumber * pageSize >= totalResults}
@@ -532,7 +544,7 @@ const Dashboard: React.FC = () => {
             Next
           </button>
         </div>
-      </footer>
+      </footer> */}
     </Layout>
   );
 };

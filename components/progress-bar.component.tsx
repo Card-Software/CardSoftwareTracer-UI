@@ -1,15 +1,18 @@
 import { ProductOrder } from '@/models/product-order';
 import { TracerStreamExtended } from '@/models/tracer-stream';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface ProgressBarProps {
   productOrder: ProductOrder;
+  onProgressChange: (progress: number | null) => void; // New prop
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ productOrder }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+  productOrder,
+  onProgressChange,
+}) => {
   const totalTracerStreams = productOrder.childrenTracerStreams.length;
 
-  // Calculate progress for a single tracer stream
   const singleTracerStreamProgress = (stream: TracerStreamExtended) => {
     const requiredSections = stream.sections.filter(
       (section) => section.isRequired,
@@ -20,7 +23,6 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ productOrder }) => {
     return (completedSections.length / requiredSections.length) * 100;
   };
 
-  // Calculate overall progress for multiple tracer streams
   const overallProgress = () => {
     if (totalTracerStreams === 0) {
       return null;
@@ -55,22 +57,18 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ productOrder }) => {
 
   const progressPercentage = overallProgress();
 
+  useEffect(() => {
+    // Pass the percentage value to the parent when it changes
+    onProgressChange(progressPercentage);
+  }, [progressPercentage, onProgressChange]);
+
   return (
-    <div className="relative mt-2 h-4 w-full bg-gray-200">
-      {progressPercentage === null ? (
-        <div className="flex h-full items-center justify-center bg-gray-500 text-xs text-gray-700">
-          N/T
-        </div>
-      ) : (
-        <>
-          <div
-            className="h-full bg-green-500"
-            style={{ width: `${progressPercentage}%` }}
-          />
-          <span className="absolute inset-0 flex items-center justify-center text-xs text-gray-700">
-            {progressPercentage.toFixed(0)}%
-          </span>
-        </>
+    <div className="relative mt-2 h-2 w-full rounded-md bg-gray-300">
+      {progressPercentage !== null && (
+        <div
+          className="h-full rounded-md bg-blue-500"
+          style={{ width: `${progressPercentage}%` }}
+        />
       )}
     </div>
   );

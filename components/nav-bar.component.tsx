@@ -48,7 +48,6 @@ const Navbar: React.FC = () => {
             fill="#D51E3E"
           />
         </svg>
-
         <div className="ms-6 cursor-pointer pt-3 text-lg font-bold text-gray-300">
           Card Software Tracer
         </div>
