@@ -22,7 +22,7 @@ const Login = () => {
     setLoading(true); // Set loading to true
     // Call the authentication service
     const logginStatus = await userAuthenticationService.login(
-      username.trim(),
+      username.trim().toLocaleLowerCase(),
       password,
     );
     setLoading(false); // Set loading to false
@@ -51,7 +51,7 @@ const Login = () => {
       {/* Left Side (Background with Title) */}
       <div
         className="hidden items-center justify-center bg-cover bg-center text-4xl font-bold text-white lg:flex lg:w-1/2"
-        style={{ backgroundColor: 'var(--primary-color)' }}
+        style={{ backgroundColor: '#051b38' }}
       >
         <div>
           <svg
@@ -74,7 +74,7 @@ const Login = () => {
       {/* Mobile Layout Adjustment */}
       <div
         className="mb-20 flex w-full items-center justify-center rounded-b-lg bg-cover bg-center py-12 text-2xl font-bold text-white lg:hidden"
-        style={{ backgroundColor: 'var(--primary-color)' }}
+        style={{ backgroundColor: '#051b38' }}
       >
         Card Software Traceability
       </div>
@@ -121,7 +121,7 @@ const Login = () => {
             onClick={handleLogin}
             type="button"
             className="w-full rounded-md px-4 py-2 text-white focus:outline-none"
-            style={{ backgroundColor: 'var(--primary-color)' }}
+            style={{ backgroundColor: '#051b38' }}
           >
             Login
           </button>
