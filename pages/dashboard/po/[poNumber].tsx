@@ -578,13 +578,18 @@ const PurchaseOrderPage: React.FC = () => {
                     await handleDeleteProductOrder(productOrder);
                     router.push('/Dashboard');
                   }}
-                  className="border-1 rounded border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
+                  className="border-1 border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
+                  style={{ borderRadius: '10px 10px 10px 10px' }}
                 >
                   Delete PO
                 </button>
               )}
             </div>
           </div>
+          <div
+            className="my-4 mt-3 w-full border-b-4"
+            style={{ borderColor: 'var(--primary-color)' }}
+          ></div>
           <div className="mt-3">
             <ProductOrderDetails
               initialProductOrderDetails={productOrder}
@@ -592,9 +597,9 @@ const PurchaseOrderPage: React.FC = () => {
             />
           </div>
 
-          <div className="my-6">
+          <div className="my-4">
             <button
-              className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+              className="mb-3 rounded bg-[var(--primary-button)] px-4 font-bold text-white hover:bg-[var(--primary-button-hover)]"
               disabled={!allActivityLogs.length}
               onClick={() => handleActivityLogClick(ActivityType.StatusChange)}
               style={{
@@ -631,7 +636,7 @@ const PurchaseOrderPage: React.FC = () => {
                       <div className="flex max-h-14">
                         <button
                           disabled={!allActivityLogs.length}
-                          className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          className="mb-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
                           onClick={(e) => {
                             handleActivityLogClick(
                               ActivityType.FileUpload,
@@ -642,7 +647,7 @@ const PurchaseOrderPage: React.FC = () => {
                           <FaHistory />
                         </button>
                         <button
-                          className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleExportButton(stream);
@@ -651,7 +656,7 @@ const PurchaseOrderPage: React.FC = () => {
                           <FaFileExport />
                         </button>
                         <button
-                          className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStreamClick(stream, 'edit');
@@ -775,7 +780,7 @@ const PurchaseOrderPage: React.FC = () => {
                       }}
                     >
                       <div className="flex h-full w-full items-center justify-center">
-                        <AddNewButton className="rounded bg-teal-700 px-4 py-2 text-white hover:bg-teal-600">
+                        <AddNewButton className="rounded bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]">
                           Add New Section
                         </AddNewButton>
                       </div>
@@ -816,7 +821,7 @@ const PurchaseOrderPage: React.FC = () => {
           Cancel
         </button>
         <button
-          className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
+          className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
           onClick={handleSave}
         >
           Save

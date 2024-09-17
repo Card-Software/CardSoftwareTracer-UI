@@ -121,8 +121,17 @@ const Dashboard: React.FC = () => {
           pageSize,
         );
       setInitialLoad(false);
-      setProductOrders(response.results);
-      setFilteredProductOrders(response.results);
+      const sorted = response.results.sort((a, b) => {
+        if (a.createdDate && b.createdDate) {
+          return (
+            new Date(b.createdDate).getTime() -
+            new Date(a.createdDate).getTime()
+          );
+        }
+        return 0;
+      });
+      setProductOrders(sorted);
+      setFilteredProductOrders(sorted);
       setTotalResults(response.totalResults);
     } catch (error) {
       console.error('Failed to fetch product orders:', error);
@@ -314,7 +323,7 @@ const Dashboard: React.FC = () => {
                 id="productOrderName"
                 value={filterInputs.productOrderNumber || ''}
                 onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
               />
             </div>
             <div>
@@ -330,7 +339,7 @@ const Dashboard: React.FC = () => {
                 id="externalPoNumber"
                 value={filterInputs.externalPoNumber || ''}
                 onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
               />
             </div>
             <div>
@@ -345,7 +354,7 @@ const Dashboard: React.FC = () => {
                 id="assignedUserRef"
                 value={filterInputs.assignedUserRef || ''}
                 onChange={handleUserChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
               >
                 <option value="">Select an associate</option>
                 {allUsers.map((user) => (
@@ -369,7 +378,7 @@ const Dashboard: React.FC = () => {
                     : null
                 }
                 onChange={(date) => handleDateChange('startDate', date)}
-                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
                 dateFormat="yyyy/MM/dd"
               />
             </div>
@@ -385,7 +394,7 @@ const Dashboard: React.FC = () => {
                   filterInputs.endDate ? filterInputs.endDate.toDate() : null
                 }
                 onChange={(date) => handleDateChange('endDate', date)}
-                className="mt-2 block w-full rounded-md border border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
                 dateFormat="yyyy/MM/dd"
               />
             </div>
@@ -401,7 +410,7 @@ const Dashboard: React.FC = () => {
                 id="siteRef"
                 value={filterInputs.siteRef || ''}
                 onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
               >
                 <option value="">Select a site</option>
                 {allSites.map((site) => (
@@ -423,7 +432,7 @@ const Dashboard: React.FC = () => {
                 id="planningStatus"
                 value={filterInputs.planningStatus || ''}
                 onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -445,7 +454,7 @@ const Dashboard: React.FC = () => {
                 id="ntStatus"
                 value={filterInputs.ntStatus || ''}
                 onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -467,7 +476,7 @@ const Dashboard: React.FC = () => {
                 id="sacStatus"
                 value={filterInputs.sacStatus || ''}
                 onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                className="input-custom"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -482,13 +491,13 @@ const Dashboard: React.FC = () => {
           <div className="mt-6 flex justify-end space-x-3">
             <button
               onClick={clearAllFilters}
-              className="rounded-md border-2 border-red-500 bg-white px-5 py-2 font-semibold text-black hover:bg-red-500"
+              className="rounded-md border border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 transition-colors duration-200 hover:bg-blue-500 hover:text-white"
             >
               Clear All
             </button>
             <button
               onClick={applyFilters}
-              className="rounded-md bg-teal-600 px-5 py-2 font-semibold text-white hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-50"
+              className="rounded-md bg-[var(--primary-button)] px-5 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
             >
               Apply Filters
             </button>

@@ -266,7 +266,7 @@ const Details = () => {
           </div>
         </div>
 
-        <div className="my-2 w-full border-b-4 border-teal-700"></div>
+        <div className="my-4 w-full border-b-4 border-[var(--primary-color)]"></div>
 
         {error && <p className="text-red-500">{error}</p>}
 
@@ -351,7 +351,7 @@ const Details = () => {
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => openModal('Edit Section', section)}
-                              className="rounded-md bg-teal-800 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                              className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)] focus:outline-none focus:ring-2 focus:ring-blue-300"
                             >
                               Edit
                             </button>
@@ -394,7 +394,7 @@ const Details = () => {
           {IsAdmin && (
             <button
               onClick={handleSave}
-              className="ml-3 rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="ml-3 rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)] focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               {isLoading ? 'Saving...' : 'Save'}
             </button>

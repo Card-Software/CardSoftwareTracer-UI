@@ -54,23 +54,23 @@ const Sidebar: React.FC = () => {
               <path
                 d="M2 2H28.25"
                 stroke="#000D26"
-                stroke-width="2.8125"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.8125"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M2 9.5H28.25"
                 stroke="#000D26"
-                stroke-width="2.8125"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.8125"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M2 17H28.25"
                 stroke="#000D26"
-                stroke-width="2.8125"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.8125"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
           ) : (
@@ -84,23 +84,23 @@ const Sidebar: React.FC = () => {
               <path
                 d="M2 2H28.25"
                 stroke="#000D26"
-                stroke-width="2.8125"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.8125"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M2 9.5H28.25"
                 stroke="#000D26"
-                stroke-width="2.8125"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.8125"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
               <path
                 d="M2 17H28.25"
                 stroke="#000D26"
-                stroke-width="2.8125"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2.8125"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
           )}
@@ -115,9 +115,9 @@ const Sidebar: React.FC = () => {
               <div
                 className={`px-4 py-2 ${
                   isActive
-                    ? 'bg-gray-500 text-white'
+                    ? 'bg-gray-200 font-bold text-black'
                     : 'hover:bg-gray-500 hover:text-white'
-                } ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} transition-all duration-300 ease-in-out`}
+                } ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} rounded-md transition-all duration-300 ease-in-out`}
               >
                 {menu.label}
               </div>
