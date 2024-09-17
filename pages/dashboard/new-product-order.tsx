@@ -276,7 +276,7 @@ const NewProductOrder: React.FC = () => {
           </button>
           <button
             type="submit"
-            className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
+            className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
           >
             Save
           </button>

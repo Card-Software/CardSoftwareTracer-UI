@@ -321,8 +321,10 @@ const SectionModal: React.FC<SectionModalProps> = ({
                 />
                 <span
                   className={`h-5 w-5 rounded border-2 border-gray-400 ${
-                    form.section.isRequired ? 'bg-teal-600' : 'bg-white'
-                  } flex items-center justify-center peer-checked:bg-teal-600`}
+                    form.section.isRequired
+                      ? 'bg-[var(--primary-button-hover)]'
+                      : 'bg-white'
+                  } flex items-center justify-center peer-checked:bg-[var(--primary-button-hover)]`}
                 >
                   {form.section.isRequired && (
                     <svg

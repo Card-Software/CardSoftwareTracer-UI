@@ -623,7 +623,7 @@ const ManagerDashboard: React.FC = () => {
                 </button>
                 <button
                   onClick={applyFilters}
-                  className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
+                  className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
                 >
                   Apply Filters
                 </button>
@@ -631,7 +631,7 @@ const ManagerDashboard: React.FC = () => {
             </div>
           </div>
         )}
-        <div className="my-8 w-full border-b-4 border-teal-700"></div>
+        <div className="my-4 w-full border-b-4 border-[var(--primary-color)]"></div>
         <div className="flex-1 overflow-hidden">
           <div
             className="h-[calc(100vh-200px)] overflow-y-auto"
@@ -1021,7 +1021,7 @@ const ManagerDashboard: React.FC = () => {
             </table>
             <button
               onClick={scrollToTop}
-              className="fixed bottom-4 right-4 rounded-full bg-teal-700 p-3 text-white shadow-lg hover:bg-teal-600"
+              className="fixed bottom-4 right-4 rounded-full bg-[var(--primary-button)] p-3 text-white shadow-lg hover:bg-[var(--primary-button-hover)]"
             >
               <HiArrowUp className="text-xl" />
             </button>
