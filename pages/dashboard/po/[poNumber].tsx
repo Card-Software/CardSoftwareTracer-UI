@@ -47,6 +47,7 @@ import Notes from '@/components/notes.component';
 import { Note } from '@/models/note';
 import { Accordion, AccordionItem } from '@nextui-org/react';
 import ProgressBar from '@/components/progress-bar.component';
+import type { Key } from 'react';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -87,7 +88,6 @@ const PurchaseOrderPage: React.FC = () => {
 
   const isAdmin = user.role.includes('Admin');
   const currentUser = userAuthenticationService.getUser() as User;
-
   //testing NextUI
   const itemClasses = {
     base: 'w-full',
@@ -527,7 +527,6 @@ const PurchaseOrderPage: React.FC = () => {
       </Layout>
     );
   }
-
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
@@ -584,7 +583,6 @@ const PurchaseOrderPage: React.FC = () => {
               onChange={handleNotesChange}
             />
           </div>
-
           <CardContainer>
             <Accordion
               itemClasses={itemClasses}
@@ -593,15 +591,16 @@ const PurchaseOrderPage: React.FC = () => {
               selectionMode="multiple"
               defaultExpandedKeys={['0']}
             >
-              {productOrder.childrenTracerStreams.map((stream, index) => (
+              {productOrder.childrenTracerStreams.map((stream) => (
                 <AccordionItem
-                  key={index}
+                  key={stream.id}
+                  textValue="childern tracer stream"
                   title={
                     <div className="flex w-full items-center justify-between">
-                      <div className='w-1/4'>
+                      <div className="w-1/4">
                         <strong>{stream.friendlyName}</strong>{' '}
                       </div>
-                      <div className="w-2/4 flex justify-center">
+                      <div className="flex w-2/4 justify-center">
                         <ProgressBar stream={stream} />
                       </div>
                       <div className="flex w-1/4 justify-end space-x-2">
@@ -616,7 +615,7 @@ const PurchaseOrderPage: React.FC = () => {
                             );
                           }}
                         >
-                          <FaHistory />
+                          <FaHistory aria-hidden="true" focusable="false" />
                         </button>
                         <button
                           className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
@@ -625,7 +624,7 @@ const PurchaseOrderPage: React.FC = () => {
                             handleExportButton(stream);
                           }}
                         >
-                          <FaFileExport />
+                          <FaFileExport aria-hidden="true" focusable="false" />
                         </button>
                         <button
                           className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
@@ -634,7 +633,7 @@ const PurchaseOrderPage: React.FC = () => {
                             handleStreamClick(stream, 'edit');
                           }}
                         >
-                          <FaPencilAlt />
+                          <FaPencilAlt aria-hidden="true" focusable="false" />
                         </button>
                         <button
                           className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
@@ -643,7 +642,7 @@ const PurchaseOrderPage: React.FC = () => {
                             handleDeleteStream(stream);
                           }}
                         >
-                          <FaTrash />
+                          <FaTrash aria-hidden="true" focusable="false" />
                         </button>
                       </div>
                     </div>
@@ -657,9 +656,8 @@ const PurchaseOrderPage: React.FC = () => {
                     </p>
                     <SectionContainer>
                       {stream.sections.map((section) => (
-                        <>
+                        <React.Fragment key={section.sectionId}>
                           <SectionCard
-                            key={section.sectionId}
                             $isrequired={section.isRequired}
                             onClick={() => handleSectionClick(section, stream)}
                           >
@@ -729,7 +727,7 @@ const PurchaseOrderPage: React.FC = () => {
                           <ArrowIcon>
                             <FaArrowRight size={24} />
                           </ArrowIcon>
-                        </>
+                        </React.Fragment>
                       ))}
                     </SectionContainer>
                   </div>
@@ -921,7 +919,7 @@ const SectionCard = styled.div<{ $isrequired: boolean }>`
   transition: box-shadow 0.3s ease;
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  };
+  }
   background-color: ${(props) => (props.$isrequired ? '#fff' : '#e5e7eb')};
 `;
 
