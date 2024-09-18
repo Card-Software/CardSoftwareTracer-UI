@@ -22,7 +22,7 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ show }) => {
 
   const loaderStyle: React.CSSProperties = {
     border: '16px solid #f3f3f3', // Light grey
-    borderTop: '16px solid #115E59', // Blue
+    borderTop: '16px solid var(--primary-color)', // Blue
     borderRadius: '50%',
     width: '120px',
     height: '120px',

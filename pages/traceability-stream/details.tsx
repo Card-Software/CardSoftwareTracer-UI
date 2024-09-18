@@ -266,7 +266,10 @@ const Details = () => {
           </div>
         </div>
 
-        <div className="my-2 w-full border-b-4 border-teal-700"></div>
+        <div
+          className="my-2 w-full border-b-4"
+          style={{ borderColor: 'var(--primary-color)' }}
+        ></div>
 
         {error && <p className="text-red-500">{error}</p>}
 
@@ -320,38 +323,64 @@ const Details = () => {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`mb-4 flex justify-between rounded-lg p-4 ${
-                            section.isRequired ? 'bg-green-200' : 'bg-gray-200'
+                          className={`mb-4 grid grid-cols-5 items-center gap-4 rounded-lg p-4 ${
+                            section.isRequired
+                              ? 'border border-gray-300 bg-gray-100'
+                              : 'border border-gray-300 bg-white'
                           }`}
                         >
+                          {/* Section Name */}
                           <div>
+                            <p className="font-bold text-gray-700">
+                              Section Name:
+                            </p>
                             <p className="font-bold">{section.sectionName}</p>
+                          </div>
+
+                          {/* Section Description */}
+                          <div>
+                            <p className="font-bold text-gray-700">
+                              Description:
+                            </p>
                             <p className="text-sm text-gray-600">
                               {section.sectionDescription}
                             </p>
+                          </div>
+
+                          {/* Section Position */}
+                          <div>
+                            <p className="font-bold text-gray-700">Position:</p>
                             <p className="text-sm text-gray-500">
-                              Position: {section.position}
+                              {section.position}
                             </p>
-                            {section.teamLabels.length > 0 && (
-                              <div>
-                                <p className="text-sm text-gray-500">Labels:</p>
-                                <div className="flex space-x-2">
-                                  {section.teamLabels.map((label) => (
+                          </div>
+
+                          {/* Section Labels */}
+                          <div className="">
+                            <p className="font-bold text-gray-700">Labels:</p>
+                            {section.teamLabels.length > 0 ? (
+                              <div className="flex space-x-2">
+                                {section.teamLabels.map((label) => (
+                                  <div className="rounded-2xl bg-gray-100 p-1 px-4 text-sm text-blue-500">
                                     <span
                                       key={label.id}
-                                      className="rounded-full bg-white px-3 py-1 text-sm text-gray-700"
+                                      className="py-1 text-sm text-blue-500"
                                     >
                                       {label.labelName}
                                     </span>
-                                  ))}
-                                </div>
+                                  </div>
+                                ))}
                               </div>
+                            ) : (
+                              <p className="text-sm text-gray-500">No labels</p>
                             )}
                           </div>
+
+                          {/* Edit/Delete buttons */}
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => openModal('Edit Section', section)}
-                              className="rounded-md bg-teal-800 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                              className="rounded-md border border-blue-500 bg-white px-4 py-2 text-blue-500 shadow-none hover:bg-blue-500 hover:text-white"
                             >
                               Edit
                             </button>
@@ -359,7 +388,7 @@ const Details = () => {
                               onClick={() => deleteProcess(section.sectionId)}
                               className="square text-red-500 hover:text-red-700"
                             >
-                              <FaTrash className="h-5 w-5" />
+                              <FaTrash className="h-5 w-5 fill-black" />
                             </button>
                           </div>
                         </div>
@@ -383,10 +412,13 @@ const Details = () => {
         />
       </div>
 
-      <footer className="stream-footer flex justify-between bg-gray-200 p-4">
+      <footer
+        className="stream-footer flex justify-between bg-gray-200 p-4"
+        style={{ backgroundColor: 'var(--primary-color)' }}
+      >
         <div>
           <button
-            className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+            className="rounded-md border border-white bg-none px-4 py-2 text-white hover:bg-gray-600"
             onClick={() => router.back()}
           >
             Cancel
@@ -394,7 +426,7 @@ const Details = () => {
           {IsAdmin && (
             <button
               onClick={handleSave}
-              className="ml-3 rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="ml-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               {isLoading ? 'Saving...' : 'Save'}
             </button>
