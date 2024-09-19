@@ -45,6 +45,8 @@ import SiblingProductOrdersModal from '@/components/modals/sibling-product-order
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import { Note } from '@/models/note';
+import AlertModal from '@/components/modals/alert-modal-component';
+import toast, { Toaster } from 'react-hot-toast';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -85,6 +87,10 @@ const PurchaseOrderPage: React.FC = () => {
 
   const isAdmin = user.role.includes('Admin');
   const currentUser = userAuthenticationService.getUser() as User;
+
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+
+  const notify = () => toast.success('Product Order updated successfully!');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -542,7 +548,8 @@ const PurchaseOrderPage: React.FC = () => {
           insertLogs();
           getUpdatedLogs(productOrder.id as string);
           router.push(`/dashboard/po/${productOrder.id as string}`);
-          alert('Product Order updated successfully!');
+          // alert('Product Order updated successfully!');
+          
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
         }
@@ -842,12 +849,16 @@ const PurchaseOrderPage: React.FC = () => {
           >
             Cancel
           </button>
-          <button
-            onClick={handleSave}
+            <button
+            onClick={() => {
+              handleSave();
+              notify();
+            }}
             className="ml-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
+            >
             {isLoading ? 'Saving...' : 'Save'}
-          </button>
+            </button>
+            <Toaster />
         </div>
       </footer>
       <SectionModal
