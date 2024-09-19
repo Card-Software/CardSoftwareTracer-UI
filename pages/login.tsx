@@ -3,6 +3,7 @@ import { useState, KeyboardEvent, useEffect } from 'react';
 import '../app/globals.css';
 import router from 'next/router';
 import LoadingOverlay from '@/components/loading-overlay.component';
+import Head from 'next/head';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -47,6 +48,15 @@ const Login = () => {
 
   return (
     <div className="relative flex min-h-screen flex-col lg:flex-row">
+      <Head>
+        <title>CS Tracer</title>
+        <meta name="description" content="Simplified Traceability" />
+        <meta property="og:title" content="CS Tracer" />
+        <meta property="og:description" content="Simplified Traceability" />
+        <meta property="og:image" content="/images/og-image.png" />
+        <meta property="og:url" content="https://cstracer.com" />
+        <meta property="og:type" content="website" />
+      </Head>
       <LoadingOverlay show={loading} />
       {/* Left Side (Background with Title) */}
       <div
