@@ -172,7 +172,7 @@ const Details = () => {
           alert('Traceability stream created successfully!');
         }
       }
-      router.push('/TraceabilityStream');
+      router.push('/traceability-stream');
     } catch (error) {
       setError('Failed to save traceability stream.');
       console.error(error);
