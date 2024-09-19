@@ -170,8 +170,27 @@ const NewProductOrder: React.FC = () => {
     }
   };
 
-  const handleProductOrderDetailsChange = (data: Control) => {
-    console.log(data);
+  const handleProductOrderDetailsChange = (data: any) => {
+    const formValues = data._formValues;
+    setValue('client', formValues.productOrderDetails.client);
+    setValue(
+      'productOrderNumber',
+      formValues.productOrderDetails.productOrderNumber,
+    );
+    setValue('referenceNumber', formValues.productOrderDetails.referenceNumber);
+    setValue('lot', formValues.productOrderDetails.lot);
+    setValue(
+      'externalProductOrderNumber',
+      formValues.productOrderDetails.externalProductOrderNumber,
+    );
+    setValue('assignedUser', formValues.productOrderDetails.assignedUser);
+    setValue('siteRef', formValues.productOrderDetails.siteRef);
+    setValue('provider', formValues.productOrderDetails.provider);
+    setValue('createdDate', formValues.productOrderDetails.createdDate);
+    setValue('invoiceDate', formValues.productOrderDetails.invoiceDate);
+    setValue('quantity', formValues.productOrderDetails.quantity);
+    setValue('product', formValues.productOrderDetails.product);
+    setValue('description', formValues.productOrderDetails.description);
   };
   const handleConnectTracerStream = (
     tracerStreamExtended: TracerStreamExtended,
@@ -219,9 +238,7 @@ const NewProductOrder: React.FC = () => {
       <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '5rem' }}>
         <ProductOrderDetails
           initialProductOrderDetails={null}
-          onChange={(data) => {
-            handleProductOrderDetailsChange(data);
-          }}
+          onChange={handleProductOrderDetailsChange}
         />
         <div className="my-6">
           <div className="row flex gap-10">

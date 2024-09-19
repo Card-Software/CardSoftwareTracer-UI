@@ -61,7 +61,11 @@ const BaseModal: React.FC<BaseModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h1>{title}</h1>
-          <button onClick={handleClose} className="close-button square">
+          <button
+            onClick={handleClose}
+            className="close-button square"
+            type="button"
+          >
             <FaTimes size={24} />
           </button>
         </div>
@@ -80,6 +84,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
               className=" border border-white bg-none text-white hover:bg-gray-600 "
               style={{ borderRadius: '10px' }}
               onClick={onClose}
+              type="button"
             >
               Close
             </button>

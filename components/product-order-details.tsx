@@ -48,7 +48,7 @@ const productOrderDetailsSchema = Yup.object().shape({
       }
       return isUserValid(value); // Otherwise, validate the user
     }),
-  dateCreated: Yup.date().required('Date Created is required'),
+  createdDate: Yup.date().required('Date Created is required'),
   invoiceDate: Yup.date().nullable(),
   quantity: Yup.number(),
   product: Yup.string().required('Product is required'),
@@ -266,7 +266,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
           control={control}
           render={({ field }) => (
             <select
-              onChange={(e) => field.onChange(getSiteObject(e.target.value))}
+              onChange={(e) => field.onChange(e.target.value)}
               className="input-custom"
             >
               <option value="">Select Site</option>
@@ -325,7 +325,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
           Date Created
         </label>
         <Controller
-          name={'productOrderDetails.dateCreated'}
+          name={'productOrderDetails.createdDate'}
           control={control}
           render={({ field }) => (
             <DatePicker
@@ -336,7 +336,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
           )}
         />
         <p className="whitespace-pre-line text-sm text-red-500">
-          {errors.productOrderDetails?.dateCreated?.message}
+          {errors.productOrderDetails?.createdDate?.message}
         </p>
       </div>
 

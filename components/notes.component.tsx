@@ -50,6 +50,7 @@ const Notes: React.FC<NotesProps> = ({ notes, currentUser, onChange }) => {
         <h2 className="text-xl font-semibold text-white">Notes</h2>
         <div>
           <button
+            type="button"
             onClick={openNotesModal}
             className="rounded-full bg-white p-2 text-[var(--primary-color)] shadow hover:bg-[var(--primary-button-hover)]"
           >
