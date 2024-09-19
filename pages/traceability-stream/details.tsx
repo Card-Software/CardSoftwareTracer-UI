@@ -18,6 +18,7 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import withAuth from '@/hoc/auth';
 import { User } from '@/models/user';
 import { ObjectId } from 'bson';
+import AlertModal from '@/components/modals/alert-modal-component';
 
 const Details = () => {
   // #region States
@@ -38,7 +39,8 @@ const Details = () => {
     ownerRef: userAuthenticationService.getOrganization()?.id || '',
     sections: [],
   });
-
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
   const organization: Organization =
     userAuthenticationService.getOrganization() as Organization;
   const user: User = userAuthenticationService.getUser() as User;
@@ -64,10 +66,23 @@ const Details = () => {
     });
   };
 
-  const deleteProcess = (id: string) => {
-    if (confirm('Are you sure you want to delete this stage?')) {
+  // const deleteProcess = (id: string) => {
+  //   if (confirm('Are you sure you want to delete this section?')) {
+  //     const filteredProcesses = tracerStream.sections.filter(
+  //       (process) => process.sectionId !== id,
+  //     );
+  //     const updatedProcesses = filteredProcesses.map((process, index) => ({
+  //       ...process,
+  //       position: index + 1,
+  //     }));
+
+  //     setTracerStream({ ...tracerStream, sections: updatedProcesses });
+  //   }
+  // };
+  const deleteProcess = () => {
+    if (sectionToDelete) {
       const filteredProcesses = tracerStream.sections.filter(
-        (process) => process.sectionId !== id,
+        (process) => process.sectionId !== sectionToDelete.sectionId,
       );
       const updatedProcesses = filteredProcesses.map((process, index) => ({
         ...process,
@@ -75,6 +90,8 @@ const Details = () => {
       }));
 
       setTracerStream({ ...tracerStream, sections: updatedProcesses });
+      setSectionToDelete(null);
+      setIsAlertModalOpen(false);
     }
   };
 
@@ -385,7 +402,10 @@ const Details = () => {
                               Edit
                             </button>
                             <button
-                              onClick={() => deleteProcess(section.sectionId)}
+                              onClick={() => {
+                                setSectionToDelete(section);
+                                setIsAlertModalOpen(true);
+                              }}
                               className="square text-red-500 hover:text-red-700"
                             >
                               <FaTrash className="h-5 w-5 fill-black" />
@@ -401,6 +421,21 @@ const Details = () => {
             </Droppable>
           </DragDropContext>
         </div>
+
+        {isAlertModalOpen && (
+          <AlertModal
+            isOpen={isAlertModalOpen}
+            type="delete"
+            title="Confirmar eliminación"
+            message="¿Estás seguro de que deseas eliminar esta sección?"
+            icon={<FaTrash className="h-6 w-6 text-red-500" />}
+            onClose={() => {
+              setIsAlertModalOpen(false);
+              setSectionToDelete(null);
+            }}
+            onConfirm={deleteProcess}
+          />
+        )}
 
         <SectionModal
           isOpen={isModalOpen}
