@@ -4,11 +4,14 @@ import { useRouter } from 'next/navigation'; // Correct import for Next.js App R
 import React, { useEffect, useState } from 'react';
 import { FiLogIn } from 'react-icons/fi'; // Importing a login icon from react-icons
 import '../styles/main.css';
+import { User } from '@/models/user';
 
 const Navbar: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(true); // Simulate login state
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const router = useRouter(); // Use useRouter from 'next/navigation'
+
+  const user: User | null = userAuthenticationService.getUser();
 
   const handleProfile = () => {
     console.log('Profile icon clicked');
@@ -53,9 +56,14 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       {loggedIn && (
-        <div className="relative flex flex-row items-center">
+        <div className="relative flex flex-row items-center gap-3">
           {/* Profile Icon */}
-          <div className="mr-4 cursor-pointer" onClick={handleProfile}>
+          <div>
+            <h3 className="text-white">
+              {user?.firstName} {user?.lastname}
+            </h3>
+          </div>
+          <div className="cursor-pointer" onClick={handleProfile}>
             <svg
               width="24"
               height="24"
@@ -76,7 +84,7 @@ const Navbar: React.FC = () => {
 
           {/* Logout Icon */}
           <div
-            className="flex cursor-pointer items-center space-x-2 text-white"
+            className="flex cursor-pointer items-center text-white"
             onClick={() => setShowLogoutMenu(!showLogoutMenu)}
           >
             <FiLogIn className="text-xl" />

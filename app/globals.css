@@ -228,3 +228,13 @@ button.square {
 
   outline: none;
 }
+
+.stream-footer {
+  position: fixed;
+  bottom: 0px;
+  height: 4rem;
+  margin-left: -34px;
+  width: 100%;
+  align-items: center;
+  padding-left: 1rem;
+}

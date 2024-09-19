@@ -5,15 +5,20 @@ import {
   DeliveryStatus,
   PlanningStatuses,
 } from '@/models/enum/statuses';
+import { FaHistory } from 'react-icons/fa';
 
 interface TeamStatusesProps {
   onChange: (updatedStatuses: Status[]) => void;
   originalStatus: Status[];
+  disableHistoryButton: boolean;
+  onHistoryClick: () => void;
 }
 
 const TeamStatuses: React.FC<TeamStatusesProps> = ({
   onChange,
   originalStatus,
+  disableHistoryButton = true,
+  onHistoryClick,
 }) => {
   const [status, setStatus] = React.useState<Status[]>(originalStatus);
 
@@ -72,34 +77,51 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
   };
 
   return (
-    <div className="flex flex-row justify-between rounded-lg border bg-white p-6 shadow-lg">
-      {status.map((s) => (
-        <div key={s.team} className="mb-6">
-          <div className="flex flex-col gap-2">
-            <label className="font-semibold text-gray-800">{s.team}</label>
-            <select
-              value={s.teamStatus}
-              onChange={(e) => handleStatusChange(s.team, e.target.value)}
-              className="w-48 rounded-md border border-gray-300 px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              {getStatusOptions(s.team).map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-            {s.teamStatus === Statuses.Returned && (
-              <textarea
-                placeholder="Provide feedback"
-                value={s.feedback}
-                onChange={(e) => handleFeedbackChange(s.team, e.target.value)}
-                required
-                className="mt-4 w-64 rounded-md border border-gray-300 p-4 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              ></textarea>
-            )}
-          </div>
+    <div className="max-w-lg rounded-lg border bg-white shadow-lg">
+      <div className="flex items-center justify-between rounded-t-lg bg-[var(--primary-color)] p-4 pb-1">
+        <h2 className="mb-4 text-xl font-semibold text-white">Team Statuses</h2>
+        <div>
+          <button
+            disabled={disableHistoryButton}
+            onClick={onHistoryClick}
+            className="mb-3 rounded bg-white px-4 font-bold text-[var(--primary-color)] hover:bg-[var(--primary-button-hover)]"
+          >
+            <FaHistory />
+          </button>
         </div>
-      ))}
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
+        {status.map((s) => (
+          <div key={s.team} className="mb-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-lg font-semibold text-gray-700">
+                {s.team}
+              </label>
+              <select
+                value={s.teamStatus}
+                onChange={(e) => handleStatusChange(s.team, e.target.value)}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                {getStatusOptions(s.team).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+              {s.teamStatus === Statuses.Returned && (
+                <textarea
+                  placeholder="Provide feedback"
+                  value={s.feedback}
+                  onChange={(e) => handleFeedbackChange(s.team, e.target.value)}
+                  required
+                  className="mt-4 rounded-lg border border-gray-300 p-4 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                ></textarea>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

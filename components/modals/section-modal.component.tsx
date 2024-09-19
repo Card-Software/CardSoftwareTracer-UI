@@ -17,6 +17,8 @@ import '@/styles/modals/section-modal.css';
 import { Controller, useForm } from 'react-hook-form';
 import TracerButton from '../tracer-button.component';
 import DragAndDropArea from '../_base/drag-and-drop-area';
+import { forkJoin } from 'rxjs';
+import { from } from 'rxjs';
 
 const isUserValid = (value: any): value is User => {
   return (
@@ -57,6 +59,7 @@ interface SectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (section: Section, move: 'Right' | 'Left' | null | undefined) => void;
+  productOrderId: string;
   productOrder?: string;
   tracerStreamId?: string;
   initialSection: Section;
@@ -73,6 +76,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
   onClose,
   onSave,
   productOrder,
+  productOrderId,
   tracerStreamId,
   initialSection,
   mode,
@@ -114,7 +118,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
     if (isOpen && initialSection) {
       setValue('section', initialSection);
       setPrefix(
-        `${productOrder}/${tracerStreamId}/${initialSection.sectionId}`,
+        `${productOrderId}/${tracerStreamId}/${initialSection.sectionId}`,
       );
     }
   }, [isOpen, initialSection]);
@@ -135,11 +139,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
         if (bucketName) {
           setLoading(true);
           try {
-            const files = await fileManagementApiProxy.getAllFiles(
-              bucketName,
-              prefix,
-            );
-            setValue('section.files', files);
+            await getAllFiles();
           } catch (error) {
             console.error('Error fetching files:', error);
           } finally {
@@ -184,12 +184,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
         file,
       );
       try {
-        const allFiles = await fileManagementApiProxy.getAllFiles(
-          bucketName,
-          prefix,
-        );
+        await getAllFiles();
         insertLogs(file.name, form.section.sectionName);
-        setValue('section.files', allFiles);
         console.log(response);
       } catch (error) {
         console.error('Error fetching files:', error);
@@ -205,11 +201,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
     if (confirm('Are you sure you want to delete this file?')) {
       await fileManagementApiProxy.DeleteFile(bucketName!, s3Object.name!);
       try {
-        const allFiles = await fileManagementApiProxy.getAllFiles(
-          bucketName!,
-          prefix,
-        );
-        setValue('section.files', allFiles);
+        await getAllFiles();
       } catch (error) {
         console.error('Error fetching files:', error);
       }
@@ -224,6 +216,35 @@ const SectionModal: React.FC<SectionModalProps> = ({
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     uploadFile(file);
+  };
+
+  const getAllFiles = async () => {
+    if (bucketName) {
+      setLoading(true);
+
+      // Define the two prefixes
+      const oldPrefix = `${productOrder}/${tracerStreamId}/${initialSection.sectionId}`;
+      const newPrefix = prefix;
+
+      try {
+        // Use forkJoin to fetch both file lists concurrently and merge the results
+        forkJoin({
+          oldFiles: from(
+            fileManagementApiProxy.getAllFiles(bucketName, oldPrefix),
+          ),
+          newFiles: from(
+            fileManagementApiProxy.getAllFiles(bucketName, newPrefix),
+          ),
+        }).subscribe(({ oldFiles, newFiles }) => {
+          const allFiles = [...oldFiles, ...newFiles]; // Merge the results
+          setValue('section.files', allFiles); // Set merged result
+        });
+      } catch (error) {
+        console.error('Error fetching files:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -272,6 +293,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
 
   const insertLogs = (fileName: string, section: string) => {
     const activityLog: ActivityLog = {
+      productOrderReference: productOrderId,
       activityType: ActivityType.FileUpload,
       fileName,
       section,

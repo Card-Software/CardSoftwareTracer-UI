@@ -67,7 +67,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
         </div>
         <div className="modal-body">{children}</div>
         <div className="modal-footer ">
-          <div className="flex w-fit gap-3">
+          <div className="flex w-fit items-center gap-3">
             {onSave && (
               <TracerButton
                 type="submit"
@@ -76,7 +76,11 @@ const BaseModal: React.FC<BaseModalProps> = ({
                 disabled={!canSave}
               />
             )}
-            <button className="cancel-button" onClick={onClose}>
+            <button
+              className=" border border-white bg-none text-white hover:bg-gray-600 "
+              style={{ borderRadius: '10px' }}
+              onClick={onClose}
+            >
               Close
             </button>
           </div>

@@ -35,7 +35,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
     : 'N/A';
 
   return (
-    <Link href={`/dashboard/po/${poNumberUri}`}>
+    <Link href={`/dashboard/po/${productOrder.id as string}`}>
       <div
         className="flex flex-col justify-between rounded-md border border-gray-400 p-4"
         style={{ height: '210px', width: '300px' }}

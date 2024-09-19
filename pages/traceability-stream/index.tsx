@@ -69,41 +69,32 @@ const TraceabilityStream = () => {
           )}
         </div>
       </div>
-      <div className="my-4 w-full border-b-4 border-[var(--primary-color)]"></div>
+      <div
+        className="my-4 w-full border-b-4"
+        style={{ borderColor: 'var(--primary-color)' }}
+      ></div>
       <div className="flex flex-row items-start justify-start">
-        <div className=" w-full overflow-auto">
-          <table className="w-full border-collapse border ">
+        <div className="w-full overflow-auto">
+          <table className="w-full border-collapse border border-gray-300">
             <thead>
-              <tr
-                className="text-blakc bg-teal-700"
-                style={{ backgroundColor: '#DEDEDE' }}
-              >
-                <th
-                  className="border px-4 py-2"
-                  style={{ borderColor: '#DEDEDE' }}
-                >
-                  Name
-                </th>
-                <th className="border px-4 py-2">Details</th>
+              <tr className="bg-gray-400 text-white">
+                <th className="border-b border-gray-300 px-4 py-2">Name</th>
+                <th className="border-b border-gray-300 px-4 py-2">Details</th>
               </tr>
             </thead>
             <tbody>
-              {filteredStreams.map((stream) => (
+              {filteredStreams.map((stream, index) => (
                 <tr
                   key={stream.id}
-                  className="cursor-pointer hover:bg-gray-100"
+                  className={`cursor-pointer ${
+                    index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
+                  } hover:bg-gray-200`}
                   onClick={handleTracerClick(stream.name || '')}
                 >
-                  <td
-                    className="border  px-4 py-2"
-                    style={{ borderColor: '#DEDEDE' }}
-                  >
+                  <td className="border-b border-gray-300 px-4 py-2">
                     {stream.name}
                   </td>
-                  <td
-                    className="border  px-4 py-2"
-                    style={{ borderColor: '#DEDEDE' }}
-                  >
+                  <td className="border-b border-gray-300 px-4 py-2">
                     <span className="mt-1 block text-sm text-gray-500">
                       {stream.sections
                         .map((section) => section.sectionName)
