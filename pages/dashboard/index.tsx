@@ -271,192 +271,216 @@ const Dashboard: React.FC = () => {
       </div>
       {isFilterVisible && (
         <div className="my-6 rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <label
-                htmlFor="productOrderName"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Product Order Name
-              </label>
-              <input
-                type="text"
-                name="productOrderNumber"
-                id="productOrderName"
-                value={filterValues.productOrderNumber || ''}
-                onChange={handleFilterChange}
-                className="input-custom"
-              />
+          <div className="grid grid-cols-1 gap-6">
+            {/* Row 1 */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="productOrderName"
+                  className="block text-sm font-semibold text-gray-800"
+                >
+                  Product Order Name
+                </label>
+                <input
+                  type="text"
+                  name="productOrderNumber"
+                  id="productOrderName"
+                  value={filterInputs.productOrderNumber || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="externalPoNumber"
+                  className="block text-sm font-semibold text-gray-800"
+                >
+                  External Product Order
+                </label>
+                <input
+                  type="text"
+                  name="externalPoNumber"
+                  id="externalPoNumber"
+                  value={filterInputs.externalPoNumber || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
             </div>
-            <div>
-              <label
-                htmlFor="externalPoNumber"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                External Product Order
-              </label>
-              <input
-                type="text"
-                name="externalPoNumber"
-                id="externalPoNumber"
-                value={filterValues.externalPoNumber || ''}
-                onChange={handleFilterChange}
-                className="input-custom"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="assignedUserRef"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                User
-              </label>
-              <select
-                name="assignedUserRef"
-                id="assignedUserRef"
-                value={filterValues.assignedUserRef || ''}
-                onChange={handleUserChange}
-                className="input-custom"
-              >
-                <option value="">Select an associate</option>
-                {allUsers.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.firstName} {user.lastname}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="startDate"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Start Date
-              </label>
-              <DatePicker
-                selected={
-                  filterValues.startDate
-                    ? filterValues.startDate.toDate()
-                    : null
-                }
-                onChange={(date) => handleDateChange('startDate', date)}
-                className="input-custom"
-                dateFormat="yyyy/MM/dd"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="endDate"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                End Date
-              </label>
-              <DatePicker
-                selected={
-                  filterValues.endDate ? filterValues.endDate.toDate() : null
-                }
-                onChange={(date) => handleDateChange('endDate', date)}
-                className="input-custom"
-                dateFormat="yyyy/MM/dd"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="siteRef"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Site
-              </label>
-              <select
-                name="siteRef"
-                id="siteRef"
-                value={filterValues.siteRef || ''}
-                onChange={handleFilterChange}
-                className="input-custom"
-              >
-                <option value="">Select a site</option>
-                {allSites.map((site) => (
-                  <option key={site.id} value={site.id}>
-                    {site.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="planningStatus"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Planning Status
-              </label>
-              <select
-                name="planningStatus"
-                id="planningStatus"
-                value={filterValues.planningStatus || ''}
-                onChange={handleFilterChange}
-                className="input-custom"
-              >
-                <option value="">Select Status</option>
-                {Object.values(Statuses).map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="ntStatus"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                NT Status
-              </label>
-              <select
-                name="ntStatus"
-                id="ntStatus"
-                value={filterValues.ntStatus || ''}
-                onChange={handleFilterChange}
-                className="input-custom"
-              >
-                <option value="">Select Status</option>
-                {Object.values(Statuses).map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="sacStatus"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                SAC Status
-              </label>
-              <select
-                name="sacStatus"
-                id="sacStatus"
-                value={filterValues.sacStatus || ''}
-                onChange={handleFilterChange}
-                className="input-custom"
-              >
-                <option value="">Select Status</option>
-                {Object.values(Statuses).map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
 
-          <div className="mt-6 flex justify-end space-x-3">
-            <button
-              onClick={clearFilters}
-              className="rounded-md border border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 transition-colors duration-200 hover:bg-blue-500 hover:text-white"
-            >
-              Clear All
-            </button>
+            {/* Row 2 */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              <div>
+                <label
+                  htmlFor="assignedUserRef"
+                  className="block text-sm font-semibold text-gray-800"
+                >
+                  User
+                </label>
+                <select
+                  name="assignedUserRef"
+                  id="assignedUserRef"
+                  value={filterInputs.assignedUserRef || ''}
+                  onChange={handleUserChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                >
+                  <option value="">Select an associate</option>
+                  {allUsers.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.firstName} {user.lastname}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-span-2 grid grid-cols-2 gap-6">
+                <div>
+                  <label
+                    htmlFor="startDate"
+                    className="block text-sm font-semibold text-gray-800"
+                  >
+                    Start Date
+                  </label>
+                  <DatePicker
+                    selected={
+                      filterInputs.startDate
+                        ? filterInputs.startDate.toDate()
+                        : null
+                    }
+                    onChange={(date) => handleDateChange('startDate', date)}
+                    className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    dateFormat="yyyy/MM/dd"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="endDate"
+                    className="block text-sm font-semibold text-gray-800"
+                  >
+                    End Date
+                  </label>
+                  <DatePicker
+                    selected={
+                      filterInputs.endDate
+                        ? filterInputs.endDate.toDate()
+                        : null
+                    }
+                    onChange={(date) => handleDateChange('endDate', date)}
+                    className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    dateFormat="yyyy/MM/dd"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 3 */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              <div>
+                <label
+                  htmlFor="planningStatus"
+                  className="block text-sm font-semibold text-gray-800"
+                >
+                  Planning Status
+                </label>
+                <select
+                  name="planningStatus"
+                  id="planningStatus"
+                  value={filterInputs.planningStatus || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                >
+                  <option value="">Select Status</option>
+                  {Object.values(Statuses).map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="ntStatus"
+                  className="block text-sm font-semibold text-gray-800"
+                >
+                  NT Status
+                </label>
+                <select
+                  name="ntStatus"
+                  id="ntStatus"
+                  value={filterInputs.ntStatus || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                >
+                  <option value="">Select Status</option>
+                  {Object.values(Statuses).map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="sacStatus"
+                  className="block text-sm font-semibold text-gray-800"
+                >
+                  SAC Status
+                </label>
+                <select
+                  name="sacStatus"
+                  id="sacStatus"
+                  value={filterInputs.sacStatus || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                >
+                  <option value="">Select Status</option>
+                  {Object.values(Statuses).map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Row 4 */}
+            <div className="flex flex-row justify-between align-middle">
+              <div>
+                <label
+                  htmlFor="siteRef"
+                  className="block text-sm font-semibold text-gray-800"
+                >
+                  Site
+                </label>
+                <select
+                  name="siteRef"
+                  id="siteRef"
+                  value={filterInputs.siteRef || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                >
+                  <option value="">Select a site</option>
+                  {allSites.map((site) => (
+                    <option key={site.id} value={site.id}>
+                      {site.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-span-2 flex justify-end space-x-3">
+                <button
+                  onClick={clearAllFilters}
+                  className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
+                >
+                  Cancel All
+                </button>
+                <button
+                  onClick={applyFilters}
+                  className="rounded-md bg-blue-500 px-5 py-2 font-semibold text-white hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
