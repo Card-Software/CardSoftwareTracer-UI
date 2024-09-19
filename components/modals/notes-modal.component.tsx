@@ -106,9 +106,9 @@ const NotesModal: React.FC<NotesModalProps> = ({
                 {note.enteredBy.lastname.charAt(0)}
               </div>
               <div className="ml-4 flex-grow">
-                <p className="w-[90%] text-justify text-gray-900">
+                <div className="w-[90%] text-justify text-gray-900">
                   {parse(note.content)}
-                </p>
+                </div>
                 <p className="text-sm text-gray-600">
                   {formatDate(new Date(note.dateEntered))} •{' '}
                   {note.enteredBy.firstName} {note.enteredBy.lastname}

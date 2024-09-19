@@ -98,11 +98,11 @@ const Notes: React.FC<NotesProps> = ({ notes, currentUser, onChange }) => {
               {note.enteredBy.lastname.charAt(0)}
             </div>
             <div className="ml-4">
-              <p className="note-content font-semibold text-gray-900">
+              <div className="note-content font-semibold text-gray-900">
                 {note.content.length > 50
                   ? parse(note.content.slice(0, 50))
                   : parse(note.content)}
-              </p>
+              </div>
               <p className="text-sm text-gray-600">
                 {formatDate(new Date(note.dateEntered))} •{' '}
                 {note.enteredBy.firstName} {note.enteredBy.lastname}
