@@ -361,11 +361,11 @@ const Details = () => {
                             {section.teamLabels.length > 0 ? (
                               <div className="flex space-x-2">
                                 {section.teamLabels.map((label) => (
-                                  <div className="rounded-2xl bg-gray-100 p-1 px-4 text-sm text-blue-500">
-                                    <span
-                                      key={label.id}
-                                      className="py-1 text-sm text-blue-500"
-                                    >
+                                  <div
+                                    key={label.id}
+                                    className="rounded-2xl bg-gray-100 p-1 px-4 text-sm text-blue-500"
+                                  >
+                                    <span className="py-1 text-sm text-blue-500">
                                       {label.labelName}
                                     </span>
                                   </div>
@@ -405,6 +405,7 @@ const Details = () => {
         <SectionModal
           isOpen={isModalOpen}
           onClose={closeModal}
+          productOrderId=""
           onSave={(section, move) => saveSection(section, move)}
           initialSection={currentProcess as Section}
           mode={'sectionCreation'}
