@@ -21,14 +21,24 @@ class FileManagementService {
       );
     }
 
-    const prefix = `${productOrder.productOrderNumber}/${tracerStream.id}`;
-    const response = await fileManagementApiProxy.getAllFiles(
-      this.organization.s3BucketName,
-      prefix,
-    );
+    const oldPrefix = `${productOrder.productOrderNumber}/${tracerStream.id}`;
+    const newPrefix = `${productOrder.id}/${tracerStream.id}`;
+    const [oldFiles, newFiles] = await Promise.all([
+      fileManagementApiProxy.getAllFiles(
+        this.organization.s3BucketName,
+        oldPrefix,
+      ),
+      fileManagementApiProxy.getAllFiles(
+        this.organization.s3BucketName,
+        newPrefix,
+      ),
+    ]);
 
-    if (!response || response.length === 0) {
-      console.warn('No files found for the given prefix.');
+    // Combine the results from both prefixes
+    const allFiles = [...oldFiles, ...newFiles];
+
+    if (!allFiles || allFiles.length === 0) {
+      console.warn('No files found for the given prefixes.');
       return false;
     }
 
@@ -36,19 +46,19 @@ class FileManagementService {
     const productOrderNumber = productOrder.externalProductOrderNumber
       ? productOrder.externalProductOrderNumber
       : productOrder.productOrderNumber;
-    const folder = zip.folder(`P-0000${productOrderNumber}`);
+    const folder = zip.folder(`${productOrderNumber}`);
 
     if (!folder) {
       throw new Error('Failed to create folder in zip file.');
     }
 
-    const sectionNames = this.getSectionNames(response, tracerStream);
+    const sectionNames = this.getSectionNames(allFiles, tracerStream);
 
     // Filter the files based on the included sections
     const includedSectionIds = includeSections.map(
       (section) => section.sectionId,
     );
-    const filteredFiles = response.filter((file) => {
+    const filteredFiles = allFiles.filter((file) => {
       if (!file.name) {
         console.warn('File name is missing.');
         return false;
@@ -66,11 +76,11 @@ class FileManagementService {
       const sectionId = file.name.split('/')[2];
       const sectionName = sectionNames[sectionId];
       const fileExtension = file.name.split('.').pop();
-      let fileName = `P-0000${productOrderNumber}_${sectionName}.${fileExtension}`;
+      let fileName = `${productOrderNumber}_${sectionName}.${fileExtension}`;
 
       let counter = 1;
       while (folder.file(fileName)) {
-        fileName = `P-0000${productOrderNumber}_${sectionName}${counter}.${fileExtension}`;
+        fileName = `${productOrderNumber}_${sectionName}${counter}.${fileExtension}`;
         counter++;
       }
 
@@ -85,7 +95,7 @@ class FileManagementService {
 
     const content = await zip.generateAsync({ type: 'blob' });
 
-    saveAs(content, `P-0000${productOrderNumber}.zip`);
+    saveAs(content, `${productOrderNumber}.zip`);
     return true;
   }
 

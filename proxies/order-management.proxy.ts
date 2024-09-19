@@ -95,9 +95,8 @@ class OrderManagementApiProxy {
 
   async getProductOrder(id: string): Promise<ProductOrder> {
     try {
-      const encoedUri = encodeURIComponent(id);
       const response = await axiosInstance.get(
-        `ProductOrderController/get/${encoedUri}`,
+        `ProductOrderController/get/${id}`,
       );
       return response.data;
     } catch (error) {

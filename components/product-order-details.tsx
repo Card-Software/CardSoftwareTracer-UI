@@ -33,7 +33,7 @@ const productOrderDetailsSchema = Yup.object().shape({
     ),
   referenceNumber: Yup.string(),
   lot: Yup.string(),
-  externProductOrderNumber: Yup.string().matches(
+  externalProductOrderNumber: Yup.string().matches(
     /^[A-Za-z0-9\s-]+$/,
     'Only letters, numbers, spaces,\n and dashes are allowed',
   ),
@@ -109,7 +109,6 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
   });
 
   // #region States
-  const [organization, setOrganization] = useState<Organization | null>(null);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [allSites, setAllSites] = useState<Site[]>([]);
   // #endregion
@@ -129,7 +128,6 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
     const storedOrganization = userAuthenticationService.getOrganization();
 
     if (storedOrganization) {
-      setOrganization(storedOrganization);
       setAllUsers(storedOrganization.users);
       setAllSites(storedOrganization.sites);
     }
@@ -156,7 +154,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
   // #endregion
 
   return (
-    <div className="grid grid-cols-4 grid-rows-4 gap-4">
+    <div className="grid grid-cols-4 grid-rows-4 gap-x-4">
       {/* Row 1: 5 Columns */}
       <div className="form-box col-span-1">
         <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -220,7 +218,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
           External Product Order Number
         </label>
         <Controller
-          name={'productOrderDetails.externProductOrderNumber'}
+          name={'productOrderDetails.externalProductOrderNumber'}
           control={control}
           render={({ field }) => (
             <input
@@ -232,7 +230,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
           )}
         />
         <p className="whitespace-pre-line text-sm text-red-500">
-          {errors.productOrderDetails?.externProductOrderNumber?.message}
+          {errors.productOrderDetails?.externalProductOrderNumber?.message}
         </p>
       </div>
 

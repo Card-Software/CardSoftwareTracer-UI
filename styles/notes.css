@@ -1,0 +1,136 @@
+.note-content {
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* Número máximo de líneas antes de truncar */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.note-content::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  height: 1.2em;
+}
+
+.mx-2::-webkit-scrollbar {
+  width: 11px;
+}
+
+.mx-2::-webkit-scrollbar-track {
+  background: border-gray-200;
+  border-radius: 3px;
+}
+
+.mx-2::-webkit-scrollbar-thumb {
+  background-color: #dcdcdc;
+  border-radius: 5px;
+  border: 2px solid #f1f1f1;
+}
+
+.mx-2::-webkit-scrollbar-thumb:hover {
+  background-color: #adadad;
+}
+
+/* Custom styles for ReactQuill */
+
+.ql-container {
+  margin-top: 0.25rem;
+  display: block;
+  width: 100%;
+  border-radius: 0 0 0.5rem 0.5rem;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background-color 0.2s;
+  background-color: #ffffff;
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ql-container:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+}
+
+.ql-toolbar {
+  border-radius: 0.5rem 0.5rem 0 0;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  padding: 0.5rem;
+}
+
+.ql-editor {
+  font-size: 1rem;
+  line-height: 1.5;
+  padding: 0.75rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background-color: #ffffff;
+  min-height: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ql-editor:focus {
+  outline: none;
+  padding: 0px;
+}
+
+.ql-editor:not(:focus) {
+  padding: 0px;
+}
+
+.ql-tooltip {
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+.ql-tooltip input {
+  width: 150px;
+}
+
+.ql-tooltip a {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ql-action {
+  font-size: 14px !important;
+  background-color: #0f766e !important;
+  color: #ffffff !important;
+  width: 100px !important;
+  border-radius: 4px !important;
+  padding: 5px 10px !important;
+  margin-left: 5px !important;
+}
+
+.ql-action:hover {
+  background-color: #149186 !important;
+}
+
+.ql-snow .ql-tooltip a.ql-action::after {
+  margin-left: 0px !important;
+}
+
+.ql-tooltip.ql-editing .ql-action {
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+.ql-editor.ql-blank {
+  padding: 1px 2px;
+}
+.ql-editor.ql-blank::before {
+  padding: 1px 2px;
+}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, use } from 'react';
 import styled from 'styled-components';
 import { TracerStream, TracerStreamExtended } from '@/models/tracer-stream';
 import { FaTimes } from 'react-icons/fa';
@@ -8,12 +8,14 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import { Organization } from '@/models/organization';
 import LoadingOverlay from '../loading-overlay.component';
 import { ObjectId } from 'bson';
+import BaseModal from '../_base/base-modal.component';
 
 interface TracerStreamModalProps {
   originalTracerStream: TracerStreamExtended | null;
   onClose: () => void;
   onSave: (tracerStream: TracerStreamExtended) => void;
   mode: 'edit' | 'add';
+  isOpen: boolean;
 }
 
 const owner = userAuthenticationService.getOrganization();
@@ -22,6 +24,7 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
   originalTracerStream,
   onClose,
   onSave,
+  isOpen = false,
   mode,
 }) => {
   const userOwner = userAuthenticationService.getOrganization();
@@ -95,73 +98,70 @@ const TracerStreamModal: React.FC<TracerStreamModalProps> = ({
     }
   };
 
-  const isFormValid = () => {
-    const { friendlyName, quantity, product } = tracerStream;
-    return friendlyName && quantity > 0 && product;
-  };
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    setIsFormValid(
+      !!tracerStream.friendlyName &&
+        !!tracerStream.quantity &&
+        !!tracerStream.product,
+    );
+  });
 
   return (
-    <ModalWrapper className="open">
-      <ModalOverlay onClick={onClose} />
-      <ModalContent>
-        <LoadingOverlay show={loading} />
-        <ModalHeader>
-          <h1>{mode === 'add' ? 'Add Tracer Stream' : 'Edit Tracer Stream'}</h1>
-          <button onClick={onClose} className="close-button">
-            <FaTimes size={24} />
-          </button>
-        </ModalHeader>
-        <ModalBody>
-          {mode === 'add' && (
-            <>
-              <label>Tracer Stream Template</label>
-              <select
-                value={tracerStream.tracerStreamReference}
-                onChange={(e) => handleTracerStreamChange(e.target.value)}
-                className="tracer-stream-template"
-              >
-                <option value="">Select Template</option>
-                {templates.map((template) => (
-                  <option key={template.id} value={template.id}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-          <label>Friendly Name</label>
-          <input
-            type="text"
-            value={tracerStream.friendlyName}
-            onChange={(e) => handleInputChange('friendlyName', e)}
-            placeholder="Friendly Name"
-            className="friendly-name"
-          />
-          <label>Quantity</label>
-          <input
-            type="number"
-            value={tracerStream.quantity}
-            onChange={(e) => handleInputChange('quantity', e)}
-            placeholder="Quantity"
-            className="quantity"
-          />
-          <label>Product</label>
-          <input
-            type="text"
-            value={tracerStream.product}
-            onChange={(e) => handleInputChange('product', e)}
-            placeholder="Product"
-            className="product"
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Button onClick={handleSave} disabled={!isFormValid()}>
-            Save
-          </Button>
-          <ButtonClose onClick={onClose}>Close</ButtonClose>
-        </ModalFooter>
-      </ModalContent>
-    </ModalWrapper>
+    <BaseModal
+      isOpen={isOpen}
+      loading={loading}
+      onClose={onClose}
+      canSave={isFormValid}
+      onSave={() => onSave(tracerStream)}
+      title={mode === 'add' ? 'Add Tracer Stream' : 'Edit Tracer Stream'}
+    >
+      <LoadingOverlay show={loading} />
+      <ModalBody>
+        {mode === 'add' && (
+          <>
+            <label>Tracer Stream Template</label>
+            <select
+              value={tracerStream.tracerStreamReference}
+              onChange={(e) => handleTracerStreamChange(e.target.value)}
+              className="tracer-stream-template"
+            >
+              <option value="">Select Template</option>
+              {templates.map((template) => (
+                <option key={template.id} value={template.id}>
+                  {template.name}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+        <label>Friendly Name</label>
+        <input
+          type="text"
+          value={tracerStream.friendlyName}
+          onChange={(e) => handleInputChange('friendlyName', e)}
+          placeholder="Friendly Name"
+          className="friendly-name"
+        />
+        <label>Quantity</label>
+        <input
+          type="number"
+          value={tracerStream.quantity}
+          onChange={(e) => handleInputChange('quantity', e)}
+          placeholder="Quantity"
+          className="quantity"
+        />
+        <label>Product</label>
+        <input
+          type="text"
+          value={tracerStream.product}
+          onChange={(e) => handleInputChange('product', e)}
+          placeholder="Product"
+          className="product"
+        />
+      </ModalBody>
+    </BaseModal>
   );
 };
 

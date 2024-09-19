@@ -1,4 +1,5 @@
 export interface ProductOrderSnapshot {
+  productOrderReference: string;
   productOrderNumber: string;
   assignedUserRef?: string;
   createdDate: Date;

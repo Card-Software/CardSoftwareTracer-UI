@@ -13,6 +13,7 @@ import {
   FaTrash,
   FaHistory,
 } from 'react-icons/fa';
+import Notes from '@/components/notes.component';
 import SectionModal from '@/components/modals/section-modal.component';
 import TracerStreamModal from '@/components/modals/tracer-stream-modal.component';
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
@@ -43,6 +44,7 @@ import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
+import { Note } from '@/models/note';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -81,8 +83,8 @@ const PurchaseOrderPage: React.FC = () => {
     useState(false);
   const [siblingPoTextDisplay, setSiblingPoTextDisplay] = useState<string>('');
 
-  const groups: Group[] = userAuthenticationService.getGroups();
   const isAdmin = user.role.includes('Admin');
+  const currentUser = userAuthenticationService.getUser() as User;
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -111,11 +113,9 @@ const PurchaseOrderPage: React.FC = () => {
         setProductOrder(order);
         setStatuses(order.statuses || []); // Set initial statuses
 
-        activityLogProxy
-          .getActivityLogByPo(order.productOrderNumber)
-          .then((logs) => {
-            setAllActivityLogs(logs);
-          });
+        activityLogProxy.getActivityLogByPo(order.id as string).then((logs) => {
+          setAllActivityLogs(logs);
+        });
 
         if (
           order.childrenPosReferences &&
@@ -164,14 +164,33 @@ const PurchaseOrderPage: React.FC = () => {
     }
   }, []);
 
-  const handleProductOrderChange = (data: {
-    value: string | Date;
-    field: string;
-  }) => {
-    const { value, field } = data;
+  const handleProductOrderChange = (data: any) => {
+    const formValues = data._formValues;
+
     setProductOrder((prevOrder) => ({
       ...prevOrder!,
-      [field]: value,
+      productOrderNumber: formValues.productOrderDetails.productOrderNumber,
+      referenceNumber: formValues.productOrderDetails.referenceNumber,
+      lot: formValues.productOrderDetails.lot,
+      externalProductOrderNumber:
+        formValues.productOrderDetails.externalProductOrderNumber,
+      assignedUser: formValues.productOrderDetails.assignedUser,
+      siteRef: formValues.productOrderDetails.siteRef,
+      provider: formValues.productOrderDetails.provider,
+      client: formValues.productOrderDetails.client,
+      createdDate: formValues.productOrderDetails.createdDate,
+      invoiceDate: formValues.productOrderDetails.invoiceDate,
+      quantity: formValues.productOrderDetails.quantity,
+      product: formValues.productOrderDetails.product,
+      description: formValues.productOrderDetails.description,
+      notes: formValues.productOrderDetails.notes,
+    }));
+  };
+
+  const handleNotesChange = (notes: Note[]) => {
+    setProductOrder((prevOrder) => ({
+      ...prevOrder!,
+      notes: notes,
     }));
   };
 
@@ -452,8 +471,8 @@ const PurchaseOrderPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  const getUpdatedLogs = (productOrderNumber: string) => {
-    activityLogProxy.getActivityLogByPo(productOrderNumber).then((logs) => {
+  const getUpdatedLogs = (productOrderRef: string) => {
+    activityLogProxy.getActivityLogByPo(productOrderRef).then((logs) => {
       setAllActivityLogs(logs);
     });
   };
@@ -465,6 +484,7 @@ const PurchaseOrderPage: React.FC = () => {
       );
       if (originalStatus?.teamStatus !== status.teamStatus) {
         const activityLog: ActivityLog = {
+          productOrderReference: productOrder.id as string,
           activityType: 'Status Change',
           team: status.team,
           teamStatus: status.teamStatus,
@@ -520,8 +540,8 @@ const PurchaseOrderPage: React.FC = () => {
         setIsLoading(false);
         if (response.status === 204) {
           insertLogs();
-          getUpdatedLogs(productOrder.productOrderNumber);
-          router.push(`/dashboard/po/${productOrder.productOrderNumber}`);
+          getUpdatedLogs(productOrder.id as string);
+          router.push(`/dashboard/po/${productOrder.id as string}`);
           alert('Product Order updated successfully!');
         } else {
           alert(`Failed to save Product Order. Status: ${response.status}`);
@@ -578,13 +598,18 @@ const PurchaseOrderPage: React.FC = () => {
                     await handleDeleteProductOrder(productOrder);
                     router.push('/Dashboard');
                   }}
-                  className="border-1 rounded border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
+                  className="border-1 border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
+                  style={{ borderRadius: '10px 10px 10px 10px' }}
                 >
                   Delete PO
                 </button>
               )}
             </div>
           </div>
+          <div
+            className="my-4 mt-3 w-full border-b-4"
+            style={{ borderColor: 'var(--primary-color)' }}
+          ></div>
           <div className="mt-3">
             <ProductOrderDetails
               initialProductOrderDetails={productOrder}
@@ -592,24 +617,22 @@ const PurchaseOrderPage: React.FC = () => {
             />
           </div>
 
-          <div className="my-6">
-            <button
-              className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
-              disabled={!allActivityLogs.length}
-              onClick={() => handleActivityLogClick(ActivityType.StatusChange)}
-              style={{
-                opacity: allActivityLogs.length === 0 ? 0.5 : 1,
-                cursor:
-                  allActivityLogs.length === 0 ? 'not-allowed' : 'pointer',
-              }}
-            >
-              <FaHistory />
-            </button>
-
-            <TeamStatuses
-              originalStatus={statuses}
-              onChange={handleStatusChange}
-            />
+          <div className="my-4">
+            <div className="row flex gap-10">
+              <Notes
+                notes={productOrder.notes}
+                currentUser={currentUser}
+                onChange={handleNotesChange}
+              />
+              <TeamStatuses
+                originalStatus={statuses}
+                onChange={handleStatusChange}
+                disableHistoryButton={!allActivityLogs.length}
+                onHistoryClick={() =>
+                  handleActivityLogClick(ActivityType.StatusChange)
+                }
+              />
+            </div>
           </div>
           <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
@@ -631,7 +654,7 @@ const PurchaseOrderPage: React.FC = () => {
                       <div className="flex max-h-14">
                         <button
                           disabled={!allActivityLogs.length}
-                          className="mb-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          className="mb-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
                           onClick={(e) => {
                             handleActivityLogClick(
                               ActivityType.FileUpload,
@@ -642,7 +665,7 @@ const PurchaseOrderPage: React.FC = () => {
                           <FaHistory />
                         </button>
                         <button
-                          className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleExportButton(stream);
@@ -651,7 +674,7 @@ const PurchaseOrderPage: React.FC = () => {
                           <FaFileExport />
                         </button>
                         <button
-                          className="ml-2 rounded bg-teal-700 px-4 py-2 font-bold text-white hover:bg-teal-600"
+                          className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleStreamClick(stream, 'edit');
@@ -775,7 +798,7 @@ const PurchaseOrderPage: React.FC = () => {
                       }}
                     >
                       <div className="flex h-full w-full items-center justify-center">
-                        <AddNewButton className="rounded bg-teal-700 px-4 py-2 text-white hover:bg-teal-600">
+                        <AddNewButton className="rounded bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]">
                           Add New Section
                         </AddNewButton>
                       </div>
@@ -808,22 +831,28 @@ const PurchaseOrderPage: React.FC = () => {
           )}
         </Section>
       </Container>
-      <footer className="stream-footer flex bg-gray-200 p-4">
-        <button
-          className="me-6 rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-          onClick={() => router.back()}
-        >
-          Cancel
-        </button>
-        <button
-          className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
-          onClick={handleSave}
-        >
-          Save
-        </button>
+      <footer
+        className="stream-footer flex justify-between bg-gray-200 p-4"
+        style={{ backgroundColor: 'var(--primary-color)' }}
+      >
+        <div>
+          <button
+            className="rounded-md border border-white bg-none px-4 py-2 text-white hover:bg-gray-600"
+            onClick={() => router.back()}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="ml-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          >
+            {isLoading ? 'Saving...' : 'Save'}
+          </button>
+        </div>
       </footer>
       <SectionModal
         isOpen={isSectionModalOpen}
+        productOrderId={productOrder.id as string}
         productOrder={productOrder.productOrderNumber}
         tracerStreamId={selectedStream?.id || undefined}
         initialSection={selectedSection as SectionModel}
@@ -834,13 +863,14 @@ const PurchaseOrderPage: React.FC = () => {
             ? 'edit'
             : 'sectionCreationOnExistingTracer'
         }
-        totalSections={selectedStream?.sections.length}
+        totalSections={selectedStream?.sections?.length || 0}
       />
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal
           originalTracerStream={
             streamModalMode === 'edit' ? selectedStream : null
           }
+          isOpen={isStreamModalOpen}
           onClose={handleCloseStreamModal}
           onSave={(updatedStream: TracerStreamExtended) => {
             if (streamModalMode === 'add' && productOrder) {
@@ -901,6 +931,7 @@ export default withAuth(PurchaseOrderPage);
 
 const Container = styled.div`
   padding: 10px;
+  margin-bottom: 30px;
 `;
 
 const Section = styled.section`
@@ -993,9 +1024,6 @@ const AddNewButton = styled.button`
   font-size: 16px;
   cursor: pointer;
   border-radius: 8px;
-  &:hover {
-    background-color: #319795;
-  }
 `;
 
 const DeleteButton = styled.button`

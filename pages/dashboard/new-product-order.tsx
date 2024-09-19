@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Layout from '@/app/layout';
+import Notes from '@/components/notes.component';
 import '@/styles/traceability-stream.css';
 import { HiPlus } from 'react-icons/hi';
 import Link from 'next/link';
@@ -26,6 +27,7 @@ import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
+import { Note } from '@/models/note';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -52,6 +54,9 @@ const NewProductOrder: React.FC = () => {
   const [invoiceDate, setInvoiceDate] = useState<Date>();
   const [siblingPoTextDisplay, setSiblingPoTextDisplay] = useState<string>('');
   const hasPageBeenRendered = useRef({ allUsersLoaded: false });
+  const [notes, setNotes] = useState<Note[]>([]);
+
+  const user = userAuthenticationService.getUser() as User;
 
   const [isSiblingProductOrderModalOpen, setIsSiblingProductOrderModalOpen] =
     useState(false);
@@ -107,26 +112,8 @@ const NewProductOrder: React.FC = () => {
     }
   }, []);
 
-  const handleDateChange = (name: string, date: Date | null) => {
-    if (name === 'invoiceDate' && date) {
-      setValue('invoiceDate', date);
-      setInvoiceDate(date);
-    }
-    if (name === 'createdDate' && date) {
-      setValue('createdDate', date);
-      setCreatedDate(date);
-    }
-  };
-
-  const handleAssignUser = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedUser = sampleUsers.find((user) => user.id === e.target.value);
-    if (selectedUser) {
-      setValue('assignedUser', selectedUser);
-    }
-  };
-
-  const handleSiteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue('siteRef', e.target.value);
+  const handleNotesChange = (notes: Note[]) => {
+    setNotes(notes);
   };
 
   const handleStatusChange = (newStatuses: Status[]) => {
@@ -151,8 +138,7 @@ const NewProductOrder: React.FC = () => {
       return;
     }
 
-    console.log(errors);
-
+    data.notes = notes;
     data.ownerRef = owner.id || '';
     data.statuses = statuses; // Add the statuses to the form data
     data.childrenTracerStreams = connectedTracerStreams;
@@ -237,11 +223,20 @@ const NewProductOrder: React.FC = () => {
             handleProductOrderDetailsChange(data);
           }}
         />
-        <div className="mb-6">
-          <TeamStatuses
-            originalStatus={statuses}
-            onChange={(newStatuses) => handleStatusChange(newStatuses)}
-          />
+        <div className="my-6">
+          <div className="row flex gap-10">
+            <Notes
+              notes={notes}
+              currentUser={user}
+              onChange={handleNotesChange}
+            />
+            <TeamStatuses
+              originalStatus={statuses}
+              onChange={(newStatuses) => handleStatusChange(newStatuses)}
+              disableHistoryButton={true}
+              onHistoryClick={() => {}}
+            />
+          </div>
         </div>
         <div className="mb-6">
           <label className="mb-2 block text-sm font-bold text-gray-700">
@@ -276,7 +271,7 @@ const NewProductOrder: React.FC = () => {
           </button>
           <button
             type="submit"
-            className="rounded-md bg-teal-700 px-4 py-2 text-white hover:bg-teal-600"
+            className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
           >
             Save
           </button>
@@ -287,6 +282,7 @@ const NewProductOrder: React.FC = () => {
           originalTracerStream={null}
           onClose={() => setIsModalOpen(false)}
           onSave={handleConnectTracerStream}
+          isOpen={isModalOpen}
           mode="add"
         />
       )}

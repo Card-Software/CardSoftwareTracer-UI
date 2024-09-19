@@ -1,5 +1,6 @@
 export interface ActivityLog {
   id?: string;
+  productOrderReference: string;
   userIdRef?: string;
   userFirstName?: string;
   userLastName?: string;

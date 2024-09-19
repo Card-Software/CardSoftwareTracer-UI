@@ -14,8 +14,6 @@ import { User } from '@/models/user';
 
 const TraceabilityStream = () => {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [clients, setClients] = useState('');
   const [streams, setStreams] = useState<TracerStream[]>([]);
   const [filteredStreams, setFilteredStreams] = useState<TracerStream[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +74,7 @@ const TraceabilityStream = () => {
         style={{ borderColor: 'var(--primary-color)' }}
       ></div>
       <div className="flex flex-row items-start justify-start">
-        <div className="mx-8 w-full overflow-auto">
+        <div className="w-full overflow-auto">
           <table className="w-full border-collapse border border-gray-300">
             <thead>
               <tr className="bg-gray-400 text-white">

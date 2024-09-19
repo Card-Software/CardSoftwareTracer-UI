@@ -4,11 +4,14 @@ import { useRouter } from 'next/navigation'; // Correct import for Next.js App R
 import React, { useEffect, useState } from 'react';
 import { FiLogIn } from 'react-icons/fi'; // Importing a login icon from react-icons
 import '../styles/main.css';
+import { User } from '@/models/user';
 
 const Navbar: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(true); // Simulate login state
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
   const router = useRouter(); // Use useRouter from 'next/navigation'
+
+  const user: User | null = userAuthenticationService.getUser();
 
   const handleProfile = () => {
     console.log('Profile icon clicked');
@@ -42,8 +45,8 @@ const Navbar: React.FC = () => {
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            fill-rule="evenodd"
-            clip-rule="evenodd"
+            fillRule="evenodd"
+            clipRule="evenodd"
             d="M40.8225 11.9603V0H40.8243L54.068 17.4184L46.9231 23.0816C47.104 23.9042 47.2388 24.7441 47.3266 25.5971C47.404 26.364 47.444 27.1405 47.444 27.9275C47.444 28.4048 47.4292 28.8787 47.3988 29.3483C46.6675 41.1495 36.8653 50.4925 24.8798 50.4925C22.4573 50.4925 20.1261 50.1065 17.9392 49.4004L0 52.5412L16.5349 36.2471L40.8225 11.9603ZM54.6585 27.624V19.8409L59 23.2824L54.6585 27.624Z"
             fill="#D51E3E"
           />
@@ -53,9 +56,14 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       {loggedIn && (
-        <div className="relative flex flex-row items-center">
+        <div className="relative flex flex-row items-center gap-3">
           {/* Profile Icon */}
-          <div className="mr-4 cursor-pointer" onClick={handleProfile}>
+          <div>
+            <h3 className="text-white">
+              {user?.firstName} {user?.lastname}
+            </h3>
+          </div>
+          <div className="cursor-pointer" onClick={handleProfile}>
             <svg
               width="24"
               height="24"
@@ -76,7 +84,7 @@ const Navbar: React.FC = () => {
 
           {/* Logout Icon */}
           <div
-            className="flex cursor-pointer items-center space-x-2 text-white"
+            className="flex cursor-pointer items-center text-white"
             onClick={() => setShowLogoutMenu(!showLogoutMenu)}
           >
             <FiLogIn className="text-xl" />

@@ -86,7 +86,8 @@ const ExportModal: React.FC<ExportModalProps> = ({
   return (
     <BaseModal
       onClose={onClose}
-      onSave={() => handleExport}
+      onSave={() => handleExport()}
+      canSave={selectedSections.length > 0}
       isOpen={isOpen}
       loading={loading}
       title="Export"
