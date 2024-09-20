@@ -804,9 +804,9 @@ const PurchaseOrderPage: React.FC = () => {
                             <path
                               d="M2 2L7.5 7.5L2 13"
                               stroke="#8D8D8D"
-                              stroke-width="2.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
                             />
                           </svg>
                         )}
@@ -822,7 +822,7 @@ const PurchaseOrderPage: React.FC = () => {
                           sectionId: new ObjectId().toString(),
                           sectionName: '',
                           sectionDescription: '',
-                          assignedUser: user,
+                          assignedUser: null,
                           notes: [],
                           position: 0,
                           fileNameOnExport: '',

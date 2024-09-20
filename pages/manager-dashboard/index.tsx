@@ -23,6 +23,7 @@ import { ProductOrderSnapshot } from '@/models/product-order-snapshot';
 import { SnapshotPaginatedResult } from '@/models/snapshot-paginated-result';
 import * as XLSX from 'xlsx';
 import ArrayModal from '@/components/modals/table-modal.component';
+import { fileManagementApiProxy } from '@/proxies/file-management.proxy';
 
 const ManagerDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -91,6 +92,9 @@ const ManagerDashboard: React.FC = () => {
     key: string;
     direction: string;
   } | null>(null);
+
+  const bucketName = userAuthenticationService.getOrganization()
+    ?.s3BucketName as string;
 
   const handleNewProductOrder = () => {
     router.push('/dashboard/new-product-order');
@@ -320,19 +324,14 @@ const ManagerDashboard: React.FC = () => {
       setIsLoading(true);
 
       // Call the proxy function to get the Excel file as a Blob
-      const xlsxBlob =
-        await orderManagementApiProxy.convertSnapshotSearchToExcel(
-          filterValues,
-        );
+      const result =
+        await orderManagementApiProxy.uploadSnapshotSearchToS3(filterValues);
 
-      // Create a download link for the XLSX file
-      const xlsxUrl = window.URL.createObjectURL(xlsxBlob);
-      const a = document.createElement('a');
-      a.href = xlsxUrl;
-      a.download = 'Report.xlsx'; // Set the desired file name
-      document.body.appendChild(a); // Append the anchor to the document body
-      a.click(); // Trigger the download
-      document.body.removeChild(a); // Remove the anchor from the document body
+      const prefix = result[0];
+
+      const file = await fileManagementApiProxy.getAllFiles(bucketName, prefix);
+
+      window.open(file[0].presignedUrl, '_blank');
 
       setIsLoading(false);
     } catch (error) {
@@ -629,12 +628,6 @@ const ManagerDashboard: React.FC = () => {
                   className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
                 >
                   Clear All
-                </button>
-                <button
-                  onClick={applyFilters}
-                  className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
-                >
-                  Apply Filters
                 </button>
               </div>
             </div>

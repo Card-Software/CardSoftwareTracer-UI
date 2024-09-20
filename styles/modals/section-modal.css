@@ -4,6 +4,10 @@
   overflow-y: auto;
 }
 
+.error {
+  color: red;
+}
+
 .arrow-button {
   color: #bebebe;
   box-shadow: none !important;

@@ -43,6 +43,8 @@ const Navbar: React.FC = () => {
           viewBox="0 0 59 53"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          onClick={() => router.push('/dashboard')}
+          style={{ cursor: 'pointer' }}
         >
           <path
             fillRule="evenodd"
@@ -51,7 +53,11 @@ const Navbar: React.FC = () => {
             fill="#D51E3E"
           />
         </svg>
-        <div className="ms-6 cursor-pointer pt-3 text-lg font-bold text-gray-300">
+        <div
+          onClick={() => router.push('/dashboard')}
+          style={{ cursor: 'pointer' }}
+          className="ms-6 cursor-pointer pt-3 text-lg font-bold text-gray-300"
+        >
           Card Software Tracer
         </div>
       </div>

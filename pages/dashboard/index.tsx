@@ -249,7 +249,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Layout>
-      <LoadingOverlay show={isLoading} />
+      <LoadingOverlay show={fetchingPo.current} />
       <div className="tool-bar">
         <div className="tool-bar-title">
           <h1>Dashboard</h1>
