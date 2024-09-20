@@ -301,7 +301,7 @@ const Dashboard: React.FC = () => {
                   type="text"
                   name="externalPoNumber"
                   id="externalPoNumber"
-                  value={filterInputs.externalPoNumber || ''}
+                  value={filterValues.externalPoNumber || ''}
                   onChange={handleFilterChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
