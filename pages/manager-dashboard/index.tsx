@@ -382,9 +382,11 @@ const ManagerDashboard: React.FC = () => {
         }
 
         // Both dates are non-null, so we compare normally
-        return sortConfig.direction === 'ascending'
-          ? dateA - dateB
-          : dateB - dateA;
+        if (dateA !== null && dateB !== null) {
+          return sortConfig.direction === 'ascending'
+            ? dateA - dateB
+            : dateB - dateA;
+        }
       }
 
       // Handle strings with localeCompare
@@ -395,15 +397,21 @@ const ManagerDashboard: React.FC = () => {
       }
 
       // For other value types (numbers, etc.)
-      if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+      if (aValue === undefined && bValue !== undefined) {
+        return sortConfig.direction === 'ascending' ? 1 : -1; // undefined goes to the bottom
+      }
+      if (aValue !== undefined && bValue === undefined) {
+        return sortConfig.direction === 'ascending' ? -1 : 1; // undefined goes to the top
+      }
 
-      // Fallback: handle missing or falsy values (e.g., null, undefined)
-      if (!aValue && bValue)
-        return sortConfig.direction === 'ascending' ? 1 : -1;
-      if (aValue && !bValue)
-        return sortConfig.direction === 'ascending' ? -1 : 1;
+      if (aValue !== undefined && bValue !== undefined) {
+        if (aValue < bValue)
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (aValue > bValue)
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
 
+      // If both are undefined or equal
       return 0;
     });
 
