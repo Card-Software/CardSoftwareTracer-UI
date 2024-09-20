@@ -178,7 +178,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
       setLoading(true);
       const response = await fileManagementApiProxy.UploadFile(
         bucketName,
-        productOrder!,
+        productOrderId!,
         tracerStreamId!,
         initialSection.sectionId,
         file,
