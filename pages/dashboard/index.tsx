@@ -269,6 +269,10 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
       </div>
+      <div
+        className="my-4 w-full border-b-4"
+        style={{ borderColor: 'var(--primary-color)' }}
+      />
       {isFilterVisible && (
         <div className="my-6 rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
           <div className="grid grid-cols-1 gap-6">
@@ -494,7 +498,6 @@ const Dashboard: React.FC = () => {
           <p>No product orders available.</p>
         )}
       </div>
-
       <footer
         className="stream-footer fixed bottom-0 flex w-full items-center justify-between p-4"
         style={{

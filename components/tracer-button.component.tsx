@@ -21,7 +21,7 @@ const TracerButton: React.FC<TracerButtonProps> = ({
       type={type}
       disabled={disabled}
       className="w-fit-content text-nowrap rounded-md px-4 py-2 text-white"
-      style={{ backgroundColor: 'var(--primary-color)' }}
+      style={{ backgroundColor: 'var(--primary-button)' }}
     >
       {icon && <span className="mr-2 inline-block">{icon}</span>}
       <span>{name}</span>

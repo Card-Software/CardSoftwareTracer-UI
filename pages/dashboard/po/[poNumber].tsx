@@ -598,10 +598,15 @@ const PurchaseOrderPage: React.FC = () => {
                     await handleDeleteProductOrder(productOrder);
                     router.push('/Dashboard');
                   }}
-                  className="border-1 border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
+                  className="border-1 border-red-500 bg-red-500 font-medium text-white hover:bg-red-400 hover:text-white"
                   style={{ borderRadius: '10px 10px 10px 10px' }}
                 >
-                  Delete PO
+                  <div className="flex flex-row align-middle">
+                    <div className="pe-1 pt-1">
+                      <FaTrash color="white" />
+                    </div>
+                    <p> Delete PO </p>
+                  </div>
                 </button>
               )}
             </div>
@@ -706,7 +711,7 @@ const PurchaseOrderPage: React.FC = () => {
                             {section.sectionName}
                             {section.files.length > 0 ? (
                               <FaCheckCircle
-                                color="green"
+                                color="#0080fc"
                                 style={{ marginLeft: '10px' }}
                               />
                             ) : (
@@ -722,7 +727,7 @@ const PurchaseOrderPage: React.FC = () => {
                                 handleDeleteSection(stream, section); // Call delete function
                               }}
                             >
-                              <FaTrash />
+                              <FaTrash color="gray" />
                             </DeleteButton>
                           </CardTitle>
                           <CardDetails>
