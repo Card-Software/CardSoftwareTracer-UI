@@ -417,25 +417,27 @@ const ManagerDashboard: React.FC = () => {
           <div className="me-8 text-xl">
             <h1>Managers Dashboard</h1>
           </div>
-          <div>
-            <TracerButton
-              name="Add New PO"
-              icon={<HiPlus />}
-              onClick={handleNewProductOrder}
-            />
-          </div>
-          <div className="ml-3">
-            <TracerButton
-              name="Export"
-              icon={<FaFileExport />}
-              onClick={handleExportToXlsx}
-            />
-          </div>
+
           <div className="ml-3">Total Results: {totalResults}</div>
-          <div className="ml-auto">
+          <div className="ml-auto flex flex-row">
+            <div>
+              <TracerButton
+                name="Add New PO"
+                icon={<HiPlus />}
+                onClick={handleNewProductOrder}
+              />
+            </div>
+            <div className="ml-3">
+              <TracerButton
+                name="Export"
+                icon={<FaFileExport />}
+                onClick={handleExportToXlsx}
+              />
+            </div>
+
             <button
               onClick={toggleFilterVisibility}
-              className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+              className="ml-3 rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
             >
               <HiFilter className="mr-2 inline-block" />
               Filter
@@ -443,7 +445,7 @@ const ManagerDashboard: React.FC = () => {
           </div>
         </div>
         {isFilterVisible && (
-          <div className="my-4 rounded-md border border-gray-300 bg-gray-100 p-4">
+          <div className="my-6 rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label
@@ -458,7 +460,7 @@ const ManagerDashboard: React.FC = () => {
                   id="productOrderName"
                   value={filterValues.productOrderNumber || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
               </div>
               <div>
@@ -474,7 +476,7 @@ const ManagerDashboard: React.FC = () => {
                   id="externalPoNumber"
                   value={filterValues.externalPoNumber || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
               </div>
               <div>
@@ -489,7 +491,7 @@ const ManagerDashboard: React.FC = () => {
                   id="assignedUserRef"
                   value={filterValues.assignedUserRef || ''}
                   onChange={handleUserChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select an associate</option>
                   {allUsers.map((user) => (
@@ -499,7 +501,7 @@ const ManagerDashboard: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div>
+              <div className="w-full">
                 <label
                   htmlFor="startDate"
                   className="block text-sm font-medium text-gray-700"
@@ -513,7 +515,7 @@ const ManagerDashboard: React.FC = () => {
                       : null
                   }
                   onChange={(date) => handleDateChange('startDate', date)}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   dateFormat="yyyy/MM/dd"
                 />
               </div>
@@ -529,7 +531,7 @@ const ManagerDashboard: React.FC = () => {
                     filterValues.endDate ? filterValues.endDate.toDate() : null
                   }
                   onChange={(date) => handleDateChange('endDate', date)}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   dateFormat="yyyy/MM/dd"
                 />
               </div>
@@ -545,7 +547,7 @@ const ManagerDashboard: React.FC = () => {
                   id="siteRef"
                   value={filterValues.siteRef || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select an site</option>
                   {allSites.map((site) => (
@@ -567,7 +569,7 @@ const ManagerDashboard: React.FC = () => {
                   id="planningStatus"
                   value={filterValues.planningStatus || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
                   {Object.values(Statuses).map((status) => (
@@ -589,7 +591,7 @@ const ManagerDashboard: React.FC = () => {
                   id="ntStatus"
                   value={filterValues.ntStatus || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
                   {Object.values(Statuses).map((status) => (
@@ -611,7 +613,7 @@ const ManagerDashboard: React.FC = () => {
                   id="sacStatus"
                   value={filterValues.sacStatus || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
                   {Object.values(Statuses).map((status) => (
@@ -624,9 +626,9 @@ const ManagerDashboard: React.FC = () => {
               <div className="col-span-3 flex justify-end gap-2">
                 <button
                   onClick={clearFilters}
-                  className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                  className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
                 >
-                  Clear
+                  Clear All
                 </button>
                 <button
                   onClick={applyFilters}
@@ -780,9 +782,14 @@ const ManagerDashboard: React.FC = () => {
               </thead>
               <tbody className="cursor-pointer divide-y divide-gray-200 bg-white">
                 {filteredProductOrders.length > 0 ? (
-                  filteredProductOrders.map((order) => {
+                  filteredProductOrders.map((order, index) => {
                     return (
-                      <tr key={order.id}>
+                      <tr
+                        key={order.id}
+                        className={`${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
+                        } border-b border-gray-200`}
+                      >
                         <td
                           className=" whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
@@ -1040,3 +1047,6 @@ const ManagerDashboard: React.FC = () => {
 };
 
 export default withAuth(ManagerDashboard);
+function renderInputContainer() {
+  throw new Error('Function not implemented.');
+}

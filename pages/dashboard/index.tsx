@@ -269,9 +269,13 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
       </div>
+      <div
+        className="my-4 w-full border-b-4"
+        style={{ borderColor: 'var(--primary-color)' }}
+      />
       {isFilterVisible && (
-        <div className="my-6 rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="my-6 flex flex-col rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
+          <div className="grid flex-grow grid-cols-3 gap-4">
             <div>
               <label
                 htmlFor="productOrderName"
@@ -285,7 +289,7 @@ const Dashboard: React.FC = () => {
                 id="productOrderName"
                 value={filterValues.productOrderNumber || ''}
                 onChange={handleFilterChange}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div>
@@ -301,7 +305,7 @@ const Dashboard: React.FC = () => {
                 id="externalPoNumber"
                 value={filterValues.externalPoNumber || ''}
                 onChange={handleFilterChange}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
             </div>
             <div>
@@ -316,7 +320,7 @@ const Dashboard: React.FC = () => {
                 id="assignedUserRef"
                 value={filterValues.assignedUserRef || ''}
                 onChange={handleUserChange}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select an associate</option>
                 {allUsers.map((user) => (
@@ -326,6 +330,7 @@ const Dashboard: React.FC = () => {
                 ))}
               </select>
             </div>
+
             <div>
               <label
                 htmlFor="startDate"
@@ -340,7 +345,7 @@ const Dashboard: React.FC = () => {
                     : null
                 }
                 onChange={(date) => handleDateChange('startDate', date)}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 dateFormat="yyyy/MM/dd"
               />
             </div>
@@ -356,32 +361,11 @@ const Dashboard: React.FC = () => {
                   filterValues.endDate ? filterValues.endDate.toDate() : null
                 }
                 onChange={(date) => handleDateChange('endDate', date)}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 dateFormat="yyyy/MM/dd"
               />
             </div>
-            <div>
-              <label
-                htmlFor="siteRef"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Site
-              </label>
-              <select
-                name="siteRef"
-                id="siteRef"
-                value={filterValues.siteRef || ''}
-                onChange={handleFilterChange}
-                className="input-custom"
-              >
-                <option value="">Select a site</option>
-                {allSites.map((site) => (
-                  <option key={site.id} value={site.id}>
-                    {site.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+
             <div>
               <label
                 htmlFor="planningStatus"
@@ -394,7 +378,7 @@ const Dashboard: React.FC = () => {
                 id="planningStatus"
                 value={filterValues.planningStatus || ''}
                 onChange={handleFilterChange}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -404,6 +388,7 @@ const Dashboard: React.FC = () => {
                 ))}
               </select>
             </div>
+
             <div>
               <label
                 htmlFor="ntStatus"
@@ -416,7 +401,7 @@ const Dashboard: React.FC = () => {
                 id="ntStatus"
                 value={filterValues.ntStatus || ''}
                 onChange={handleFilterChange}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -438,7 +423,7 @@ const Dashboard: React.FC = () => {
                 id="sacStatus"
                 value={filterValues.sacStatus || ''}
                 onChange={handleFilterChange}
-                className="input-custom"
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
                 {Object.values(Statuses).map((status) => (
@@ -448,12 +433,33 @@ const Dashboard: React.FC = () => {
                 ))}
               </select>
             </div>
+            <div>
+              <label
+                htmlFor="siteRef"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                Site
+              </label>
+              <select
+                name="siteRef"
+                id="siteRef"
+                value={filterValues.siteRef || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select a site</option>
+                {allSites.map((site) => (
+                  <option key={site.id} value={site.id}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-
-          <div className="mt-6 flex justify-end space-x-3">
+          <div className="mt-4 flex w-full justify-end">
             <button
               onClick={clearFilters}
-              className="rounded-md border border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 transition-colors duration-200 hover:bg-blue-500 hover:text-white"
+              className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
             >
               Clear All
             </button>
@@ -476,7 +482,6 @@ const Dashboard: React.FC = () => {
           <p>No product orders available.</p>
         )}
       </div>
-
       <footer
         className="stream-footer fixed bottom-0 flex w-full items-center justify-between p-4"
         style={{
