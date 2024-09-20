@@ -21,7 +21,6 @@ import { ObjectId } from 'bson';
 import AlertModal from '@/components/modals/alert-modal-component';
 import toast, { Toaster } from 'react-hot-toast';
 
-
 const Details = () => {
   // #region States
   const router = useRouter();
@@ -51,7 +50,8 @@ const Details = () => {
   // #endregion
 
   // #region React Toast messages
-  const successToast = () => toast.success('Traceability stream updated successfully!');
+  const successToast = () =>
+    toast.success('Traceability stream updated successfully!');
   const errorToast = () => toast.error('Failed to save traceability stream.');
   // #endregion
 
@@ -184,7 +184,7 @@ const Details = () => {
       }
       setTimeout(() => {
         router.push('/traceability-stream');
-      }, 2000);
+      }, 2500);
     } catch (error) {
       setError('Failed to save traceability stream.');
       errorToast();

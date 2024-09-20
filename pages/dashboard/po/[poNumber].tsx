@@ -103,8 +103,15 @@ const PurchaseOrderPage: React.FC = () => {
   const notifyDelete = () =>
     toast.success('Product Order deleted successfully!');
   const notifyDeleteError = () => toast.error('Failed to delete Product Order');
-  const notifyDeleteStream = () => toast.success('Tracer Stream deleted successfully!');
-  const notifyDeleteErrorStream = () => toast.error('Failed to delete Tracer Stream');
+  const notifyDeleteStream = () =>
+    toast.success('Tracer Stream deleted successfully!');
+  const notifyDeleteErrorStream = () =>
+    toast.error('Failed to delete Tracer Stream');
+
+  const notifyDeleteSection = () =>
+    toast.success('Section deleted successfully!');
+  const notifyDeleteErrorSection = () =>
+    toast.error('Failed to delete Section');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -880,7 +887,7 @@ const PurchaseOrderPage: React.FC = () => {
                   selectedStream as TracerStreamExtended,
                   sectionToDelete as SectionModel,
                 );
-                notifyDelete();
+                notifyDeleteSection();
               }}
             />
           )}
