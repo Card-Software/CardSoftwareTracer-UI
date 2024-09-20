@@ -18,6 +18,7 @@ import { Statuses } from '@/models/enum/statuses';
 import { Site } from '@/models/site';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { User } from '@/models/user';
+import toast, { Toast } from 'react-hot-toast';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -214,35 +215,34 @@ const Dashboard: React.FC = () => {
   };
   // #endregion
 
+  const successDeleteMessage = () =>
+    toast.success('Product Order deleted successfully!');
+  const errorDeleteMessage = () =>
+    toast.error('Failed to delete Product Order');
+
   // #region Delete Product Order
   const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
     if (!orderToDelete.id) {
       return;
     }
-
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this product order?',
-    );
-    if (confirmDelete) {
-      try {
-        setIsLoading(true);
-        await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
-        setProductOrders(
-          productOrders.filter((order) => order.id !== orderToDelete.id),
-        );
-        setFilteredProductOrders(
-          filteredProductOrders.filter(
-            (order) => order.id !== orderToDelete.id,
-          ),
-        );
-        alert('Product Order deleted successfully!');
-      } catch (error) {
-        console.error('Failed to delete Product Order', error);
-        alert('Failed to delete Product Order');
-      } finally {
-        setIsLoading(false);
-      }
+    // if (confirmDelete) {
+    try {
+      setIsLoading(true);
+      await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
+      setProductOrders(
+        productOrders.filter((order) => order.id !== orderToDelete.id),
+      );
+      setFilteredProductOrders(
+        filteredProductOrders.filter((order) => order.id !== orderToDelete.id),
+      );
+      successDeleteMessage();
+    } catch (error) {
+      console.error('Failed to delete Product Order', error);
+      errorDeleteMessage();
+    } finally {
+      setIsLoading(false);
     }
+    // }
   };
 
   // #endregion
@@ -252,7 +252,9 @@ const Dashboard: React.FC = () => {
       <LoadingOverlay show={fetchingPo.current} />
       <div className="tool-bar">
         <div className="tool-bar-title">
-          <h1>Dashboard</h1>
+          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
+            Dashboard
+          </h1>
         </div>
         <div className="tool-bar-buttons">
           <TracerButton

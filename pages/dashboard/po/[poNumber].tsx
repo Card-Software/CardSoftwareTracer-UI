@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import '../../../styles/dashboard.css';
@@ -45,6 +45,8 @@ import SiblingProductOrdersModal from '@/components/modals/sibling-product-order
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import { Note } from '@/models/note';
+import AlertModal from '@/components/modals/alert-modal-component';
+import toast, { Toaster } from 'react-hot-toast';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -85,6 +87,31 @@ const PurchaseOrderPage: React.FC = () => {
 
   const isAdmin = user.role.includes('Admin');
   const currentUser = userAuthenticationService.getUser() as User;
+
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isAlertModalOpenStream, setIsAlertModalOpenStream] = useState(false);
+  const [isAlertModalOpenSection, setIsAlertModalOpenSection] = useState(false);
+  const [poToDelete, setPoToDelete] = useState<ProductOrder | null>(null);
+  const [streamToDeleteModal, setStreamToDelete] =
+    useState<TracerStream | null>(null);
+  const [sectionToDelete, setSectionToDelete] = useState<SectionModel | null>(
+    null,
+  );
+
+  const notify = () => toast.success('Product Order updated successfully!');
+  const notifyError = () => toast.error('Failed to save Product Order');
+  const notifyDelete = () =>
+    toast.success('Product Order deleted successfully!');
+  const notifyDeleteError = () => toast.error('Failed to delete Product Order');
+  const notifyDeleteStream = () =>
+    toast.success('Tracer Stream deleted successfully!');
+  const notifyDeleteErrorStream = () =>
+    toast.error('Failed to delete Tracer Stream');
+
+  const notifyDeleteSection = () =>
+    toast.success('Section deleted successfully!');
+  const notifyDeleteErrorSection = () =>
+    toast.error('Failed to delete Section');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -245,21 +272,19 @@ const PurchaseOrderPage: React.FC = () => {
     if (!orderToDelete.id) {
       return;
     }
-
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this product order?',
-    );
-    if (confirmDelete) {
+    if (poToDelete) {
       try {
         setIsLoading(true);
         await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
-        alert('Product Order deleted successfully!');
+        notifyDelete();
       } catch (error) {
         console.error('Failed to delete Product Order', error);
-        alert('Failed to delete Product Order');
+        notifyDeleteError();
       } finally {
         setIsLoading(false);
       }
+      setPoToDelete(null);
+      setIsAlertModalOpen(false);
     }
   };
 
@@ -300,17 +325,16 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const handleDeleteStream = (streamToDelete: TracerStreamExtended) => {
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this stream?',
-    );
-    if (confirmDelete && productOrder) {
+    if (streamToDeleteModal && productOrder) {
       const updatedStreams = productOrder.childrenTracerStreams.filter(
         (stream) => stream.id !== streamToDelete.id,
       );
       setProductOrder({
         ...productOrder,
-        childrenTracerStreams: updatedStreams,
+        childrenTracerStreams: updatedStreams || [],
       });
+      setStreamToDelete(null);
+      setIsAlertModalOpenStream(false);
     }
   };
 
@@ -406,12 +430,11 @@ const PurchaseOrderPage: React.FC = () => {
     stream: TracerStreamExtended,
     section: SectionModel,
   ) => {
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this section?',
-    );
-    if (confirmDelete && productOrder) {
+    console.log('Selected Stream:', stream);
+    console.log('Section to delete:', section);
+    if (sectionToDelete && productOrder) {
       const updatedStreams = productOrder.childrenTracerStreams.map((str) => {
-        if (str.id === stream.id) {
+        if (str.id) {
           return {
             ...str,
             sections: str.sections.filter(
@@ -425,6 +448,8 @@ const PurchaseOrderPage: React.FC = () => {
         ...productOrder,
         childrenTracerStreams: updatedStreams,
       });
+      setSectionToDelete(null);
+      setIsAlertModalOpenSection(false);
     }
   };
 
@@ -542,14 +567,14 @@ const PurchaseOrderPage: React.FC = () => {
           insertLogs();
           getUpdatedLogs(productOrder.id as string);
           router.push(`/dashboard/po/${productOrder.id as string}`);
-          alert('Product Order updated successfully!');
+          notify();
         } else {
-          alert(`Failed to save Product Order. Status: ${response.status}`);
+          notifyError();
         }
       } catch (error) {
         setIsLoading(false);
         console.error('Failed to save Product Order', error);
-        alert('Failed to save Product Order');
+        notifyError();
       }
     }
   };
@@ -578,7 +603,9 @@ const PurchaseOrderPage: React.FC = () => {
         <Section>
           <div className="tool-bar">
             <div className="tool-bar-title">
-              <h1>Product Order Details</h1>
+              <h1 className="text-3xl font-bold text-[var(--primary-color)]">
+                Product Order Details
+              </h1>
             </div>
             <div className="tool-bar-buttons">
               <TracerButton
@@ -594,9 +621,9 @@ const PurchaseOrderPage: React.FC = () => {
               />
               {isAdmin && (
                 <button
-                  onClick={async () => {
-                    await handleDeleteProductOrder(productOrder);
-                    router.push('/Dashboard');
+                  onClick={() => {
+                    setPoToDelete(productOrder);
+                    setIsAlertModalOpen(true);
                   }}
                   className="border-1 border-red-500 bg-red-500 font-medium text-white hover:bg-red-400 hover:text-white"
                   style={{ borderRadius: '10px 10px 10px 10px' }}
@@ -645,20 +672,24 @@ const PurchaseOrderPage: React.FC = () => {
                 <Card>
                   <div className="flex w-full flex-row justify-between">
                     <div className="flex flex-col">
-                      <p>
-                        <strong>Name:</strong>
-                      </p>
+                      <h1 className="text-xl font-bold text-[var(--primary-color)]">
+                        Name:
+                      </h1>
                       <p className="text-base text-gray-500">
                         {stream.friendlyName}
                       </p>
                       <p>
-                        <strong>Product:</strong>
+                        <h1 className="text-xl font-bold text-[var(--primary-color)]">
+                          Product:
+                        </h1>
                       </p>
                       <p className="text-base text-gray-500">
                         {stream.product}
                       </p>
                       <p>
-                        <strong>Quantity:</strong>
+                        <h1 className="text-xl font-bold text-[var(--primary-color)]">
+                          Quantity:
+                        </h1>
                       </p>
                       <p className="text-base text-gray-500">
                         {stream.quantity}
@@ -700,7 +731,8 @@ const PurchaseOrderPage: React.FC = () => {
                         className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteStream(stream);
+                          setStreamToDelete(stream);
+                          setIsAlertModalOpenStream(true);
                         }}
                       >
                         <FaTrash />
@@ -741,8 +773,9 @@ const PurchaseOrderPage: React.FC = () => {
                               <DeleteButton
                                 className="square flex justify-end"
                                 onClick={(e) => {
-                                  e.stopPropagation(); // Prevent parent click event from firing
-                                  handleDeleteSection(stream, section); // Call delete function
+                                  e.stopPropagation();
+                                  setSectionToDelete(section);
+                                  setIsAlertModalOpenSection(true);
                                 }}
                               >
                                 <FaTrash color="gray" />
@@ -841,6 +874,62 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
           </CardContainer>
+
+          {isAlertModalOpen && (
+            <AlertModal
+              isOpen={isAlertModalOpen}
+              type="delete"
+              title="Delete Product Order"
+              message="Are you sure you want to delete this product order?"
+              icon={<FaTrash className="h-6 w-6 text-red-500" />}
+              onClose={() => {
+                setIsAlertModalOpen(false);
+                setPoToDelete(null);
+              }}
+              onConfirm={() => {
+                handleDeleteProductOrder(poToDelete as ProductOrder);
+                notifyDelete();
+                router.push('/dashboard');
+              }}
+            />
+          )}
+          {isAlertModalOpenStream && (
+            <AlertModal
+              isOpen={isAlertModalOpenStream}
+              type="delete"
+              title="Delete Tracer Stream"
+              message="Are you sure you want to delete this tracer stream?"
+              icon={<FaTrash className="h-6 w-6 text-red-500" />}
+              onClose={() => {
+                setIsAlertModalOpenStream(false);
+                setStreamToDelete(null);
+              }}
+              onConfirm={() => {
+                handleDeleteStream(streamToDeleteModal as TracerStreamExtended);
+                notifyDeleteStream();
+              }}
+            />
+          )}
+          {isAlertModalOpenSection && (
+            <AlertModal
+              isOpen={isAlertModalOpenSection}
+              type="delete"
+              title="Delete Section"
+              message="Are you sure you want to delete this section?"
+              icon={<FaTrash className="h-6 w-6 text-red-500" />}
+              onClose={() => {
+                setIsAlertModalOpenSection(false);
+                setSectionToDelete(null);
+              }}
+              onConfirm={() => {
+                handleDeleteSection(
+                  selectedStream as TracerStreamExtended,
+                  sectionToDelete as SectionModel,
+                );
+                notifyDeleteSection();
+              }}
+            />
+          )}
           {childrenPos.length > 0 && (
             <div className="mt-8">
               <h2 className="text-xl font-bold">Linked Product Orders</h2>
@@ -876,11 +965,14 @@ const PurchaseOrderPage: React.FC = () => {
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            onClick={() => {
+              handleSave();
+            }}
             className="ml-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
             {isLoading ? 'Saving...' : 'Save'}
           </button>
+          <Toaster />
         </div>
       </footer>
       <SectionModal

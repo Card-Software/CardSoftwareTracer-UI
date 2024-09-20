@@ -18,6 +18,8 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import withAuth from '@/hoc/auth';
 import { User } from '@/models/user';
 import { ObjectId } from 'bson';
+import AlertModal from '@/components/modals/alert-modal-component';
+import toast, { Toaster } from 'react-hot-toast';
 
 const Details = () => {
   // #region States
@@ -38,12 +40,19 @@ const Details = () => {
     ownerRef: userAuthenticationService.getOrganization()?.id || '',
     sections: [],
   });
-
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [sectionToDelete, setSectionToDelete] = useState<Section | null>(null);
   const organization: Organization =
     userAuthenticationService.getOrganization() as Organization;
   const user: User = userAuthenticationService.getUser() as User;
   const IsAdmin = user.role.includes('Admin');
   const isEditing = !!query.id;
+  // #endregion
+
+  // #region React Toast messages
+  const successToast = () =>
+    toast.success('Traceability stream updated successfully!');
+  const errorToast = () => toast.error('Failed to save traceability stream.');
   // #endregion
 
   // #region Use Effects
@@ -64,10 +73,10 @@ const Details = () => {
     });
   };
 
-  const deleteProcess = (id: string) => {
-    if (confirm('Are you sure you want to delete this stage?')) {
+  const deleteProcess = () => {
+    if (sectionToDelete) {
       const filteredProcesses = tracerStream.sections.filter(
-        (process) => process.sectionId !== id,
+        (process) => process.sectionId !== sectionToDelete.sectionId,
       );
       const updatedProcesses = filteredProcesses.map((process, index) => ({
         ...process,
@@ -75,6 +84,8 @@ const Details = () => {
       }));
 
       setTracerStream({ ...tracerStream, sections: updatedProcesses });
+      setSectionToDelete(null);
+      setIsAlertModalOpen(false);
     }
   };
 
@@ -162,19 +173,21 @@ const Details = () => {
           tracerStream,
         );
         if (result) {
-          alert('Traceability stream updated successfully!');
+          successToast();
         }
       } else {
-        // Create new traceability
         const result =
           await orderManagementApiProxy.createTraceability(tracerStream);
         if (result) {
-          alert('Traceability stream created successfully!');
+          successToast();
         }
       }
-      router.push('/traceability-stream');
+      setTimeout(() => {
+        router.push('/traceability-stream');
+      }, 2500);
     } catch (error) {
       setError('Failed to save traceability stream.');
+      errorToast();
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -385,7 +398,10 @@ const Details = () => {
                               Edit
                             </button>
                             <button
-                              onClick={() => deleteProcess(section.sectionId)}
+                              onClick={() => {
+                                setSectionToDelete(section);
+                                setIsAlertModalOpen(true);
+                              }}
                               className="square text-red-500 hover:text-red-700"
                             >
                               <FaTrash className="h-5 w-5 fill-black" />
@@ -401,6 +417,21 @@ const Details = () => {
             </Droppable>
           </DragDropContext>
         </div>
+
+        {isAlertModalOpen && (
+          <AlertModal
+            isOpen={isAlertModalOpen}
+            type="delete"
+            title="Confirmar eliminación"
+            message="Are you sure you want to delete this section?"
+            icon={<FaTrash className="h-6 w-6 text-red-500" />}
+            onClose={() => {
+              setIsAlertModalOpen(false);
+              setSectionToDelete(null);
+            }}
+            onConfirm={deleteProcess}
+          />
+        )}
 
         <SectionModal
           isOpen={isModalOpen}
@@ -432,6 +463,7 @@ const Details = () => {
               {isLoading ? 'Saving...' : 'Save'}
             </button>
           )}
+          <Toaster />
         </div>
       </footer>
     </Layout>

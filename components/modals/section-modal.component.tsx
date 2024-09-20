@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, use } from 'react';
-import { FaChevronRight, FaChevronLeft } from 'react-icons/fa';
+import { FaChevronRight, FaChevronLeft, FaTrash } from 'react-icons/fa';
 import BaseModal from '@/components/_base/base-modal.component'; // Import the BaseModal component
 import { Section } from '@/models/section';
 import { fileManagementApiProxy } from '@/proxies/file-management.proxy';
@@ -19,6 +19,7 @@ import TracerButton from '../tracer-button.component';
 import DragAndDropArea from '../_base/drag-and-drop-area';
 import { forkJoin, of } from 'rxjs';
 import { from } from 'rxjs';
+import AlertModal from './alert-modal-component';
 
 const isUserValid = (value: any): value is User => {
   return (
@@ -104,6 +105,8 @@ const SectionModal: React.FC<SectionModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [prefix, setPrefix] = useState('');
   const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<S3ObjectDto | null>(null);
   const hasPageBeenRendered = useRef({ teamLabelsLoaded: false });
 
   const organization = userAuthenticationService.getOrganization();
@@ -198,13 +201,15 @@ const SectionModal: React.FC<SectionModalProps> = ({
   };
 
   const handleFileDelete = async (s3Object: S3ObjectDto) => {
-    if (confirm('Are you sure you want to delete this file?')) {
+    if (fileToDelete) {
       await fileManagementApiProxy.DeleteFile(bucketName!, s3Object.name!);
       try {
         await getAllFiles();
       } catch (error) {
         console.error('Error fetching files:', error);
       }
+      setFileToDelete(null);
+      setIsAlertModalOpen(false);
     }
   };
 
@@ -484,9 +489,10 @@ const SectionModal: React.FC<SectionModalProps> = ({
                                 }}
                               />
                               <button
-                                className="cancel-button"
+                                className="cancel-button ml-3"
                                 onClick={() => {
-                                  handleFileDelete(s3Object);
+                                  setFileToDelete(s3Object);
+                                  setIsAlertModalOpen(true);
                                 }}
                                 type="button"
                               >
@@ -517,6 +523,18 @@ const SectionModal: React.FC<SectionModalProps> = ({
           </div>
         </div>
       )}
+      <AlertModal
+        isOpen={isAlertModalOpen}
+        type="delete"
+        title="Delete File"
+        message="Are you sure you want to delete this file?"
+        icon={<FaTrash className="h-6 w-6 text-red-500" />}
+        onClose={() => {
+          setIsAlertModalOpen(false);
+          setFileToDelete(null);
+        }}
+        onConfirm={() => handleFileDelete(fileToDelete!)}
+      />
     </BaseModal>
   );
 };

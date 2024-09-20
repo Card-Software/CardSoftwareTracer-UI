@@ -28,6 +28,7 @@ import SiblingProductOrdersModal from '@/components/modals/sibling-product-order
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import { Note } from '@/models/note';
+import toast, { Toaster } from 'react-hot-toast';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -60,6 +61,9 @@ const NewProductOrder: React.FC = () => {
 
   const [isSiblingProductOrderModalOpen, setIsSiblingProductOrderModalOpen] =
     useState(false);
+
+  // Toast messages
+  const successPO = () => toast.success('PO successfully created');
 
   useEffect(() => {
     // Set the default value for the date input in the form
@@ -159,10 +163,9 @@ const NewProductOrder: React.FC = () => {
       if (process.env.NEXT_PUBLIC_ENV === 'prod') {
         emailService.sendPoCreationEmail(data.productOrderNumber);
       }
-
-      alert('PO successfully created');
-
-      router.push(`/dashboard`);
+      setTimeout(() => {
+        router.push(`/dashboard`);
+      }, 1500);
     } catch (error) {
       console.error('Failed to save Product Order', error);
     } finally {
@@ -289,9 +292,11 @@ const NewProductOrder: React.FC = () => {
           <button
             type="submit"
             className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
+            onClick={() => successPO()}
           >
             Save
           </button>
+          <Toaster />
         </footer>
       </form>
       {isModalOpen && (
