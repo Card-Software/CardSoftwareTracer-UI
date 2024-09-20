@@ -197,7 +197,7 @@ class OrderManagementApiProxy {
     }
   }
 
-  async convertSnapshotSearchToExcel(filter: PoSearchFilters): Promise<Blob> {
+  async uploadSnapshotSearchToS3(filter: PoSearchFilters): Promise<string[]> {
     try {
       const response = await axiosInstance.post(
         'ProductOrderController/snapshot/excel',
@@ -206,7 +206,6 @@ class OrderManagementApiProxy {
           headers: {
             'Content-Type': 'application/json',
           },
-          responseType: 'blob',
         },
       );
       return response.data;

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useMemo, useRef, useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/dashboard.css';
 import TracerButton from '@/components/tracer-button.component';
@@ -23,6 +23,7 @@ import { ProductOrderSnapshot } from '@/models/product-order-snapshot';
 import { SnapshotPaginatedResult } from '@/models/snapshot-paginated-result';
 import * as XLSX from 'xlsx';
 import ArrayModal from '@/components/modals/table-modal.component';
+import { fileManagementApiProxy } from '@/proxies/file-management.proxy';
 
 const ManagerDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,7 +46,8 @@ const ManagerDashboard: React.FC = () => {
     setModalTitle('');
     setModalData([]);
   };
-
+  const hasPageBeenRendered = useRef(false); // Track initial render
+  const isLoadingRef = useRef(false); // Track loading state
   const router = useRouter();
   const [productOrders, setProductOrders] = useState<ProductOrderSnapshot[]>(
     [],
@@ -53,31 +55,21 @@ const ManagerDashboard: React.FC = () => {
   const [filteredProductOrders, setFilteredProductOrders] = useState<
     ProductOrderSnapshot[]
   >([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
 
-  const [filterInputs, setFilterInputs] = useState<PoSearchFilters>({
-    productOrderNumber: '',
-    externalPoNumber: '',
-    startDate: null,
-    endDate: null,
-    siteRef: '',
-    planningStatus: '',
-    ntStatus: '',
-    sacStatus: '',
-    assignedUserRef: '',
-  });
-
   const [filterValues, setFilterValues] = useState<PoSearchFilters>({
-    productOrderNumber: '',
-    externalPoNumber: '',
+    productOrderNumber: null,
+    externalPoNumber: null,
     startDate: null,
     endDate: null,
-    siteRef: '',
-    planningStatus: '',
-    ntStatus: '',
-    sacStatus: '',
-    assignedUserRef: '',
+    siteRef: null,
+    planningStatus: null,
+    ntStatus: null,
+    sacStatus: null,
+    assignedUserRef: null,
+    pageSize: 50,
+    pageNumber: 1,
   });
 
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -100,23 +92,31 @@ const ManagerDashboard: React.FC = () => {
     key: string;
     direction: string;
   } | null>(null);
-  let loadingOrders = false;
+
+  const bucketName = userAuthenticationService.getOrganization()
+    ?.s3BucketName as string;
 
   const handleNewProductOrder = () => {
     router.push('/dashboard/new-product-order');
   };
 
   useEffect(() => {
-    if (!router.isReady) return;
+    const organization = userAuthenticationService.getOrganization();
+    if (organization) {
+      setAllSites(organization.sites || []);
+      setAllUsers(organization.users || []);
+    }
+  }, []);
+
+  // Handle query parameters and filter initialization
+  useEffect(() => {
+    if (!router.isReady) return; // Wait for the route to be ready
     const { query } = router;
 
-    const getStringValue = (value: string | string[] | undefined): string => {
-      if (Array.isArray(value)) {
-        return value[0] || '';
-      }
-      return value || '';
-    };
+    const getStringValue = (value: string | string[] | undefined): string =>
+      Array.isArray(value) ? value[0] || '' : value || '';
 
+    // Extract initial filters from the query params
     const initialFilters = {
       productOrderNumber: getStringValue(query.productOrderNumber),
       externalPoNumber: getStringValue(query.externalPoNumber),
@@ -129,53 +129,82 @@ const ManagerDashboard: React.FC = () => {
       ntStatus: getStringValue(query.ntStatus),
       sacStatus: getStringValue(query.sacStatus),
       assignedUserRef: getStringValue(query.assignedUserRef),
+      pageSize: Number(query.pageSize) || 50,
+      pageNumber: Number(query.pageNumber) || 1,
     };
 
-    setFilterInputs(initialFilters);
-    setFilterValues(initialFilters);
-    if (!loadingOrders) {
-      loadingOrders = true;
+    // Only set filterValues if the page has not been rendered before
+    if (!hasPageBeenRendered.current) {
+      setFilterValues(initialFilters);
       fetchProductOrders(initialFilters);
-    }
-  }, [router.query]);
-
-  // get all sites
-  useEffect(() => {
-    const organization = userAuthenticationService.getOrganization();
-    if (!organization) {
+      hasPageBeenRendered.current = true;
       return;
     }
-    setAllSites(organization.sites || []);
-    setAllUsers(organization.users || []);
-  }, []);
 
-  const fetchProductOrders = (filters: PoSearchFilters) => {
-    const fetchProductOrders = async () => {
-      try {
-        setIsLoading(true);
-        const response: SnapshotPaginatedResult =
-          await orderManagementApiProxy.searchProductOrdersSnapshots(filters);
-        response.results.sort((a, b) => {
-          if (a.createdDate < b.createdDate) {
-            return 1;
+    if (isLoadingRef.current) return;
+
+    fetchProductOrders(filterValues);
+  }, [router.isReady, router.query]);
+
+  // Fetch product orders with filters
+  const fetchProductOrders = async (filters: PoSearchFilters) => {
+    try {
+      setIsLoading(true);
+      if (isLoadingRef.current) return;
+
+      isLoadingRef.current = true;
+      if (isLoading) return;
+      const response: SnapshotPaginatedResult =
+        await orderManagementApiProxy.searchProductOrdersSnapshots(filters);
+      if (response.results.length === 0) {
+        // Clear old results if no new results are found
+        setProductOrders([]);
+        setFilteredProductOrders([]);
+        setTotalResults(0);
+      } else {
+        // Sort the results and update the state
+        const sortedResults = response.results.sort((a, b) => {
+          if (a.createdDate && b.createdDate) {
+            return (
+              new Date(b.createdDate).getTime() -
+              new Date(a.createdDate).getTime()
+            );
           }
-          if (a.createdDate > b.createdDate) {
-            return -1;
-          }
-          return 0; // Add default return value of 0
+          return 0;
         });
-        setProductOrders(response.results);
-        setFilteredProductOrders(response.results);
+        setProductOrders(sortedResults);
+        setFilteredProductOrders(sortedResults);
         setTotalResults(response.totalResults);
-      } catch (error) {
-        console.error('Failed to fetch product orders:', error);
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    fetchProductOrders();
+    } catch (error) {
+      console.error('Failed to fetch product orders:', error);
+    } finally {
+      setIsLoading(false);
+      isLoadingRef.current = false;
+    }
   };
+
+  // Update query params when filters or pagination change
+  useEffect(() => {
+    if (!router.isReady || !hasPageBeenRendered.current) return;
+
+    const query: { [key: string]: string | number } = {};
+
+    Object.keys(filterValues).forEach((key) => {
+      const value = filterValues[key as keyof PoSearchFilters];
+      if (value !== null && value !== '') {
+        query[key] =
+          typeof value === 'object' && value.toISOString
+            ? value.toISOString()
+            : String(value);
+      }
+    });
+
+    query.pageSize = pageSize;
+    query.pageNumber = pageNumber;
+
+    router.replace({ pathname: router.pathname, query });
+  }, [filterValues, pageSize, pageNumber]);
 
   const toggleFilterVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
@@ -184,15 +213,15 @@ const ManagerDashboard: React.FC = () => {
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFilterInputs({
-      ...filterInputs,
+    setFilterValues({
+      ...filterValues,
       [e.target.name]: e.target.value,
     });
   };
 
   const handleDateChange = (name: string, date: Date | null) => {
-    setFilterInputs({
-      ...filterInputs,
+    setFilterValues({
+      ...filterValues,
       [name]: date ? moment(date) : null,
     });
   };
@@ -200,13 +229,13 @@ const ManagerDashboard: React.FC = () => {
   const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const user = allUsers.find((u) => u.id === e.target.value);
     if (user) {
-      setFilterInputs({
-        ...filterInputs,
+      setFilterValues({
+        ...filterValues,
         assignedUserRef: user.id || '',
       });
     } else {
-      setFilterInputs({
-        ...filterInputs,
+      setFilterValues({
+        ...filterValues,
         assignedUserRef: '',
       });
     }
@@ -214,27 +243,17 @@ const ManagerDashboard: React.FC = () => {
 
   const clearFilters = () => {
     setFilterValues({
-      productOrderNumber: '',
-      externalPoNumber: '',
+      productOrderNumber: null,
+      externalPoNumber: null,
       startDate: null,
       endDate: null,
-      siteRef: '',
-      planningStatus: '',
-      ntStatus: '',
-      sacStatus: '',
-      assignedUserRef: '',
-    });
-
-    setFilterInputs({
-      productOrderNumber: '',
-      externalPoNumber: '',
-      startDate: null,
-      endDate: null,
-      siteRef: '',
-      planningStatus: '',
-      ntStatus: '',
-      sacStatus: '',
-      assignedUserRef: '',
+      siteRef: null,
+      planningStatus: null,
+      ntStatus: null,
+      sacStatus: null,
+      assignedUserRef: null,
+      pageSize: 50,
+      pageNumber: 1,
     });
     //clear query params
     router.push(
@@ -248,7 +267,7 @@ const ManagerDashboard: React.FC = () => {
   };
 
   const applyFilters = () => {
-    const usedFilters = Object.entries(filterInputs)
+    const usedFilters = Object.entries(filterValues)
       .filter(([key, value]) => value !== '' && value !== null)
       .reduce((acc: { [key: string]: any }, [key, value]) => {
         acc[key] = value;
@@ -257,11 +276,11 @@ const ManagerDashboard: React.FC = () => {
 
     const query = {
       ...usedFilters,
-      startDate: filterInputs.startDate
-        ? filterInputs.startDate.format('YYYY-MM-DD')
+      startDate: filterValues.startDate
+        ? filterValues.startDate.format('YYYY-MM-DD')
         : '',
-      endDate: filterInputs.endDate
-        ? filterInputs.endDate.format('YYYY-MM-DD')
+      endDate: filterValues.endDate
+        ? filterValues.endDate.format('YYYY-MM-DD')
         : '',
     };
 
@@ -274,7 +293,7 @@ const ManagerDashboard: React.FC = () => {
       { shallow: true },
     );
 
-    setFilterValues(filterInputs);
+    setFilterValues(filterValues);
     setPageNumber(1); // Reset to first page when applying filters
   };
 
@@ -305,19 +324,14 @@ const ManagerDashboard: React.FC = () => {
       setIsLoading(true);
 
       // Call the proxy function to get the Excel file as a Blob
-      const xlsxBlob =
-        await orderManagementApiProxy.convertSnapshotSearchToExcel(
-          filterValues,
-        );
+      const result =
+        await orderManagementApiProxy.uploadSnapshotSearchToS3(filterValues);
 
-      // Create a download link for the XLSX file
-      const xlsxUrl = window.URL.createObjectURL(xlsxBlob);
-      const a = document.createElement('a');
-      a.href = xlsxUrl;
-      a.download = 'Report.xlsx'; // Set the desired file name
-      document.body.appendChild(a); // Append the anchor to the document body
-      a.click(); // Trigger the download
-      document.body.removeChild(a); // Remove the anchor from the document body
+      const prefix = result[0];
+
+      const file = await fileManagementApiProxy.getAllFiles(bucketName, prefix);
+
+      window.open(file[0].presignedUrl, '_blank');
 
       setIsLoading(false);
     } catch (error) {
@@ -338,63 +352,55 @@ const ManagerDashboard: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedProductOrders = React.useMemo(() => {
-    const sortKeys = [
-      'productOrderNumber',
-      'externalProductOrderNumber',
-      'siteRef',
-      'createdDate',
-      'invoiceDate',
-      'planningCompletion',
-      'planningStatus',
-      'planningMissingSections',
-      'ntCompletion',
-      'ntStatus',
-      'ntMissingSections',
-      'sacCompletion',
-      'sacStatus',
-      'sacMissingSections',
-      'referenceNumber',
-      'lot',
-      'product',
-      'quantity',
-    ] as const;
+  const sortedOrders = useMemo(() => {
+    if (!sortConfig || filteredProductOrders.length === 0)
+      return filteredProductOrders;
 
-    type SortKey = (typeof sortKeys)[number];
+    return [...filteredProductOrders].sort((a, b) => {
+      const key = sortConfig.key as keyof ProductOrderSnapshot;
+      const aValue = a[key];
+      const bValue = b[key];
 
-    function isSortKey(key: string): key is SortKey {
-      return sortKeys.includes(key as SortKey);
-    }
+      // If both values are present
+      if (aValue && bValue) {
+        // If the key is a date field, compare as Date objects
+        if (['createdDate', 'invoiceDate'].includes(key as string)) {
+          const dateA = new Date(aValue as string).getTime();
+          const dateB = new Date(bValue as string).getTime();
 
-    if (sortConfig !== null && isSortKey(sortConfig.key)) {
-      const sortedOrders = [...filteredProductOrders].sort((a, b) => {
-        let aValue = a[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
-        let bValue = b[sortConfig.key as keyof ProductOrderSnapshot] ?? ''; // Add nullish coalescing operator
-
-        if (
-          sortConfig.key === 'createdDate' ||
-          sortConfig.key === 'invoiceDate'
-        ) {
-          if (typeof aValue === 'string') {
-            aValue = new Date(aValue);
-          }
-          if (typeof bValue === 'string') {
-            bValue = new Date(bValue);
-          }
+          return sortConfig.direction === 'ascending'
+            ? dateA - dateB
+            : dateB - dateA;
         }
 
-        if (aValue < bValue) {
+        // If values are strings, use localeCompare for better performance
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return sortConfig.direction === 'ascending'
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+
+        // For other value types (numbers, etc.)
+        if (aValue < bValue)
           return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (aValue > bValue) {
+        if (aValue > bValue)
           return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-      return sortedOrders;
-    }
-    return filteredProductOrders;
-  }, [filteredProductOrders, sortConfig]);
+      }
+
+      // Handle missing or falsy values (e.g., null, undefined)
+      if (!aValue && bValue)
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      if (aValue && !bValue)
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+
+      return 0;
+    });
+  }, [sortConfig, filteredProductOrders]);
+
+  // Set sorted data to state, but only once the memoized data changes
+  useEffect(() => {
+    setFilteredProductOrders(sortedOrders);
+  }, [sortedOrders]);
 
   return (
     <>
@@ -410,25 +416,27 @@ const ManagerDashboard: React.FC = () => {
           <div className="me-8 text-xl">
             <h1>Managers Dashboard</h1>
           </div>
-          <div>
-            <TracerButton
-              name="Add New PO"
-              icon={<HiPlus />}
-              onClick={handleNewProductOrder}
-            />
-          </div>
-          <div className="ml-3">
-            <TracerButton
-              name="Export"
-              icon={<FaFileExport />}
-              onClick={handleExportToXlsx}
-            />
-          </div>
+
           <div className="ml-3">Total Results: {totalResults}</div>
-          <div className="ml-auto">
+          <div className="ml-auto flex flex-row">
+            <div>
+              <TracerButton
+                name="Add New PO"
+                icon={<HiPlus />}
+                onClick={handleNewProductOrder}
+              />
+            </div>
+            <div className="ml-3">
+              <TracerButton
+                name="Export"
+                icon={<FaFileExport />}
+                onClick={handleExportToXlsx}
+              />
+            </div>
+
             <button
               onClick={toggleFilterVisibility}
-              className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+              className="ml-3 rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
             >
               <HiFilter className="mr-2 inline-block" />
               Filter
@@ -436,7 +444,7 @@ const ManagerDashboard: React.FC = () => {
           </div>
         </div>
         {isFilterVisible && (
-          <div className="my-4 rounded-md border border-gray-300 bg-gray-100 p-4">
+          <div className="my-6 rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label
@@ -449,9 +457,9 @@ const ManagerDashboard: React.FC = () => {
                   type="text"
                   name="productOrderNumber"
                   id="productOrderName"
-                  value={filterInputs.productOrderNumber || ''}
+                  value={filterValues.productOrderNumber || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
               </div>
               <div>
@@ -465,9 +473,9 @@ const ManagerDashboard: React.FC = () => {
                   type="text"
                   name="externalPoNumber"
                   id="externalPoNumber"
-                  value={filterInputs.externalPoNumber || ''}
+                  value={filterValues.externalPoNumber || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
               </div>
               <div>
@@ -480,9 +488,9 @@ const ManagerDashboard: React.FC = () => {
                 <select
                   name="assignedUserRef"
                   id="assignedUserRef"
-                  value={filterInputs.assignedUserRef || ''}
+                  value={filterValues.assignedUserRef || ''}
                   onChange={handleUserChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select an associate</option>
                   {allUsers.map((user) => (
@@ -492,7 +500,7 @@ const ManagerDashboard: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div>
+              <div className="w-full">
                 <label
                   htmlFor="startDate"
                   className="block text-sm font-medium text-gray-700"
@@ -501,12 +509,12 @@ const ManagerDashboard: React.FC = () => {
                 </label>
                 <DatePicker
                   selected={
-                    filterInputs.startDate
-                      ? filterInputs.startDate.toDate()
+                    filterValues.startDate
+                      ? filterValues.startDate.toDate()
                       : null
                   }
                   onChange={(date) => handleDateChange('startDate', date)}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   dateFormat="yyyy/MM/dd"
                 />
               </div>
@@ -519,10 +527,10 @@ const ManagerDashboard: React.FC = () => {
                 </label>
                 <DatePicker
                   selected={
-                    filterInputs.endDate ? filterInputs.endDate.toDate() : null
+                    filterValues.endDate ? filterValues.endDate.toDate() : null
                   }
                   onChange={(date) => handleDateChange('endDate', date)}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                   dateFormat="yyyy/MM/dd"
                 />
               </div>
@@ -536,9 +544,9 @@ const ManagerDashboard: React.FC = () => {
                 <select
                   name="siteRef"
                   id="siteRef"
-                  value={filterInputs.siteRef || ''}
+                  value={filterValues.siteRef || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select an site</option>
                   {allSites.map((site) => (
@@ -558,9 +566,9 @@ const ManagerDashboard: React.FC = () => {
                 <select
                   name="planningStatus"
                   id="planningStatus"
-                  value={filterInputs.planningStatus || ''}
+                  value={filterValues.planningStatus || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
                   {Object.values(Statuses).map((status) => (
@@ -580,9 +588,9 @@ const ManagerDashboard: React.FC = () => {
                 <select
                   name="ntStatus"
                   id="ntStatus"
-                  value={filterInputs.ntStatus || ''}
+                  value={filterValues.ntStatus || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
                   {Object.values(Statuses).map((status) => (
@@ -602,9 +610,9 @@ const ManagerDashboard: React.FC = () => {
                 <select
                   name="sacStatus"
                   id="sacStatus"
-                  value={filterInputs.sacStatus || ''}
+                  value={filterValues.sacStatus || ''}
                   onChange={handleFilterChange}
-                  className="mt-1 block w-full rounded-md border border-gray-500 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
                   {Object.values(Statuses).map((status) => (
@@ -617,15 +625,9 @@ const ManagerDashboard: React.FC = () => {
               <div className="col-span-3 flex justify-end gap-2">
                 <button
                   onClick={clearFilters}
-                  className="rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+                  className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
                 >
-                  Clear
-                </button>
-                <button
-                  onClick={applyFilters}
-                  className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
-                >
-                  Apply Filters
+                  Clear All
                 </button>
               </div>
             </div>
@@ -772,14 +774,19 @@ const ManagerDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="cursor-pointer divide-y divide-gray-200 bg-white">
-                {sortedProductOrders.length > 0 ? (
-                  sortedProductOrders.map((order) => {
+                {filteredProductOrders.length > 0 ? (
+                  filteredProductOrders.map((order, index) => {
                     return (
-                      <tr key={order.productOrderNumber}>
+                      <tr
+                        key={order.id}
+                        className={`${
+                          index % 2 === 0 ? 'bg-white' : 'bg-gray-100'
+                        } border-b border-gray-200`}
+                      >
                         <td
                           className=" whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.productOrderNumber}
@@ -787,7 +794,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.externalProductOrderNumber}
@@ -795,7 +802,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.referenceNumber}
@@ -803,7 +810,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.lot}
@@ -811,7 +818,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.quantity}
@@ -819,7 +826,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.product}
@@ -827,7 +834,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {allUsers.find(
@@ -840,7 +847,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {
@@ -851,7 +858,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {convertDateToInternationalDateString(
@@ -861,7 +868,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {convertDateToInternationalDateString(
@@ -871,7 +878,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.planningCompletion}%
@@ -879,7 +886,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.planningStatus}
@@ -917,7 +924,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.ntCompletion}%
@@ -925,7 +932,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.ntStatus}
@@ -962,7 +969,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.sacCompletion}%
@@ -970,7 +977,7 @@ const ManagerDashboard: React.FC = () => {
                         <td
                           className="whitespace-nowrap px-6 py-4 text-sm text-gray-500"
                           onClick={() =>
-                            handleRowClick(order.productOrderNumber)
+                            handleRowClick(order.productOrderReference)
                           }
                         >
                           {order.sacStatus}
@@ -1033,3 +1040,6 @@ const ManagerDashboard: React.FC = () => {
 };
 
 export default withAuth(ManagerDashboard);
+function renderInputContainer() {
+  throw new Error('Function not implemented.');
+}
