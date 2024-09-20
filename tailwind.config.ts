@@ -13,8 +13,18 @@ const config: Config = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      keyframes: {
+        grow: {
+          '0%': { transform: 'scale(0.75)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+      },
+      animation: {
+        grow: 'grow 0.3s ease-out',
+      },
     },
   },
   plugins: [],
 };
+
 export default config;
