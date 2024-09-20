@@ -285,7 +285,7 @@ const Dashboard: React.FC = () => {
                   type="text"
                   name="productOrderNumber"
                   id="productOrderName"
-                  value={filterInputs.productOrderNumber || ''}
+                  value={filterValues.productOrderNumber || ''}
                   onChange={handleFilterChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
@@ -320,7 +320,7 @@ const Dashboard: React.FC = () => {
                 <select
                   name="assignedUserRef"
                   id="assignedUserRef"
-                  value={filterInputs.assignedUserRef || ''}
+                  value={filterValues.assignedUserRef || ''}
                   onChange={handleUserChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
@@ -342,8 +342,8 @@ const Dashboard: React.FC = () => {
                   </label>
                   <DatePicker
                     selected={
-                      filterInputs.startDate
-                        ? filterInputs.startDate.toDate()
+                      filterValues.startDate
+                        ? filterValues.startDate.toDate()
                         : null
                     }
                     onChange={(date) => handleDateChange('startDate', date)}
@@ -360,8 +360,8 @@ const Dashboard: React.FC = () => {
                   </label>
                   <DatePicker
                     selected={
-                      filterInputs.endDate
-                        ? filterInputs.endDate.toDate()
+                      filterValues.endDate
+                        ? filterValues.endDate.toDate()
                         : null
                     }
                     onChange={(date) => handleDateChange('endDate', date)}
@@ -384,7 +384,7 @@ const Dashboard: React.FC = () => {
                 <select
                   name="planningStatus"
                   id="planningStatus"
-                  value={filterInputs.planningStatus || ''}
+                  value={filterValues.planningStatus || ''}
                   onChange={handleFilterChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
@@ -406,7 +406,7 @@ const Dashboard: React.FC = () => {
                 <select
                   name="ntStatus"
                   id="ntStatus"
-                  value={filterInputs.ntStatus || ''}
+                  value={filterValues.ntStatus || ''}
                   onChange={handleFilterChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
@@ -428,7 +428,7 @@ const Dashboard: React.FC = () => {
                 <select
                   name="sacStatus"
                   id="sacStatus"
-                  value={filterInputs.sacStatus || ''}
+                  value={filterValues.sacStatus || ''}
                   onChange={handleFilterChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
@@ -454,7 +454,7 @@ const Dashboard: React.FC = () => {
                 <select
                   name="siteRef"
                   id="siteRef"
-                  value={filterInputs.siteRef || ''}
+                  value={filterValues.siteRef || ''}
                   onChange={handleFilterChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
@@ -468,7 +468,7 @@ const Dashboard: React.FC = () => {
               </div>
               <div className="col-span-2 flex justify-end space-x-3">
                 <button
-                  onClick={clearAllFilters}
+                  onClick={clearFilters}
                   className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
                 >
                   Cancel All
