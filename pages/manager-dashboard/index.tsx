@@ -352,42 +352,53 @@ const ManagerDashboard: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedOrders = useMemo(() => {
-    if (!sortConfig || filteredProductOrders.length === 0)
-      return filteredProductOrders;
+  const [sortedOrders, setSortedOrders] = useState(filteredProductOrders);
 
-    return [...filteredProductOrders].sort((a, b) => {
+  useEffect(() => {
+    if (!sortConfig || filteredProductOrders.length === 0) {
+      setSortedOrders(filteredProductOrders);
+      return;
+    }
+
+    const sorted = [...filteredProductOrders].sort((a, b) => {
       const key = sortConfig.key as keyof ProductOrderSnapshot;
       const aValue = a[key];
       const bValue = b[key];
 
-      // If both values are present
-      if (aValue && bValue) {
-        // If the key is a date field, compare as Date objects
-        if (['createdDate', 'invoiceDate'].includes(key as string)) {
-          const dateA = new Date(aValue as string).getTime();
-          const dateB = new Date(bValue as string).getTime();
+      // Prioritize date fields before null checks
+      if (['createdDate', 'invoiceDate'].includes(key as string)) {
+        const dateA = aValue ? new Date(aValue as string).getTime() : null;
+        const dateB = bValue ? new Date(bValue as string).getTime() : null;
 
-          return sortConfig.direction === 'ascending'
-            ? dateA - dateB
-            : dateB - dateA;
+        // Handle null date values based on sort direction
+        if (sortConfig.direction === 'descending') {
+          if (dateA === null) return 1; // Nulls go to the bottom in descending order
+          if (dateB === null) return -1; // Nulls go to the bottom in descending order
         }
 
-        // If values are strings, use localeCompare for better performance
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-          return sortConfig.direction === 'ascending'
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
+        if (sortConfig.direction === 'ascending') {
+          if (dateA === null) return -1; // Nulls stay at the top in ascending order
+          if (dateB === null) return 1; // Nulls stay at the top in ascending order
         }
 
-        // For other value types (numbers, etc.)
-        if (aValue < bValue)
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        if (aValue > bValue)
-          return sortConfig.direction === 'ascending' ? 1 : -1;
+        // Both dates are non-null, so we compare normally
+        return sortConfig.direction === 'ascending'
+          ? dateA - dateB
+          : dateB - dateA;
       }
 
-      // Handle missing or falsy values (e.g., null, undefined)
+      // Handle strings with localeCompare
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortConfig.direction === 'ascending'
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      // For other value types (numbers, etc.)
+      if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+
+      // Fallback: handle missing or falsy values (e.g., null, undefined)
       if (!aValue && bValue)
         return sortConfig.direction === 'ascending' ? 1 : -1;
       if (aValue && !bValue)
@@ -395,9 +406,10 @@ const ManagerDashboard: React.FC = () => {
 
       return 0;
     });
-  }, [sortConfig, filteredProductOrders]);
 
-  // Set sorted data to state, but only once the memoized data changes
+    setSortedOrders(sorted);
+  }, [sortConfig]);
+
   useEffect(() => {
     setFilteredProductOrders(sortedOrders);
   }, [sortedOrders]);
