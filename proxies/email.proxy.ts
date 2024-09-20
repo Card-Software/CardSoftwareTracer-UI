@@ -2,7 +2,6 @@ import { ProductOrderCreatedEmail, PoStatusChanged } from '@/models/email';
 import axiosInstance from '@/utils/axiosInstance';
 
 class EmailProxy {
-
   async EmailPoCreation(body: ProductOrderCreatedEmail): Promise<Response> {
     try {
       const response = await axiosInstance.post('Email/EmailPOCreated', body);
