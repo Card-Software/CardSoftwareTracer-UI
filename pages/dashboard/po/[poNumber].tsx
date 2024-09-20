@@ -643,63 +643,71 @@ const PurchaseOrderPage: React.FC = () => {
             {productOrder.childrenTracerStreams.map((stream, index) => (
               <React.Fragment key={stream.id}>
                 <Card>
-                  <CardTitle>
-                    <div className="flex w-full flex-row justify-between">
-                      <div className="flex flex-col">
-                        <p>
-                          <strong>Name:</strong> {stream.friendlyName}
-                        </p>
-                        <p>
-                          <strong>Product:</strong> {stream.product}
-                        </p>
-                        <p>
-                          <strong>Quantity:</strong> {stream.quantity}
-                        </p>
-                      </div>
-                      <div className="flex max-h-14">
-                        <button
-                          disabled={!allActivityLogs.length}
-                          className="mb-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
-                          onClick={(e) => {
-                            handleActivityLogClick(
-                              ActivityType.FileUpload,
-                              stream.id,
-                            );
-                          }}
-                        >
-                          <FaHistory />
-                        </button>
-                        <button
-                          className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleExportButton(stream);
-                          }}
-                        >
-                          <FaFileExport />
-                        </button>
-                        <button
-                          className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStreamClick(stream, 'edit');
-                          }}
-                        >
-                          <FaPencilAlt />
-                        </button>
-
-                        <button
-                          className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteStream(stream);
-                          }}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
+                  <div className="flex w-full flex-row justify-between">
+                    <div className="flex flex-col">
+                      <p>
+                        <strong>Name:</strong>
+                      </p>
+                      <p className="text-base text-gray-500">
+                        {stream.friendlyName}
+                      </p>
+                      <p>
+                        <strong>Product:</strong>
+                      </p>
+                      <p className="text-base text-gray-500">
+                        {stream.product}
+                      </p>
+                      <p>
+                        <strong>Quantity:</strong>
+                      </p>
+                      <p className="text-base text-gray-500">
+                        {stream.quantity}
+                      </p>
                     </div>
-                  </CardTitle>
+                    <div className="flex max-h-14">
+                      <button
+                        disabled={!allActivityLogs.length}
+                        className="mb-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
+                        onClick={(e) => {
+                          handleActivityLogClick(
+                            ActivityType.FileUpload,
+                            stream.id,
+                          );
+                        }}
+                      >
+                        <FaHistory />
+                      </button>
+                      <button
+                        className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExportButton(stream);
+                        }}
+                      >
+                        <FaFileExport />
+                      </button>
+                      <button
+                        className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStreamClick(stream, 'edit');
+                        }}
+                      >
+                        <FaPencilAlt />
+                      </button>
+
+                      <button
+                        className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteStream(stream);
+                        }}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  </div>
+
                   <SectionContainer>
                     {stream.sections.map((section, secIndex) => (
                       <React.Fragment key={section.sectionId}>
@@ -707,34 +715,49 @@ const PurchaseOrderPage: React.FC = () => {
                           onClick={() => handleSectionClick(section, stream)}
                           $isrequired={section.isRequired}
                         >
-                          <CardTitle className="w-full">
-                            {section.sectionName}
-                            {section.files.length > 0 ? (
-                              <FaCheckCircle
-                                color="#0080fc"
-                                style={{ marginLeft: '10px' }}
-                              />
-                            ) : (
-                              <FaExclamationCircle
-                                color="red"
-                                style={{ marginLeft: '10px' }}
-                              />
-                            )}
-                            <DeleteButton
-                              className="square flex justify-end"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevents parent click event from firing
-                                handleDeleteSection(stream, section); // Call delete function
-                              }}
-                            >
-                              <FaTrash color="gray" />
-                            </DeleteButton>
-                          </CardTitle>
+                          <div className="flex flex-row items-start justify-between">
+                            <div className="flex flex-col">
+                              <div className="text-md">
+                                <strong>Section Name</strong>
+                              </div>
+                              <div>
+                                <p className="text-base text-gray-500">
+                                  {section.sectionName}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="ml-auto flex flex-row items-start">
+                              {section.files.length > 0 ? (
+                                <FaCheckCircle
+                                  color="#0080fc"
+                                  style={{ marginRight: '10px' }}
+                                />
+                              ) : (
+                                <FaExclamationCircle
+                                  color="red"
+                                  style={{ marginRight: '10px' }}
+                                />
+                              )}
+                              <DeleteButton
+                                className="square flex justify-end"
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Prevent parent click event from firing
+                                  handleDeleteSection(stream, section); // Call delete function
+                                }}
+                              >
+                                <FaTrash color="gray" />
+                              </DeleteButton>
+                            </div>
+                          </div>
                           <CardDetails>
-                            <DetailItem>
-                              <strong>Description:</strong>{' '}
-                              {section.sectionDescription}
-                            </DetailItem>
+                            <div className="flex flex-col">
+                              <div className="text-md">
+                                <strong>Description</strong>
+                              </div>
+                              <p className="text-base text-gray-500">
+                                {section.sectionDescription}
+                              </p>
+                            </div>
                             {section.assignedUser && (
                               <DetailItem>
                                 <strong>Assigned to:</strong>{' '}
@@ -760,7 +783,7 @@ const PurchaseOrderPage: React.FC = () => {
                                     {section.teamLabels.map((label) => (
                                       <li
                                         key={label.id}
-                                        className="max-w-[115px] truncate rounded-full bg-gray-200 px-3 py-1 text-sm text-gray-700"
+                                        className="max-w-[115px] truncate rounded-full bg-gray-100 px-3 py-1 text-sm text-blue-500"
                                       >
                                         {label.labelName}
                                       </li>
@@ -777,11 +800,9 @@ const PurchaseOrderPage: React.FC = () => {
                         )}
                       </React.Fragment>
                     ))}
-                    <ArrowIcon>
-                      <FaArrowRight size={24} />
-                    </ArrowIcon>
-                    <SectionCard
-                      $isrequired={false}
+
+                    {/* Add New Section Button - Separate div to avoid extra section */}
+                    <div
                       onClick={() => {
                         if (!user || !organization) return;
                         handleSectionClick(
@@ -802,12 +823,8 @@ const PurchaseOrderPage: React.FC = () => {
                         );
                       }}
                     >
-                      <div className="flex h-full w-full items-center justify-center">
-                        <AddNewButton className="rounded bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]">
-                          Add New Section
-                        </AddNewButton>
-                      </div>
-                    </SectionCard>
+                      <AddNewButton>+ Add New Section</AddNewButton>
+                    </div>
                   </SectionContainer>
                 </Card>
               </React.Fragment>
@@ -1006,14 +1023,6 @@ const ArrowIcon = styled.div`
   color: gray;
 `;
 
-const CardTitle = styled.h3`
-  display: flex;
-  align-items: center;
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 18px;
-`;
-
 const CardDetails = styled.div`
   font-size: 14px;
 `;
@@ -1023,12 +1032,13 @@ const DetailItem = styled.div`
 `;
 
 const AddNewButton = styled.button`
-  border: none;
-  color: white;
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
   border-radius: 8px;
+  background-color: var(--primary-button);
+  color: white;
+  transition: background-color 0.3s ease;
 `;
 
 const DeleteButton = styled.button`
