@@ -812,32 +812,31 @@ const PurchaseOrderPage: React.FC = () => {
                         )}
                       </React.Fragment>
                     ))}
-
-                    {/* Add New Section Button - Separate div to avoid extra section */}
-                    <div
-                      onClick={() => {
-                        if (!user || !organization) return;
-                        handleSectionClick(
-                          {
-                            sectionId: new ObjectId().toString(),
-                            sectionName: '',
-                            sectionDescription: '',
-                            assignedUser: user,
-                            notes: [],
-                            position: 0,
-                            fileNameOnExport: '',
-                            files: [],
-                            isRequired: true,
-                            ownerRef: organization.id || '',
-                            teamLabels: [],
-                          },
-                          stream,
-                        );
-                      }}
-                    >
-                      <AddNewButton>+ Add New Section</AddNewButton>
-                    </div>
                   </SectionContainer>
+                  {/* Add New Section Button - Separate div to avoid extra section */}
+                  <div
+                    onClick={() => {
+                      if (!user || !organization) return;
+                      handleSectionClick(
+                        {
+                          sectionId: new ObjectId().toString(),
+                          sectionName: '',
+                          sectionDescription: '',
+                          assignedUser: user,
+                          notes: [],
+                          position: 0,
+                          fileNameOnExport: '',
+                          files: [],
+                          isRequired: true,
+                          ownerRef: organization.id || '',
+                          teamLabels: [],
+                        },
+                        stream,
+                      );
+                    }}
+                  >
+                    <AddNewButton>+ Add New Section</AddNewButton>
+                  </div>
                 </Card>
               </React.Fragment>
             ))}

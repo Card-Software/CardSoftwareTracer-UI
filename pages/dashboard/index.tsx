@@ -274,211 +274,195 @@ const Dashboard: React.FC = () => {
         style={{ borderColor: 'var(--primary-color)' }}
       />
       {isFilterVisible && (
-        <div className="my-6 rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
-          <div className="grid grid-cols-1 gap-6">
-            {/* Row 1 */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="productOrderName"
-                  className="block text-sm font-semibold text-gray-800"
-                >
-                  Product Order Name
-                </label>
-                <input
-                  type="text"
-                  name="productOrderNumber"
-                  id="productOrderName"
-                  value={filterValues.productOrderNumber || ''}
-                  onChange={handleFilterChange}
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="externalPoNumber"
-                  className="block text-sm font-semibold text-gray-800"
-                >
-                  External Product Order
-                </label>
-                <input
-                  type="text"
-                  name="externalPoNumber"
-                  id="externalPoNumber"
-                  value={filterValues.externalPoNumber || ''}
-                  onChange={handleFilterChange}
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
+        <div className="my-6 flex flex-col rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
+          <div className="grid flex-grow grid-cols-3 gap-4">
+            <div>
+              <label
+                htmlFor="productOrderName"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                Product Order Name
+              </label>
+              <input
+                type="text"
+                name="productOrderNumber"
+                id="productOrderName"
+                value={filterValues.productOrderNumber || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="externalPoNumber"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                External Product Order
+              </label>
+              <input
+                type="text"
+                name="externalPoNumber"
+                id="externalPoNumber"
+                value={filterValues.externalPoNumber || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="assignedUserRef"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                User
+              </label>
+              <select
+                name="assignedUserRef"
+                id="assignedUserRef"
+                value={filterValues.assignedUserRef || ''}
+                onChange={handleUserChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select an associate</option>
+                {allUsers.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.firstName} {user.lastname}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Row 2 */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div>
-                <label
-                  htmlFor="assignedUserRef"
-                  className="block text-sm font-semibold text-gray-800"
-                >
-                  User
-                </label>
-                <select
-                  name="assignedUserRef"
-                  id="assignedUserRef"
-                  value={filterValues.assignedUserRef || ''}
-                  onChange={handleUserChange}
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                >
-                  <option value="">Select an associate</option>
-                  {allUsers.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.firstName} {user.lastname}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-span-2 grid grid-cols-2 gap-6">
-                <div>
-                  <label
-                    htmlFor="startDate"
-                    className="block text-sm font-semibold text-gray-800"
-                  >
-                    Start Date
-                  </label>
-                  <DatePicker
-                    selected={
-                      filterValues.startDate
-                        ? filterValues.startDate.toDate()
-                        : null
-                    }
-                    onChange={(date) => handleDateChange('startDate', date)}
-                    className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    dateFormat="yyyy/MM/dd"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="endDate"
-                    className="block text-sm font-semibold text-gray-800"
-                  >
-                    End Date
-                  </label>
-                  <DatePicker
-                    selected={
-                      filterValues.endDate
-                        ? filterValues.endDate.toDate()
-                        : null
-                    }
-                    onChange={(date) => handleDateChange('endDate', date)}
-                    className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    dateFormat="yyyy/MM/dd"
-                  />
-                </div>
-              </div>
+            <div>
+              <label
+                htmlFor="startDate"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                Start Date
+              </label>
+              <DatePicker
+                selected={
+                  filterValues.startDate
+                    ? filterValues.startDate.toDate()
+                    : null
+                }
+                onChange={(date) => handleDateChange('startDate', date)}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                dateFormat="yyyy/MM/dd"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="endDate"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                End Date
+              </label>
+              <DatePicker
+                selected={
+                  filterValues.endDate ? filterValues.endDate.toDate() : null
+                }
+                onChange={(date) => handleDateChange('endDate', date)}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                dateFormat="yyyy/MM/dd"
+              />
             </div>
 
-            {/* Row 3 */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div>
-                <label
-                  htmlFor="planningStatus"
-                  className="block text-sm font-semibold text-gray-800"
-                >
-                  Planning Status
-                </label>
-                <select
-                  name="planningStatus"
-                  id="planningStatus"
-                  value={filterValues.planningStatus || ''}
-                  onChange={handleFilterChange}
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                >
-                  <option value="">Select Status</option>
-                  {Object.values(Statuses).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  htmlFor="ntStatus"
-                  className="block text-sm font-semibold text-gray-800"
-                >
-                  NT Status
-                </label>
-                <select
-                  name="ntStatus"
-                  id="ntStatus"
-                  value={filterValues.ntStatus || ''}
-                  onChange={handleFilterChange}
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                >
-                  <option value="">Select Status</option>
-                  {Object.values(Statuses).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  htmlFor="sacStatus"
-                  className="block text-sm font-semibold text-gray-800"
-                >
-                  SAC Status
-                </label>
-                <select
-                  name="sacStatus"
-                  id="sacStatus"
-                  value={filterValues.sacStatus || ''}
-                  onChange={handleFilterChange}
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                >
-                  <option value="">Select Status</option>
-                  {Object.values(Statuses).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label
+                htmlFor="planningStatus"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                Planning Status
+              </label>
+              <select
+                name="planningStatus"
+                id="planningStatus"
+                value={filterValues.planningStatus || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select Status</option>
+                {Object.values(Statuses).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Row 4 */}
-            <div className="flex flex-row justify-between align-middle">
-              <div>
-                <label
-                  htmlFor="siteRef"
-                  className="block text-sm font-semibold text-gray-800"
-                >
-                  Site
-                </label>
-                <select
-                  name="siteRef"
-                  id="siteRef"
-                  value={filterValues.siteRef || ''}
-                  onChange={handleFilterChange}
-                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                >
-                  <option value="">Select a site</option>
-                  {allSites.map((site) => (
-                    <option key={site.id} value={site.id}>
-                      {site.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-span-2 flex justify-end space-x-3">
-                <button
-                  onClick={clearFilters}
-                  className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
-                >
-                  Cancel All
-                </button>
-              </div>
+            <div>
+              <label
+                htmlFor="ntStatus"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                NT Status
+              </label>
+              <select
+                name="ntStatus"
+                id="ntStatus"
+                value={filterValues.ntStatus || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select Status</option>
+                {Object.values(Statuses).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </div>
+            <div>
+              <label
+                htmlFor="sacStatus"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                SAC Status
+              </label>
+              <select
+                name="sacStatus"
+                id="sacStatus"
+                value={filterValues.sacStatus || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select Status</option>
+                {Object.values(Statuses).map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="siteRef"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                Site
+              </label>
+              <select
+                name="siteRef"
+                id="siteRef"
+                value={filterValues.siteRef || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              >
+                <option value="">Select a site</option>
+                {allSites.map((site) => (
+                  <option key={site.id} value={site.id}>
+                    {site.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="mt-4 flex w-full justify-end">
+            <button
+              onClick={clearFilters}
+              className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
+            >
+              Clear All
+            </button>
           </div>
         </div>
       )}
