@@ -86,7 +86,7 @@ const Notes: React.FC<NotesProps> = ({ notes, currentUser, onChange }) => {
         </div>
       </div>
 
-      <div className="max-h-64 overflow-y-auto p-4 cursor-pointer">
+      <div className="max-h-64 cursor-pointer overflow-y-auto p-4">
         {filteredNotes.map((note, index) => (
           <div
             key={index}
