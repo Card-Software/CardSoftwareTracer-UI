@@ -173,15 +173,12 @@ const Details = () => {
           tracerStream,
         );
         if (result) {
-          // alert('Traceability stream updated successfully!');
           successToast();
         }
       } else {
-        // Create new traceability
         const result =
           await orderManagementApiProxy.createTraceability(tracerStream);
         if (result) {
-          // alert('Traceability stream created successfully!');
           successToast();
         }
       }
@@ -426,7 +423,7 @@ const Details = () => {
             isOpen={isAlertModalOpen}
             type="delete"
             title="Confirmar eliminación"
-            message="¿Estás seguro de que deseas eliminar esta sección?"
+            message="Are you sure you want to delete this section?"
             icon={<FaTrash className="h-6 w-6 text-red-500" />}
             onClose={() => {
               setIsAlertModalOpen(false);
