@@ -89,8 +89,13 @@ const PurchaseOrderPage: React.FC = () => {
   const currentUser = userAuthenticationService.getUser() as User;
 
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [poToDelete, setPoToDelete] = useState<ProductOrder | null>(null);
 
   const notify = () => toast.success('Product Order updated successfully!');
+  const notifyError = () => toast.error('Failed to save Product Order');
+  const notifyDelete = () =>
+    toast.success('Product Order deleted successfully!');
+  const notifyDeleteError = () => toast.error('Failed to delete Product Order');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -251,21 +256,19 @@ const PurchaseOrderPage: React.FC = () => {
     if (!orderToDelete.id) {
       return;
     }
-
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this product order?',
-    );
-    if (confirmDelete) {
+    if (poToDelete) {
       try {
         setIsLoading(true);
         await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
-        alert('Product Order deleted successfully!');
+        notifyDelete();
       } catch (error) {
         console.error('Failed to delete Product Order', error);
-        alert('Failed to delete Product Order');
+        notifyDeleteError();
       } finally {
         setIsLoading(false);
       }
+      setPoToDelete(null);
+      setIsAlertModalOpen(false);
     }
   };
 
@@ -548,15 +551,14 @@ const PurchaseOrderPage: React.FC = () => {
           insertLogs();
           getUpdatedLogs(productOrder.id as string);
           router.push(`/dashboard/po/${productOrder.id as string}`);
-          // alert('Product Order updated successfully!');
-          
+          notify();
         } else {
-          alert(`Failed to save Product Order. Status: ${response.status}`);
+          notifyError();
         }
       } catch (error) {
         setIsLoading(false);
         console.error('Failed to save Product Order', error);
-        alert('Failed to save Product Order');
+        notifyError();
       }
     }
   };
@@ -601,9 +603,9 @@ const PurchaseOrderPage: React.FC = () => {
               />
               {isAdmin && (
                 <button
-                  onClick={async () => {
-                    await handleDeleteProductOrder(productOrder);
-                    router.push('/Dashboard');
+                  onClick={() => {
+                    setPoToDelete(productOrder);
+                    setIsAlertModalOpen(true);
                   }}
                   className="border-1 border-red-500 bg-red-200 font-medium text-black hover:bg-red-500 hover:text-white"
                   style={{ borderRadius: '10px 10px 10px 10px' }}
@@ -815,6 +817,24 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
           </CardContainer>
+          {isAlertModalOpen && (
+            <AlertModal
+              isOpen={isAlertModalOpen}
+              type="delete"
+              title="Delete Product Order"
+              message="Are you sure you want to delete this product order?"
+              icon={<FaTrash className="h-6 w-6 text-red-500" />}
+              onClose={() => {
+                setIsAlertModalOpen(false);
+                setPoToDelete(null);
+              }}
+              onConfirm={() => {
+                handleDeleteProductOrder(poToDelete as ProductOrder);
+                notifyDelete();
+                router.push('/dashboard');
+              }}
+            />
+          )}
           {childrenPos.length > 0 && (
             <div className="mt-8">
               <h2 className="text-xl font-bold">Linked Product Orders</h2>
@@ -849,16 +869,15 @@ const PurchaseOrderPage: React.FC = () => {
           >
             Cancel
           </button>
-            <button
+          <button
             onClick={() => {
               handleSave();
-              notify();
             }}
             className="ml-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            >
+          >
             {isLoading ? 'Saving...' : 'Save'}
-            </button>
-            <Toaster />
+          </button>
+          <Toaster />
         </div>
       </footer>
       <SectionModal
