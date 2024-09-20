@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import '../../../styles/dashboard.css';
@@ -89,13 +89,22 @@ const PurchaseOrderPage: React.FC = () => {
   const currentUser = userAuthenticationService.getUser() as User;
 
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [isAlertModalOpenStream, setIsAlertModalOpenStream] = useState(false);
+  const [isAlertModalOpenSection, setIsAlertModalOpenSection] = useState(false);
   const [poToDelete, setPoToDelete] = useState<ProductOrder | null>(null);
+  const [streamToDeleteModal, setStreamToDelete] =
+    useState<TracerStream | null>(null);
+  const [sectionToDelete, setSectionToDelete] = useState<SectionModel | null>(
+    null,
+  );
 
   const notify = () => toast.success('Product Order updated successfully!');
   const notifyError = () => toast.error('Failed to save Product Order');
   const notifyDelete = () =>
     toast.success('Product Order deleted successfully!');
   const notifyDeleteError = () => toast.error('Failed to delete Product Order');
+  const notifyDeleteStream = () => toast.success('Tracer Stream deleted successfully!');
+  const notifyDeleteErrorStream = () => toast.error('Failed to delete Tracer Stream');
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -309,17 +318,16 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const handleDeleteStream = (streamToDelete: TracerStreamExtended) => {
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this stream?',
-    );
-    if (confirmDelete && productOrder) {
+    if (streamToDeleteModal && productOrder) {
       const updatedStreams = productOrder.childrenTracerStreams.filter(
         (stream) => stream.id !== streamToDelete.id,
       );
       setProductOrder({
         ...productOrder,
-        childrenTracerStreams: updatedStreams,
+        childrenTracerStreams: updatedStreams || [],
       });
+      setStreamToDelete(null);
+      setIsAlertModalOpenStream(false);
     }
   };
 
@@ -415,12 +423,11 @@ const PurchaseOrderPage: React.FC = () => {
     stream: TracerStreamExtended,
     section: SectionModel,
   ) => {
-    const confirmDelete = window.confirm(
-      'Are you sure you want to delete this section?',
-    );
-    if (confirmDelete && productOrder) {
+    console.log('Selected Stream:', stream);
+    console.log('Section to delete:', section);
+    if (sectionToDelete && productOrder) {
       const updatedStreams = productOrder.childrenTracerStreams.map((str) => {
-        if (str.id === stream.id) {
+        if (str.id) {
           return {
             ...str,
             sections: str.sections.filter(
@@ -434,6 +441,8 @@ const PurchaseOrderPage: React.FC = () => {
         ...productOrder,
         childrenTracerStreams: updatedStreams,
       });
+      setSectionToDelete(null);
+      setIsAlertModalOpenSection(false);
     }
   };
 
@@ -696,7 +705,8 @@ const PurchaseOrderPage: React.FC = () => {
                           className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteStream(stream);
+                            setStreamToDelete(stream);
+                            setIsAlertModalOpenStream(true);
                           }}
                         >
                           <FaTrash />
@@ -727,8 +737,9 @@ const PurchaseOrderPage: React.FC = () => {
                             <DeleteButton
                               className="square flex justify-end"
                               onClick={(e) => {
-                                e.stopPropagation(); // Prevents parent click event from firing
-                                handleDeleteSection(stream, section); // Call delete function
+                                e.stopPropagation();
+                                setSectionToDelete(section);
+                                setIsAlertModalOpenSection(true);
                               }}
                             >
                               <FaTrash />
@@ -817,6 +828,7 @@ const PurchaseOrderPage: React.FC = () => {
               </React.Fragment>
             ))}
           </CardContainer>
+
           {isAlertModalOpen && (
             <AlertModal
               isOpen={isAlertModalOpen}
@@ -832,6 +844,43 @@ const PurchaseOrderPage: React.FC = () => {
                 handleDeleteProductOrder(poToDelete as ProductOrder);
                 notifyDelete();
                 router.push('/dashboard');
+              }}
+            />
+          )}
+          {isAlertModalOpenStream && (
+            <AlertModal
+              isOpen={isAlertModalOpenStream}
+              type="delete"
+              title="Delete Tracer Stream"
+              message="Are you sure you want to delete this tracer stream?"
+              icon={<FaTrash className="h-6 w-6 text-red-500" />}
+              onClose={() => {
+                setIsAlertModalOpenStream(false);
+                setStreamToDelete(null);
+              }}
+              onConfirm={() => {
+                handleDeleteStream(streamToDeleteModal as TracerStreamExtended);
+                notifyDeleteStream();
+              }}
+            />
+          )}
+          {isAlertModalOpenSection && (
+            <AlertModal
+              isOpen={isAlertModalOpenSection}
+              type="delete"
+              title="Delete Section"
+              message="Are you sure you want to delete this section?"
+              icon={<FaTrash className="h-6 w-6 text-red-500" />}
+              onClose={() => {
+                setIsAlertModalOpenSection(false);
+                setSectionToDelete(null);
+              }}
+              onConfirm={() => {
+                handleDeleteSection(
+                  selectedStream as TracerStreamExtended,
+                  sectionToDelete as SectionModel,
+                );
+                notifyDelete();
               }}
             />
           )}

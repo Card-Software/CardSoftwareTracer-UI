@@ -19,6 +19,8 @@ import withAuth from '@/hoc/auth';
 import { User } from '@/models/user';
 import { ObjectId } from 'bson';
 import AlertModal from '@/components/modals/alert-modal-component';
+import toast, { Toaster } from 'react-hot-toast';
+
 
 const Details = () => {
   // #region States
@@ -48,6 +50,11 @@ const Details = () => {
   const isEditing = !!query.id;
   // #endregion
 
+  // #region React Toast messages
+  const successToast = () => toast.success('Traceability stream updated successfully!');
+  const errorToast = () => toast.error('Failed to save traceability stream.');
+  // #endregion
+
   // #region Use Effects
   useEffect(() => {
     if (isEditing && query.id) {
@@ -66,19 +73,6 @@ const Details = () => {
     });
   };
 
-  // const deleteProcess = (id: string) => {
-  //   if (confirm('Are you sure you want to delete this section?')) {
-  //     const filteredProcesses = tracerStream.sections.filter(
-  //       (process) => process.sectionId !== id,
-  //     );
-  //     const updatedProcesses = filteredProcesses.map((process, index) => ({
-  //       ...process,
-  //       position: index + 1,
-  //     }));
-
-  //     setTracerStream({ ...tracerStream, sections: updatedProcesses });
-  //   }
-  // };
   const deleteProcess = () => {
     if (sectionToDelete) {
       const filteredProcesses = tracerStream.sections.filter(
@@ -179,19 +173,24 @@ const Details = () => {
           tracerStream,
         );
         if (result) {
-          alert('Traceability stream updated successfully!');
+          // alert('Traceability stream updated successfully!');
+          successToast();
         }
       } else {
         // Create new traceability
         const result =
           await orderManagementApiProxy.createTraceability(tracerStream);
         if (result) {
-          alert('Traceability stream created successfully!');
+          // alert('Traceability stream created successfully!');
+          successToast();
         }
       }
-      router.push('/traceability-stream');
+      setTimeout(() => {
+        router.push('/traceability-stream');
+      }, 2000);
     } catch (error) {
       setError('Failed to save traceability stream.');
+      errorToast();
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -467,6 +466,7 @@ const Details = () => {
               {isLoading ? 'Saving...' : 'Save'}
             </button>
           )}
+          <Toaster />
         </div>
       </footer>
     </Layout>
