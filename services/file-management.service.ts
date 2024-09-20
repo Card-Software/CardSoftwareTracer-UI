@@ -21,20 +21,24 @@ class FileManagementService {
       );
     }
 
-    const oldPrefix = `${productOrder.productOrderNumber}/${tracerStream.id}`;
+    const oldPrefix = productOrder.oldProductOrderNumber
+      ? `${productOrder.oldProductOrderNumber}/${tracerStream.id}`
+      : null;
     const newPrefix = `${productOrder.id}/${tracerStream.id}`;
+
     const [oldFiles, newFiles] = await Promise.all([
-      fileManagementApiProxy.getAllFiles(
-        this.organization.s3BucketName,
-        oldPrefix,
-      ),
+      oldPrefix
+        ? fileManagementApiProxy.getAllFiles(
+            this.organization.s3BucketName,
+            oldPrefix,
+          )
+        : Promise.resolve([]), // Return an empty array if no oldProductOrderNumber
       fileManagementApiProxy.getAllFiles(
         this.organization.s3BucketName,
         newPrefix,
       ),
     ]);
 
-    // Combine the results from both prefixes
     const allFiles = [...oldFiles, ...newFiles];
 
     if (!allFiles || allFiles.length === 0) {

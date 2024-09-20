@@ -8,4 +8,6 @@ export interface PoSearchFilters {
   ntStatus: string | null;
   sacStatus: string | null;
   assignedUserRef: string | null;
+  pageSize: number;
+  pageNumber: number;
 }

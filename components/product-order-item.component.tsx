@@ -7,6 +7,7 @@ import { ProductOrder } from '@/models/product-order';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { User } from '@/models/user';
 import { format } from 'date-fns';
+import { useRouter } from 'next/router';
 
 interface ProductOrderItemProps {
   productOrder: ProductOrder;
@@ -20,6 +21,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
   const [progressPercentage, setProgressPercentage] = useState<number | null>(
     null,
   );
+  const router = useRouter();
 
   const poNumber = productOrder.productOrderNumber;
   const poNumberUri = encodeURIComponent(poNumber);
@@ -34,11 +36,16 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
     ? format(new Date(dateCreated), 'dd/MM/yyyy')
     : 'N/A';
 
+  const handleOrderClick = () => {
+    router.push(`/dashboard/po/${productOrder.id as string}`);
+  };
+
   return (
-    <Link href={`/dashboard/po/${productOrder.id as string}`}>
+    <div>
       <div
+        onClick={handleOrderClick}
         className="flex flex-col justify-between rounded-md border border-gray-400 p-4"
-        style={{ height: '210px', width: '300px' }}
+        style={{ height: '210px', width: '300px', cursor: 'pointer' }}
       >
         <div className="mb-1 flex flex-row items-center justify-between">
           <h2 className="font-semibold text-black">Product Order</h2>
@@ -105,7 +112,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

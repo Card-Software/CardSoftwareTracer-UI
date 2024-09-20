@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Layout from '@/app/layout';
 import '../../styles/dashboard.css';
 import TracerButton from '@/components/tracer-button.component';
@@ -25,40 +25,31 @@ const Dashboard: React.FC = () => {
   const [filteredProductOrders, setFilteredProductOrders] = useState<
     ProductOrder[]
   >([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
-
-  const [filterInputs, setFilterInputs] = useState<PoSearchFilters>({
-    productOrderNumber: '',
-    externalPoNumber: '',
-    startDate: null,
-    endDate: null,
-    siteRef: '',
-    planningStatus: '',
-    ntStatus: '',
-    sacStatus: '',
-    assignedUserRef: '',
-  });
-
   const [filterValues, setFilterValues] = useState<PoSearchFilters>({
-    productOrderNumber: '',
-    externalPoNumber: '',
+    productOrderNumber: null,
+    externalPoNumber: null,
     startDate: null,
     endDate: null,
-    siteRef: '',
-    planningStatus: '',
-    ntStatus: '',
-    sacStatus: '',
-    assignedUserRef: '',
+    siteRef: null,
+    planningStatus: null,
+    ntStatus: null,
+    sacStatus: null,
+    assignedUserRef: null,
+    pageSize: 50,
+    pageNumber: 1,
   });
+  const hasPageBeenRendered = useRef(false);
+  const fetchingPo = useRef(false);
 
   const [pageSize, setPageSize] = useState<number>(50);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
   const [allSites, setAllSites] = useState<Site[]>([]);
   const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [initialLoad, setInitialLoad] = useState<boolean>(true);
-  let loadingOrders = false;
+
+  // #region UseEffect
 
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
@@ -66,24 +57,16 @@ const Dashboard: React.FC = () => {
       setAllSites(organization.sites || []);
       setAllUsers(organization.users || []);
     }
-
-    if (!loadingOrders) {
-      fetchProductOrders();
-      loadingOrders = true;
-    }
   }, []);
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router.isReady) return; // Wait for the route to be ready
     const { query } = router;
 
-    const getStringValue = (value: string | string[] | undefined): string => {
-      if (Array.isArray(value)) {
-        return value[0] || '';
-      }
-      return value || '';
-    };
+    const getStringValue = (value: string | string[] | undefined): string =>
+      Array.isArray(value) ? value[0] || '' : value || '';
 
+    // Extract initial filters from the query params
     const initialFilters = {
       productOrderNumber: getStringValue(query.productOrderNumber),
       externalPoNumber: getStringValue(query.externalPoNumber),
@@ -96,40 +79,63 @@ const Dashboard: React.FC = () => {
       ntStatus: getStringValue(query.ntStatus),
       sacStatus: getStringValue(query.sacStatus),
       assignedUserRef: getStringValue(query.assignedUserRef),
+      pageSize: parseInt(getStringValue(query.pageSize)) || 50,
+      pageNumber: parseInt(getStringValue(query.pageNumber)) || 1,
     };
 
-    setFilterInputs(initialFilters);
-    setFilterValues(initialFilters);
-  }, [router.query]);
+    // Only set filterValues if the page has not been rendered before
+    if (!hasPageBeenRendered.current) {
+      setFilterValues(initialFilters);
+      hasPageBeenRendered.current = true;
+    }
 
+    fetchProductOrders(initialFilters);
+  }, [router.isReady, router.query]);
+
+  // Fetch function moved out
+
+  // Update router query params when pagination or filters change
   useEffect(() => {
-    if (initialLoad) return;
-    fetchProductOrders();
-  }, [filterValues, pageNumber, pageSize]);
+    if (!router.isReady || !hasPageBeenRendered.current) return;
 
-  const toggleFilterVisibility = () => {
-    setIsFilterVisible(!isFilterVisible);
-  };
+    const query: { [key: string]: string | number } = {};
 
-  const fetchProductOrders = async () => {
+    Object.keys(filterValues).forEach((key) => {
+      const value = filterValues[key as keyof PoSearchFilters];
+      if (value !== null && value !== '') {
+        query[key] =
+          typeof value === 'object' && value.toISOString
+            ? value.toISOString()
+            : String(value);
+      }
+    });
+
+    // Add pageSize and pageNumber to the query if necessary
+    if (pageSize) query.pageSize = pageSize;
+    if (pageNumber) query.pageNumber = pageNumber;
+
+    router.replace({ pathname: router.pathname, query });
+  }, [filterValues, pageSize, pageNumber]);
+
+  // #endregion
+
+  // #region Fetch Product Orders
+  const fetchProductOrders = async (filters: PoSearchFilters) => {
     try {
+      if (fetchingPo.current) return;
+      fetchingPo.current = true;
       setIsLoading(true);
       const response: AllResponse =
         await orderManagementApiProxy.searchProductOrdersByFilters(
-          filterValues,
+          filters,
           pageNumber,
           pageSize,
         );
-      setInitialLoad(false);
-      const sorted = response.results.sort((a, b) => {
-        if (a.createdDate && b.createdDate) {
-          return (
-            new Date(b.createdDate).getTime() -
-            new Date(a.createdDate).getTime()
-          );
-        }
-        return 0;
-      });
+      fetchingPo.current = false;
+      const sorted = response.results.sort(
+        (a, b) =>
+          new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime(),
+      );
       setProductOrders(sorted);
       setFilteredProductOrders(sorted);
       setTotalResults(response.totalResults);
@@ -139,33 +145,24 @@ const Dashboard: React.FC = () => {
       setIsLoading(false);
     }
   };
+  // #endregion
 
+  // #region Filter Handlers
+  const toggleFilterVisibility = () => {
+    setIsFilterVisible(!isFilterVisible);
+  };
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFilterInputs({
-      ...filterInputs,
+    setFilterValues({
+      ...filterValues,
       [e.target.name]: e.target.value,
     });
   };
 
-  const clearAllFilters = () => {
-    setFilterInputs({
-      productOrderNumber: '',
-      externalPoNumber: '',
-      assignedUserRef: '',
-      startDate: null,
-      endDate: null,
-      siteRef: '',
-      planningStatus: '',
-      ntStatus: '',
-      sacStatus: '',
-    });
-  };
-
   const handleDateChange = (name: string, date: Date | null) => {
-    setFilterInputs({
-      ...filterInputs,
+    setFilterValues({
+      ...filterValues,
       [name]: date ? moment(date) : null,
     });
   };
@@ -173,13 +170,13 @@ const Dashboard: React.FC = () => {
   const handleUserChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const user = allUsers.find((u) => u.id === e.target.value);
     if (user) {
-      setFilterInputs({
-        ...filterInputs,
+      setFilterValues({
+        ...filterValues,
         assignedUserRef: user.id || '',
       });
     } else {
-      setFilterInputs({
-        ...filterInputs,
+      setFilterValues({
+        ...filterValues,
         assignedUserRef: '',
       });
     }
@@ -187,27 +184,17 @@ const Dashboard: React.FC = () => {
 
   const clearFilters = () => {
     setFilterValues({
-      productOrderNumber: '',
-      externalPoNumber: '',
+      productOrderNumber: null,
+      externalPoNumber: null,
       startDate: null,
       endDate: null,
-      siteRef: '',
-      planningStatus: '',
-      ntStatus: '',
-      sacStatus: '',
-      assignedUserRef: '',
-    });
-
-    setFilterInputs({
-      productOrderNumber: '',
-      externalPoNumber: '',
-      startDate: null,
-      endDate: null,
-      siteRef: '',
-      planningStatus: '',
-      ntStatus: '',
-      sacStatus: '',
-      assignedUserRef: '',
+      siteRef: null,
+      planningStatus: null,
+      ntStatus: null,
+      sacStatus: null,
+      assignedUserRef: null,
+      pageSize: 50,
+      pageNumber: 1,
     });
     // Clear query params
     router.push(
@@ -219,42 +206,15 @@ const Dashboard: React.FC = () => {
       { shallow: true },
     );
   };
+  // #endregion
 
-  const applyFilters = () => {
-    const usedFilters = Object.entries(filterInputs)
-      .filter(([key, value]) => value !== '' && value !== null)
-      .reduce((acc: { [key: string]: any }, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
-
-    const query = {
-      ...usedFilters,
-      startDate: filterInputs.startDate
-        ? filterInputs.startDate.format('YYYY-MM-DD')
-        : '',
-      endDate: filterInputs.endDate
-        ? filterInputs.endDate.format('YYYY-MM-DD')
-        : '',
-    };
-
-    router.push(
-      {
-        pathname: router.pathname,
-        query,
-      },
-      undefined,
-      { shallow: true },
-    );
-
-    setFilterValues(filterInputs);
-    setPageNumber(1); // Reset to first page when applying filters
-  };
-
+  // #region Pagination Handlers
   const handlePageChange = (newPageNumber: number) => {
     setPageNumber(newPageNumber);
   };
+  // #endregion
 
+  // #region Delete Product Order
   const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
     if (!orderToDelete.id) {
       return;
@@ -284,6 +244,8 @@ const Dashboard: React.FC = () => {
       }
     }
   };
+
+  // #endregion
 
   return (
     <Layout>
@@ -321,7 +283,7 @@ const Dashboard: React.FC = () => {
                 type="text"
                 name="productOrderNumber"
                 id="productOrderName"
-                value={filterInputs.productOrderNumber || ''}
+                value={filterValues.productOrderNumber || ''}
                 onChange={handleFilterChange}
                 className="input-custom"
               />
@@ -337,7 +299,7 @@ const Dashboard: React.FC = () => {
                 type="text"
                 name="externalPoNumber"
                 id="externalPoNumber"
-                value={filterInputs.externalPoNumber || ''}
+                value={filterValues.externalPoNumber || ''}
                 onChange={handleFilterChange}
                 className="input-custom"
               />
@@ -352,7 +314,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="assignedUserRef"
                 id="assignedUserRef"
-                value={filterInputs.assignedUserRef || ''}
+                value={filterValues.assignedUserRef || ''}
                 onChange={handleUserChange}
                 className="input-custom"
               >
@@ -373,8 +335,8 @@ const Dashboard: React.FC = () => {
               </label>
               <DatePicker
                 selected={
-                  filterInputs.startDate
-                    ? filterInputs.startDate.toDate()
+                  filterValues.startDate
+                    ? filterValues.startDate.toDate()
                     : null
                 }
                 onChange={(date) => handleDateChange('startDate', date)}
@@ -391,7 +353,7 @@ const Dashboard: React.FC = () => {
               </label>
               <DatePicker
                 selected={
-                  filterInputs.endDate ? filterInputs.endDate.toDate() : null
+                  filterValues.endDate ? filterValues.endDate.toDate() : null
                 }
                 onChange={(date) => handleDateChange('endDate', date)}
                 className="input-custom"
@@ -408,7 +370,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="siteRef"
                 id="siteRef"
-                value={filterInputs.siteRef || ''}
+                value={filterValues.siteRef || ''}
                 onChange={handleFilterChange}
                 className="input-custom"
               >
@@ -430,7 +392,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="planningStatus"
                 id="planningStatus"
-                value={filterInputs.planningStatus || ''}
+                value={filterValues.planningStatus || ''}
                 onChange={handleFilterChange}
                 className="input-custom"
               >
@@ -452,7 +414,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="ntStatus"
                 id="ntStatus"
-                value={filterInputs.ntStatus || ''}
+                value={filterValues.ntStatus || ''}
                 onChange={handleFilterChange}
                 className="input-custom"
               >
@@ -474,7 +436,7 @@ const Dashboard: React.FC = () => {
               <select
                 name="sacStatus"
                 id="sacStatus"
-                value={filterInputs.sacStatus || ''}
+                value={filterValues.sacStatus || ''}
                 onChange={handleFilterChange}
                 className="input-custom"
               >
@@ -490,26 +452,18 @@ const Dashboard: React.FC = () => {
 
           <div className="mt-6 flex justify-end space-x-3">
             <button
-              onClick={clearAllFilters}
+              onClick={clearFilters}
               className="rounded-md border border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 transition-colors duration-200 hover:bg-blue-500 hover:text-white"
             >
               Clear All
             </button>
-            <button
-              onClick={applyFilters}
-              className="rounded-md bg-[var(--primary-button)] px-5 py-2 font-semibold text-white transition-colors duration-200 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-            >
-              Apply Filters
-            </button>
           </div>
         </div>
       )}
-
       <div
-        className="my-4 mt-3 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
-      <div className="grid grid-cols-3 gap-4">
+        className=" mt-4 grid grid-cols-3 gap-4"
+        style={{ marginBottom: '6rem' }}
+      >
         {filteredProductOrders.length > 0 ? (
           filteredProductOrders.map((order) => (
             <ProductOrderItem
@@ -523,7 +477,7 @@ const Dashboard: React.FC = () => {
         )}
       </div>
 
-      {/* <footer
+      <footer
         className="stream-footer fixed bottom-0 flex w-full items-center justify-between p-4"
         style={{
           backgroundColor: 'var(--primary-color)',
@@ -553,7 +507,7 @@ const Dashboard: React.FC = () => {
             Next
           </button>
         </div>
-      </footer> */}
+      </footer>
     </Layout>
   );
 };

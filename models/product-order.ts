@@ -27,4 +27,6 @@ export interface ProductOrder {
   invoiceDate?: Date | null;
   provider?: string;
   siblingProductOrders: SiblingProductOrder[];
+  // Being used becasue we moved from storing in S3 using the productOrderNumber to storing in S3 using the id.
+  oldProductOrderNumber?: string;
 }

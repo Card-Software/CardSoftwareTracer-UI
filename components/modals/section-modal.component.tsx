@@ -17,7 +17,7 @@ import '@/styles/modals/section-modal.css';
 import { Controller, useForm } from 'react-hook-form';
 import TracerButton from '../tracer-button.component';
 import DragAndDropArea from '../_base/drag-and-drop-area';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { from } from 'rxjs';
 
 const isUserValid = (value: any): value is User => {
@@ -229,9 +229,10 @@ const SectionModal: React.FC<SectionModalProps> = ({
       try {
         // Use forkJoin to fetch both file lists concurrently and merge the results
         forkJoin({
-          oldFiles: from(
-            fileManagementApiProxy.getAllFiles(bucketName, oldPrefix),
-          ),
+          oldFiles:
+            productOrder !== ''
+              ? from(fileManagementApiProxy.getAllFiles(bucketName, oldPrefix))
+              : of([]),
           newFiles: from(
             fileManagementApiProxy.getAllFiles(bucketName, newPrefix),
           ),

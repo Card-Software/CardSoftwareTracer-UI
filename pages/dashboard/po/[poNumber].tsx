@@ -853,7 +853,7 @@ const PurchaseOrderPage: React.FC = () => {
       <SectionModal
         isOpen={isSectionModalOpen}
         productOrderId={productOrder.id as string}
-        productOrder={productOrder.productOrderNumber}
+        productOrder={productOrder.oldProductOrderNumber || ''}
         tracerStreamId={selectedStream?.id || undefined}
         initialSection={selectedSection as SectionModel}
         onClose={handleCloseSectionModal}
