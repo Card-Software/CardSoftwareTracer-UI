@@ -57,7 +57,9 @@ const TraceabilityStream = () => {
       <LoadingOverlay show={isLoading} />
       <div className="tool-bar">
         <div className="tool-bar-title">
-          <h1>Traceability Stream</h1>
+          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
+            Traceability Stream
+          </h1>
         </div>
         <div className="tool-bar-buttons">
           {IsAdmin && (

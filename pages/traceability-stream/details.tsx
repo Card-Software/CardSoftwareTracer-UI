@@ -262,7 +262,7 @@ const Details = () => {
         </div>
         <div className="tool-bar">
           <div className="tool-bar-title">
-            <h1>
+            <h1 className="text-3xl font-bold text-[var(--primary-color)]">
               {isEditing
                 ? 'Edit Traceability Stream'
                 : 'Add Traceability Stream'}
@@ -376,9 +376,13 @@ const Details = () => {
                                 {section.teamLabels.map((label) => (
                                   <div
                                     key={label.id}
-                                    className="rounded-2xl bg-gray-100 p-1 px-4 text-sm text-blue-500"
+                                    className={`max-w-[120px] rounded-2xl p-1 px-4 text-sm ${
+                                      section.isRequired
+                                        ? 'border border-blue-500 bg-white text-blue-500'
+                                        : 'bg-gray-100 text-blue-500'
+                                    }`}
                                   >
-                                    <span className="py-1 text-sm text-blue-500">
+                                    <span className="block overflow-hidden truncate whitespace-nowrap">
                                       {label.labelName}
                                     </span>
                                   </div>

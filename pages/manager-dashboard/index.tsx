@@ -414,7 +414,9 @@ const ManagerDashboard: React.FC = () => {
         <LoadingOverlay show={isLoading} />
         <div className="flex flex-row items-center">
           <div className="me-8 text-xl">
-            <h1>Managers Dashboard</h1>
+            <h1 className="text-3xl font-bold text-[var(--primary-color)]">
+              Managers Dashboard
+            </h1>
           </div>
 
           <div className="ml-3">Total Results: {totalResults}</div>
