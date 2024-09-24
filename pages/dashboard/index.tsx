@@ -87,10 +87,9 @@ const Dashboard: React.FC = () => {
     // Only set filterValues if the page has not been rendered before
     if (!hasPageBeenRendered.current) {
       setFilterValues(initialFilters);
+      fetchProductOrders(initialFilters);
       hasPageBeenRendered.current = true;
     }
-
-    fetchProductOrders(initialFilters);
   }, [router.isReady, router.query]);
 
   // Fetch function moved out
@@ -458,13 +457,19 @@ const Dashboard: React.FC = () => {
               </select>
             </div>
           </div>
-          <div className="mt-4 flex w-full justify-end">
+          <div className="mt-4 flex w-full justify-end gap-2">
             <button
               onClick={clearFilters}
+              style={{ borderRadius: '10px 10px 10px 10px' }}
               className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
             >
               Clear All
             </button>
+            <TracerButton
+              type="submit"
+              name="Apply Filter"
+              onClick={() => fetchProductOrders(filterValues)}
+            />
           </div>
         </div>
       )}

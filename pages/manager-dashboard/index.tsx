@@ -143,7 +143,7 @@ const ManagerDashboard: React.FC = () => {
 
     if (isLoadingRef.current) return;
 
-    fetchProductOrders(filterValues);
+    // fetchProductOrders(filterValues);
   }, [router.isReady, router.query]);
 
   // Fetch product orders with filters
@@ -647,10 +647,16 @@ const ManagerDashboard: React.FC = () => {
               <div className="col-span-3 flex justify-end gap-2">
                 <button
                   onClick={clearFilters}
-                  className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
+                  style={{ borderRadius: '10px 10px 10px 10px' }}
+                  className="rounded-md border-2 border-blue-500 bg-white px-4 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
                 >
                   Clear All
                 </button>
+                <TracerButton
+                  type="button"
+                  name="Apply Filter"
+                  onClick={() => fetchProductOrders(filterValues)}
+                />
               </div>
             </div>
           </div>
