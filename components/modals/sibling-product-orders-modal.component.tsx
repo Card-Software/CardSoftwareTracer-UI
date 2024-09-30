@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FaTimes } from 'react-icons/fa';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
 import * as Yup from 'yup';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -63,7 +62,7 @@ const SiblingProductOrderModal: React.FC<sibPosProps> = ({
   return (
     <BaseModal
       isOpen={true}
-      onSave={() => handleSubmit(onSubmit)}
+      onSave={handleSubmit(onSubmit)}
       onClose={onClose}
       title="Sibling Product Orders"
       loading={false}
@@ -208,6 +207,7 @@ const RemoveButton = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
+
   background: none;
   border: none;
   color: #f56565; /* Tailwind text-red-500 */
