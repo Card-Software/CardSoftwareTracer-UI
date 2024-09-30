@@ -63,7 +63,7 @@ const SiblingProductOrderModal: React.FC<sibPosProps> = ({
   return (
     <BaseModal
       isOpen={true}
-      onSave={() => handleSubmit(onSubmit)}
+      onSave={handleSubmit(onSubmit)}
       onClose={onClose}
       title="Sibling Product Orders"
       loading={false}
@@ -208,6 +208,7 @@ const RemoveButton = styled.button`
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
+  
   background: none;
   border: none;
   color: #f56565; /* Tailwind text-red-500 */
