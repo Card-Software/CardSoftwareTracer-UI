@@ -3,6 +3,8 @@ import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { FaChevronDown, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // Importing icons for toggle button
+import { userAuthenticationService } from '@/services/user-authentication.service';
+import { User } from '@/models/user';
 
 interface MenuItem {
   id: number;
@@ -50,6 +52,9 @@ const Sidebar: React.FC = () => {
       [id]: !prevState[id],
     }));
   };
+
+  const user = userAuthenticationService.getUser() as User;
+  const isAdmin = user.role.includes('Admin');
 
   return (
     <aside
@@ -146,21 +151,23 @@ const Sidebar: React.FC = () => {
                   </div>
                 </Link>
               ) : (
-                <div
-                  className={`cursor-pointer px-4 py-2 ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} rounded-md transition-all duration-700 ease-in-out`}
-                  onClick={() => toggleExpand(menu.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{menu.label}</span>
-                    <span
-                      className={`transition-transform duration-300 ease-in-out ${
-                        isExpanded ? 'rotate-180' : 'rotate-0'
-                      }`}
-                    >
-                      <FaChevronDown size={12} color="gray" />
-                    </span>
+                isAdmin && (
+                  <div
+                    className={`cursor-pointer px-4 py-2 ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} rounded-md transition-all duration-700 ease-in-out`}
+                    onClick={() => toggleExpand(menu.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{menu.label}</span>
+                      <span
+                        className={`transition-transform duration-300 ease-in-out ${
+                          isExpanded ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      >
+                        <FaChevronDown size={12} color="gray" />
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )
               )}
 
               <div
