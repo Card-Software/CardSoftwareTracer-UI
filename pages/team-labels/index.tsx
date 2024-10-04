@@ -44,7 +44,11 @@ const TeamLabels = () => {
   }, []);
 
   const handleAddLabel = () => {
-    router.push('/team-labels/add');
+    router.push('/team-labels/details');
+  };
+
+  const handleLabelClick = (id: string) => {
+    router.push(`/team-labels/details?id=${id}`);
   };
 
   return (
@@ -69,51 +73,21 @@ const TeamLabels = () => {
         className="my-4 w-full border-b-4"
         style={{ borderColor: 'var(--primary-color)' }}
       ></div>
-
-      <div className="flex flex-row items-start justify-start">
-        <div className="w-full overflow-auto">
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-400 text-white">
-                <th className="border-b border-gray-300 px-4 py-2">
-                  Label Name
-                </th>
-                <th className="border-b border-gray-300 px-4 py-2">Owner</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTeamLabels.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={2}
-                    className="border-b border-gray-300 px-4 py-2 text-center"
-                  >
-                    No Team Labels Found
-                  </td>
-                </tr>
-              ) : (
-                filteredTeamLabels.map((teamLabel, index) => (
-                  <tr
-                    key={teamLabel.id}
-                    className={`cursor-pointer ${
-                      index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-                    } hover:bg-gray-200`}
-                    onClick={() =>
-                      router.push(`/team-labels/details?id=${teamLabel.id}`)
-                    }
-                  >
-                    <td className="border-b border-gray-300 px-4 py-2">
-                      {teamLabel.labelName}
-                    </td>
-                    <td className="border-b border-gray-300 px-4 py-2 text-center">
-                      {teamLabel.owner.name}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredTeamLabels.map((teamLabel) => (
+          <div
+            key={teamLabel.id}
+            className="cursor-pointer rounded-lg border border-gray-300 p-4 shadow-md"
+            onClick={() => handleLabelClick(teamLabel.id)}
+          >
+            <h2 className="text-lg font-bold text-gray-700">
+              {teamLabel.labelName}
+            </h2>
+            <p className="text-sm text-gray-500">
+              Owner: {teamLabel.owner.name}
+            </p>
+          </div>
+        ))}
       </div>
     </Layout>
   );
