@@ -20,6 +20,7 @@ import DragAndDropArea from '../_base/drag-and-drop-area';
 import { forkJoin, of } from 'rxjs';
 import { from } from 'rxjs';
 import AlertModal from './alert-modal-component';
+import { get } from 'lodash';
 
 const isUserValid = (value: any): value is User => {
   return (
@@ -120,12 +121,26 @@ const SectionModal: React.FC<SectionModalProps> = ({
   useEffect(() => {
     if (isOpen && initialSection) {
       setValue('section', initialSection);
+      const defaultPrefix = `${productOrderId}/${tracerStreamId}/${initialSection.sectionId}`;
+      const oldPrefix = `${productOrder}/${tracerStreamId}/${initialSection.sectionId}`;
       setPrefix(
         `${productOrderId}/${tracerStreamId}/${initialSection.sectionId}`,
       );
+      const fetchFiles = async () => {
+        if (bucketName) {
+          setLoading(true);
+          try {
+            await getAllFiles(defaultPrefix, oldPrefix);
+          } catch (error) {
+            console.error('Error fetching files:', error);
+          } finally {
+            setLoading(false);
+          }
+        }
+      };
+      fetchFiles();
     }
   }, [isOpen, initialSection]);
-
   useEffect(() => {
     if (!totalSections) return;
 
@@ -138,19 +153,20 @@ const SectionModal: React.FC<SectionModalProps> = ({
 
   useEffect(() => {
     if (mode === 'edit' && bucketName && prefix !== '') {
-      const fetchFiles = async () => {
-        if (bucketName) {
-          setLoading(true);
-          try {
-            await getAllFiles();
-          } catch (error) {
-            console.error('Error fetching files:', error);
-          } finally {
-            setLoading(false);
-          }
-        }
-      };
-      fetchFiles();
+      console.log('Fetching files');
+      // const fetchFiles = async () => {
+      //   if (bucketName) {
+      //     setLoading(true);
+      //     try {
+      //       await getAllFiles();
+      //     } catch (error) {
+      //       console.error('Error fetching files:', error);
+      //     } finally {
+      //       setLoading(false);
+      //     }
+      //   }
+      // };
+      // fetchFiles();
     }
   }, [bucketName, prefix, mode]);
 
@@ -223,13 +239,15 @@ const SectionModal: React.FC<SectionModalProps> = ({
     uploadFile(file);
   };
 
-  const getAllFiles = async () => {
+  const getAllFiles = async (defaultPrefix?: string, oldDefPrefix?: string) => {
     if (bucketName) {
       setLoading(true);
 
       // Define the two prefixes
-      const oldPrefix = `${productOrder}/${tracerStreamId}/${initialSection.sectionId}`;
-      const newPrefix = prefix;
+      const oldPrefix = oldDefPrefix
+        ? oldDefPrefix
+        : `${productOrder}/${tracerStreamId}/${initialSection.sectionId}`;
+      const newPrefix = defaultPrefix ? defaultPrefix : prefix;
 
       try {
         // Use forkJoin to fetch both file lists concurrently and merge the results
