@@ -21,9 +21,9 @@ const menuItems: MenuItem[] = [
     id: 5,
     label: 'Groups',
     subItems: [
-      { id: 6, label: 'Groups', link: '#' },
-      { id: 7, label: 'Team Labels', link: '/team-labels'},
-      { id: 8, label: 'Statuses', link: '/group3' },
+      { id: 6, label: 'Groups', link: '/groups' },
+      { id: 7, label: 'Team Labels', link: '/team-labels' },
+      { id: 8, label: 'Statuses', link: '#' },
     ],
   },
 ];
@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
     }));
   };
 
-  const user = userAuthenticationService.getUser() as User;
+  const user: User = userAuthenticationService.getUser() as User;
   const isAdmin = user.role.includes('Admin');
 
   return (
@@ -198,83 +198,6 @@ const Sidebar: React.FC = () => {
         })}
       </div>
     </aside>
-
-    // <aside
-    //   className={`sidebar flex h-full min-h-screen ${
-    //     isCollapsed ? 'w-16' : 'w-44'
-    //   } flex-col border-e-2 border-white bg-gray-100 text-black transition-all duration-300 ease-in-out`}
-    // >
-    //   {/* Toggle Button */}
-    //   <div className="flex justify-start p-2">
-    //     <button
-    //       onClick={toggleCollapse}
-    //       className="flex items-center justify-center rounded border-none p-2 shadow-none transition "
-    //     >
-    //       {isCollapsed ? (
-    //         <FaChevronRight />
-    //       ) : (
-    //         <FaChevronLeft />
-    //       )}
-    //     </button>
-    //   </div>
-
-    //   <div className="flex flex-grow flex-col items-start">
-    //     {menuItems.map((menu) => {
-    //       const isActive = highestHierarchyPath === menu.link;
-    //       const isExpanded = expanded[menu.id];
-
-    //       return (
-    //         <div key={menu.id} style={{ width: '100%' }}>
-    //           {/* Render parent menu items */}
-    //           {menu.link ? (
-    //             <Link href={menu.link}>
-    //               <div
-    //                 className={`px-4 py-2 ${
-    //                   isActive
-    //                     ? 'bg-gray-200 font-bold text-black'
-    //                     : 'hover:bg-gray-500 hover:text-white'
-    //                 } ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} rounded-md transition-all duration-300 ease-in-out`}
-    //               >
-    //                 {menu.label}
-    //               </div>
-    //             </Link>
-    //           ) : (
-    //             <div
-    //               className={`px-4 py-2 cursor-pointer ${
-    //                 isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'
-    //               } rounded-md transition-all duration-300 ease-in-out`}
-    //               onClick={() => toggleExpand(menu.id)}
-    //             >
-    //               <div className="flex items-center justify-between">
-    //                 <span>{menu.label}</span>
-    //                 {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
-    //               </div>
-    //             </div>
-    //           )}
-
-    //           {/* Render sub-items if they exist and are expanded */}
-    //           {isExpanded && menu.subItems && (
-    //             <div className={`pl-4 ${isCollapsed ? 'hidden' : 'block'}`}>
-    //               {menu.subItems.map((subItem) => (
-    //                 <Link key={subItem.id} href={subItem.link || '#'}>
-    //                   <div
-    //                     className={`px-4 py-2 ${
-    //                       pathname === subItem.link
-    //                         ? 'bg-gray-200 font-bold text-black'
-    //                         : 'hover:bg-gray-500 hover:text-white'
-    //                     } rounded-md transition-all duration-300 ease-in-out`}
-    //                   >
-    //                     {subItem.label}
-    //                   </div>
-    //                 </Link>
-    //               ))}
-    //             </div>
-    //           )}
-    //         </div>
-    //       );
-    //     })}
-    //   </div>
-    // </aside>
   );
 };
 
