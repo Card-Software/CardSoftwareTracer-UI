@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { TeamLabel } from '@/models/team-label';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import LoadingOverlay from '@/components/loading-overlay.component';
@@ -8,6 +8,8 @@ import '@/styles/traceability-stream.css';
 import { HiPlus } from 'react-icons/hi';
 import TracerButton from '@/components/tracer-button.component';
 import Layout from '@/app/layout';
+import { FaTrash } from 'react-icons/fa';
+import toast, { Toaster } from 'react-hot-toast';
 
 const TeamLabels = () => {
   const router = useRouter();
@@ -15,6 +17,8 @@ const TeamLabels = () => {
   const [filteredTeamLabels, setFilteredTeamLabels] = useState<TeamLabel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const hasPageBeenRendered = useRef({ allTeamLabelsLoaded: false });
+  
+  const successDeleteToast = () => toast.success('Team label deleted successfully');
 
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
@@ -51,6 +55,24 @@ const TeamLabels = () => {
     router.push(`/team-labels/details?id=${id}`);
   };
 
+  const handleDeleteLabel = async (id: string) => {
+    try {
+      await teamLabelProxy.deleteTeamLabel(id);
+      const updatedTeamLabels = teamLabels.filter(
+        (teamLabel) => teamLabel.id !== id,
+      );
+      setTeamLabels(updatedTeamLabels);
+      setFilteredTeamLabels(updatedTeamLabels);
+      successDeleteToast();
+    } catch (error) {
+      console.error('Failed to delete team label', error);
+    }
+  };
+
+  const handleDeleteClick = (id: string) => async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await handleDeleteLabel(id);
+  };
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
@@ -77,15 +99,21 @@ const TeamLabels = () => {
         {filteredTeamLabels.map((teamLabel) => (
           <div
             key={teamLabel.id}
-            className="cursor-pointer rounded-lg border border-gray-300 p-4 shadow-md"
+            className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
             onClick={() => handleLabelClick(teamLabel.id)}
           >
-            <h2 className="text-lg font-bold text-gray-700">
-              {teamLabel.labelName}
-            </h2>
-            <p className="text-sm text-gray-500">
-              Owner: {teamLabel.owner.name}
-            </p>
+            <div>
+              <h2 className="text-lg font-bold text-gray-700">
+                {teamLabel.labelName}
+              </h2>
+              <p className="text-sm text-gray-500">
+                Owner: {teamLabel.owner.name}
+              </p>
+            </div>
+            <div onClick={handleDeleteClick(teamLabel.id)}>
+              <FaTrash color="#EF4444" />
+            </div>
+            <Toaster />
           </div>
         ))}
       </div>

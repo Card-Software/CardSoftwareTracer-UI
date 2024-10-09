@@ -9,6 +9,7 @@ import { HiCheck } from 'react-icons/hi';
 import { Site } from '@/models/site';
 import { User } from '@/models/user';
 import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Organization {
   id: string;
@@ -33,6 +34,11 @@ const TeamLabelDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const isEditMode = !!id;
 
+  const successToast = () => toast.success('Team label saved successfully');
+  const successEditToast = () =>
+    toast.success('Team label updated successfully');
+  const errorToast = () => toast.error('Error saving team label');
+
   useEffect(() => {
     const fetchOrganizations = async () => {
       setIsLoading(true);
@@ -55,6 +61,7 @@ const TeamLabelDetails = () => {
         try {
           const data = await teamLabelProxy.getTeamLabelById(id as string);
           setTeamLabel(data);
+          setSelectedOrganization(data.owner.id || '');
         } catch (error) {
           console.error('Error fetching team label:', error);
         } finally {
@@ -64,12 +71,13 @@ const TeamLabelDetails = () => {
     };
     fetchTeamLabel();
   }, [id, isEditMode]);
-  
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     if (name === 'organization') {
+      setSelectedOrganization(value);
       const selectedOrg = organization.find((org) => org.id === value);
       if (selectedOrg) {
         setTeamLabel((prev) => ({
@@ -93,12 +101,15 @@ const TeamLabelDetails = () => {
     try {
       if (isEditMode) {
         await teamLabelProxy.updateTeamLabel(teamLabel.id, teamLabel);
+        successEditToast();
       } else {
         await teamLabelProxy.createTeamLabel(teamLabel);
+        successToast();
       }
-      router.push('/team-labels');
+      setTimeout(() => router.push('/team-labels'), 1000);
     } catch (error) {
       console.error('Error saving team label:', error);
+      errorToast();
     } finally {
       setIsLoading(false);
     }
@@ -142,13 +153,23 @@ const TeamLabelDetails = () => {
           ))}
         </select>
       </div>
-      <div className="my-4">
-        <TracerButton
-          name={isEditMode ? 'Update Label' : 'Create Label'}
-          icon={<HiCheck />}
-          onClick={handleSubmit}
-        />
+      <div className="flex">
+        <div className="my-4">
+          <TracerButton
+            name={isEditMode ? 'Update Label' : 'Create Label'}
+            onClick={handleSubmit}
+          />
+        </div>
+        <div className="my-4 ml-5">
+          <button
+            className="rounded-md bg-red-500 px-4 py-2 text-white"
+            onClick={() => router.push('/team-labels')}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
+      <Toaster />
     </Layout>
   );
 };

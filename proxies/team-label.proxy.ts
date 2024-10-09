@@ -53,6 +53,15 @@ class TeamLabelProxy {
       throw error;
     }
   }
+
+  async deleteTeamLabel(id: string): Promise<void> {
+    try {
+      await axiosInstance.delete(`${this.controller}/${id}`);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 }
 
 export const teamLabelProxy = new TeamLabelProxy();
