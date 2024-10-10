@@ -33,6 +33,26 @@ class UserAuthorizationProxy {
       throw error;
     }
   }
+
+  async getGroupById(id: string): Promise<Group> {
+    try {
+      const response = await axiosInstance.get(`${this.controller}/get/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async deleteGroup(id: string): Promise<void> {
+    try {
+      await axiosInstance.delete(`${this.controller}/delete/${id}`);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
 }
 
 export const userAuthorizationProxy = new UserAuthorizationProxy();
