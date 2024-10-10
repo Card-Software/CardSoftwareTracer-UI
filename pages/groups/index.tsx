@@ -2,13 +2,14 @@ import { Group } from '@/models/group';
 import { userAuthorizationProxy } from '@/proxies/user-authorization.proxy';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Layout from '@/app/layout';
 import LoadingOverlay from '@/components/loading-overlay.component';
 import TracerButton from '@/components/tracer-button.component';
 import { Toaster } from 'react-hot-toast';
 import { FaTrash } from 'react-icons/fa';
 import { HiPlus } from 'react-icons/hi';
+import toast, { Toast } from 'react-hot-toast';
 
 const Groups = () => {
   const router = useRouter();
@@ -16,6 +17,8 @@ const Groups = () => {
   const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const hasPageBeenRendered = useRef({ allGroupsLoaded: false });
+
+  const successDeleteToast = () => toast.success('Group deleted successfully');
 
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
@@ -50,6 +53,23 @@ const Groups = () => {
 
   const handleGroupClick = (id: string) => {
     router.push(`/groups/details?id=${id}`);
+  };
+
+  const handleDeleteGroup = async (id: string) => {
+    try {
+      await userAuthorizationProxy.deleteGroup(id);
+      const updatedGroups = groups.filter((group) => group.id !== id);
+      setGroups(updatedGroups);
+      setFilteredGroups(updatedGroups);
+      successDeleteToast();
+    } catch (error) {
+      console.error('Error deleting group:', error);
+    }
+  };
+
+  const handleDeleteClick = (id: string) => async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await handleDeleteGroup(id);
   };
   return (
     <Layout>
@@ -86,7 +106,7 @@ const Groups = () => {
                 Description: {group.description}
               </p>
             </div>
-            <div>
+            <div onClick={handleDeleteClick(group.id || '')}>
               <FaTrash color="#EF4444" />
             </div>
             <Toaster />
