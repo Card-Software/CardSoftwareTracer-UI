@@ -17,8 +17,9 @@ const TeamLabels = () => {
   const [filteredTeamLabels, setFilteredTeamLabels] = useState<TeamLabel[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const hasPageBeenRendered = useRef({ allTeamLabelsLoaded: false });
-  
-  const successDeleteToast = () => toast.success('Team label deleted successfully');
+
+  const successDeleteToast = () =>
+    toast.success('Team label deleted successfully');
 
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
@@ -48,11 +49,11 @@ const TeamLabels = () => {
   }, []);
 
   const handleAddLabel = () => {
-    router.push('/team-labels/details');
+    router.push(`${router.asPath}/details`);
   };
 
   const handleLabelClick = (id: string) => {
-    router.push(`/team-labels/details?id=${id}`);
+    router.push(`${router.asPath}/details?id=${id}`);
   };
 
   const handleDeleteLabel = async (id: string) => {
@@ -73,6 +74,7 @@ const TeamLabels = () => {
     e.stopPropagation();
     await handleDeleteLabel(id);
   };
+
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />

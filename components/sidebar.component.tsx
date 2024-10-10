@@ -19,10 +19,10 @@ const menuItems: MenuItem[] = [
   { id: 4, label: 'Man. Dashboard', link: '/manager-dashboard' },
   {
     id: 5,
-    label: 'Groups',
+    label: 'Admin',
     subItems: [
-      { id: 6, label: 'Groups', link: '/groups' },
-      { id: 7, label: 'Team Labels', link: '/team-labels' },
+      { id: 6, label: 'Groups', link: '/admin/groups' },
+      { id: 7, label: 'Team Labels', link: '/admin/team-labels' },
       { id: 8, label: 'Statuses', link: '#' },
     ],
   },
@@ -32,6 +32,7 @@ const Sidebar: React.FC = () => {
   const fullPath = usePathname() || '/';
   const highestHierarchyPath = '/' + fullPath.split('/')[1];
   const [pathname, setPathname] = useState(highestHierarchyPath);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false); // State for collapse
   const [expandedItems, setExpandedItems] = useState<{
     [key: number]: boolean;
@@ -41,6 +42,12 @@ const Sidebar: React.FC = () => {
     const highestHierarchy = '/' + fullPath.split('/')[1];
     setPathname(highestHierarchy);
   }, [fullPath]);
+
+  useEffect(() => {
+    const user: User = userAuthenticationService.getUser() as User;
+    if (!user) return;
+    setIsAdmin(user.role.includes('Admin'));
+  }, []);
 
   const toggleCollapse = () => {
     setIsCollapsed((prevState) => !prevState);
@@ -52,9 +59,6 @@ const Sidebar: React.FC = () => {
       [id]: !prevState[id],
     }));
   };
-
-  const user: User = userAuthenticationService.getUser() as User;
-  const isAdmin = user.role.includes('Admin');
 
   return (
     <aside

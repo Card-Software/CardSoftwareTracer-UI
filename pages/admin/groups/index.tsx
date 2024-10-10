@@ -48,11 +48,11 @@ const Groups = () => {
   }, []);
 
   const handleAddGroup = () => {
-    router.push('/groups/details');
+    router.push(`${router.asPath}/details`);
   };
 
   const handleGroupClick = (id: string) => {
-    router.push(`/groups/details?id=${id}`);
+    router.push(`${router.asPath}/details?id=${id}`);
   };
 
   const handleDeleteGroup = async (id: string) => {
