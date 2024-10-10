@@ -49,6 +49,19 @@ const Sidebar: React.FC = () => {
     setIsAdmin(user.role.includes('Admin'));
   }, []);
 
+  useEffect(() => {
+    const adminMenu = menuItems.find((item) => item.label === 'Admin');
+    if(adminMenu?.subItems) {
+      const expanded=adminMenu.subItems.some(
+        (subItem) => fullPath.includes(subItem.link || '')
+      );
+      setExpandedItems((prevState) => ({
+        ...prevState,
+        [adminMenu.id]: expanded,
+      }));
+    }
+  }, [fullPath]);
+
   const toggleCollapse = () => {
     setIsCollapsed((prevState) => !prevState);
   };
