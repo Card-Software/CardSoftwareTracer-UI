@@ -149,7 +149,7 @@ const TeamLabels = () => {
             <div onClick={handleDeleteClick(teamLabel.id)}>
               <FaTrash color="#EF4444" />
             </div>
-            {/* <Toaster /> */}
+            <Toaster />
           </div>
         ))}
       </div>

@@ -103,8 +103,9 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
         onSave(teamLabel);
         successEditToast();
       } else {
-        await teamLabelProxy.createTeamLabel(teamLabel);
-        onSave(teamLabel);
+        const createdTeamLabel =
+          await teamLabelProxy.createTeamLabel(teamLabel);
+        onSave(createdTeamLabel);
         successToast();
       }
       onClose();
@@ -122,7 +123,6 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
       onClose={onClose}
       isOpen={isOpen}
       loading={isLoading}
-      onSave={() => onSave(teamLabel)}
     >
       <div className="my-4">
         <label className="block text-sm font-medium text-gray-700">
@@ -162,7 +162,6 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
           />
         </div>
       </div>
-      <Toaster />
     </BaseModal>
   );
 };
