@@ -113,12 +113,10 @@ const Groups = () => {
                 setGroupToDelete(group);
                 setIsAlertModalOpen(true);
               }}
-              className="flex h-9 w-9 items-center justify-center rounded-[5px] bg-red-500"
             >
               <FaTrash
-                color="#ffffff"
-                // color='#ef4444'
-                className="h-5 w-5"
+                color="#ef4444"
+                className="h-5 w-5 transition-transform duration-200 hover:scale-125"
               />
             </div>
             <Toaster />
