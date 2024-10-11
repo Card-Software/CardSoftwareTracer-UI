@@ -31,7 +31,7 @@ const menuItems: MenuItem[] = [
 const Sidebar: React.FC = () => {
   const fullPath = usePathname() || '/';
   const highestHierarchyPath = '/' + fullPath.split('/')[1];
-  const [pathname, setPathname] = useState(highestHierarchyPath);
+  const [pathname, setPathname] = useState(fullPath);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false); // State for collapse
   const [expandedItems, setExpandedItems] = useState<{
@@ -39,8 +39,7 @@ const Sidebar: React.FC = () => {
   }>({}); // State for expand
 
   useEffect(() => {
-    const highestHierarchy = '/' + fullPath.split('/')[1];
-    setPathname(highestHierarchy);
+    setPathname(fullPath);
   }, [fullPath]);
 
   useEffect(() => {
@@ -51,9 +50,9 @@ const Sidebar: React.FC = () => {
 
   useEffect(() => {
     const adminMenu = menuItems.find((item) => item.label === 'Admin');
-    if(adminMenu?.subItems) {
-      const expanded=adminMenu.subItems.some(
-        (subItem) => fullPath.includes(subItem.link || '')
+    if (adminMenu?.subItems) {
+      const expanded = adminMenu.subItems.some((subItem) =>
+        fullPath.includes(subItem.link || ''),
       );
       setExpandedItems((prevState) => ({
         ...prevState,
@@ -189,13 +188,9 @@ const Sidebar: React.FC = () => {
 
               <div
                 className={`ml-5 mr-3 overflow-hidden transition-all duration-700 ease-in-out`}
-                style={{
-                  maxHeight: isExpanded
-                    ? `${(menu.subItems?.length || 0) * 48}px`
-                    : '0px',
-                }}
               >
                 {menu.subItems &&
+                  isExpanded &&
                   menu.subItems.map((subItem) => (
                     <Link key={subItem.id} href={subItem.link || '#'}>
                       <div
