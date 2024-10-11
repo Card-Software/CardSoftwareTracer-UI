@@ -6,7 +6,6 @@ import { userAuthorizationProxy } from '@/proxies/user-authorization.proxy';
 import Layout from '@/app/layout';
 import LoadingOverlay from '@/components/loading-overlay.component';
 import TracerButton from '@/components/tracer-button.component';
-import { HiCheck } from 'react-icons/hi';
 import { Site } from '@/models/site';
 import { User } from '@/models/user';
 import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
@@ -118,14 +117,23 @@ const GroupDetails = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
+      console.log('group:', group);
       if (isEditMode) {
         await userAuthorizationProxy.updateGroup(group.id as string, group);
         successEditToast();
       } else {
-        await userAuthorizationProxy.createGroup(group);
+        //  Create a new group with empty membersEmail
+        const createdGroup = await userAuthorizationProxy.createGroup({
+          ...group,
+          membersEmail: [],
+        });
+        await userAuthorizationProxy.updateGroup(createdGroup.id as string, {
+          ...createdGroup,
+          membersEmail: group.membersEmail,
+        });
         successToast();
       }
-      router.push('/groups');
+      router.push('/admin/groups');
     } catch (error) {
       console.error('Error saving group:', error);
       errorToast();
@@ -195,7 +203,6 @@ const GroupDetails = () => {
         <label className="block text-sm font-medium text-gray-700">
           Members (Emails)
         </label>
-        {/* Multi-select dropdown de react-select */}
         <Select
           isMulti
           name="membersEmail"
@@ -232,14 +239,13 @@ const GroupDetails = () => {
         <div className="my-4">
           <TracerButton
             name={isEditMode ? 'Update Group' : 'Create Group'}
-            icon={<HiCheck />}
             onClick={handleSubmit}
           />
         </div>
         <div className="my-4 ml-5">
           <button
             className="rounded-md bg-red-500 px-4 py-2 text-white"
-            onClick={() => router.push('/groups')}
+            onClick={() => router.push('/admin/groups')}
           >
             Cancel
           </button>

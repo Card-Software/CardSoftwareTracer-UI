@@ -123,6 +123,8 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
       onClose={onClose}
       isOpen={isOpen}
       loading={isLoading}
+      onSave={handleSubmit}
+      canSave={!!teamLabel.labelName && !!selectedOrganization}
     >
       <div className="my-4">
         <label className="block text-sm font-medium text-gray-700">
@@ -136,32 +138,33 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
           className="input-custom"
         />
       </div>
-      <div className="my-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Owner Name
-        </label>
-        <select
-          name="organization"
-          value={selectedOrganization}
-          onChange={handleInputChange}
-          className="input-custom"
-        >
-          <option value="">Select an organization</option>
-          {organization.map((org) => (
-            <option key={org.id} value={org.id}>
-              {org.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="flex">
+      {editMode ? (
         <div className="my-4">
-          <TracerButton
-            name={editMode ? 'Update Label' : 'Create Label'}
-            onClick={handleSubmit}
-          />
+          <label className="block text-sm font-medium text-gray-700">
+            Organization
+          </label>
+          <label htmlFor="">{teamLabel.owner.name} </label>
         </div>
-      </div>
+      ) : (
+        <div className="my-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Organization
+          </label>
+          <select
+            name="organization"
+            value={selectedOrganization}
+            onChange={handleInputChange}
+            className="input-custom"
+          >
+            <option value="">Select Organization</option>
+            {organization.map((org) => (
+              <option key={org.id} value={org.id}>
+                {org.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </BaseModal>
   );
 };

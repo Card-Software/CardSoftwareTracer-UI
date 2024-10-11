@@ -10,6 +10,7 @@ import { Toaster } from 'react-hot-toast';
 import { FaTrash } from 'react-icons/fa';
 import { HiPlus } from 'react-icons/hi';
 import toast, { Toast } from 'react-hot-toast';
+import AlertModal from '@/components/modals/alert-modal-component';
 
 const Groups = () => {
   const router = useRouter();
@@ -17,6 +18,8 @@ const Groups = () => {
   const [filteredGroups, setFilteredGroups] = useState<Group[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const hasPageBeenRendered = useRef({ allGroupsLoaded: false });
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<Group | null>(null);
 
   const successDeleteToast = () => toast.success('Group deleted successfully');
 
@@ -65,12 +68,10 @@ const Groups = () => {
     } catch (error) {
       console.error('Error deleting group:', error);
     }
+    setGroupToDelete(null);
+    setIsAlertModalOpen(false);
   };
 
-  const handleDeleteClick = (id: string) => async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    await handleDeleteGroup(id);
-  };
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
@@ -106,13 +107,44 @@ const Groups = () => {
                 Description: {group.description}
               </p>
             </div>
-            <div onClick={handleDeleteClick(group.id || '')}>
-              <FaTrash color="#EF4444" />
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setGroupToDelete(group);
+                setIsAlertModalOpen(true);
+              }}
+              className="flex h-9 w-9 items-center justify-center rounded-[5px] bg-red-500"
+            >
+              <FaTrash
+                color="#ffffff"
+                // color='#ef4444'
+                className="h-5 w-5"
+              />
             </div>
             <Toaster />
           </div>
         ))}
       </div>
+      {isAlertModalOpen && (
+        <AlertModal
+          isOpen={isAlertModalOpen}
+          type="delete"
+          title="Delete Team Label"
+          message="Are you sure you want to delete this Team Label"
+          icon={<FaTrash className="h-6 w-6 text-red-500" />}
+          onClose={() => {
+            setIsAlertModalOpen(false);
+            setGroupToDelete(null);
+          }}
+          onConfirm={() => {
+            if (groupToDelete?.id) {
+              handleDeleteGroup(groupToDelete.id);
+            } else {
+              console.error('Team label id is null');
+            }
+          }}
+        />
+      )}
     </Layout>
   );
 };

@@ -11,6 +11,7 @@ import Layout from '@/app/layout';
 import { FaTrash } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import TeamLabelModal from '@/components/modals/team-lable-modal.component';
+import AlertModal from '@/components/modals/alert-modal-component';
 
 const TeamLabels = () => {
   const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
@@ -19,12 +20,12 @@ const TeamLabels = () => {
   const hasPageBeenRendered = useRef({ allTeamLabelsLoaded: false });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [id, setId] = useState('');
-  const [connectedTeamLabels, setConnectedTeamLabels] = useState<TeamLabel[]>(
-    [],
-  );
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [tlToDelete, setTlToDelete] = useState<TeamLabel | null>(null);
 
   const successDeleteToast = () =>
     toast.success('Team label deleted successfully');
+  const errorToast = () => toast.error('Error deleting team label');
 
   useEffect(() => {
     const organization = userAuthenticationService.getOrganization();
@@ -74,13 +75,12 @@ const TeamLabels = () => {
       successDeleteToast();
     } catch (error) {
       console.error('Failed to delete team label', error);
+      errorToast();
     }
+    setTlToDelete(null);
+    setIsAlertModalOpen(false);
   };
 
-  const handleDeleteClick = (id: string) => async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    await handleDeleteLabel(id);
-  };
 
   const updateTeamLabels = (updatedLabel: TeamLabel) => {
     setTeamLabels((prevLabels) => {
@@ -146,8 +146,19 @@ const TeamLabels = () => {
                 Owner: {teamLabel.owner.name}
               </p>
             </div>
-            <div onClick={handleDeleteClick(teamLabel.id)}>
-              <FaTrash color="#EF4444" />
+            <div
+              onClick={(e) => {
+                setIsAlertModalOpen(true);
+                setTlToDelete(teamLabel);
+                e.stopPropagation();
+              }}
+              className="h-9 w-9 flex items-center justify-center rounded-[5px] bg-red-500"
+            >
+              <FaTrash
+                color="#ffffff"
+                // color='#ef4444'
+                className="h-5 w-5"
+              />
             </div>
             <Toaster />
           </div>
@@ -160,6 +171,27 @@ const TeamLabels = () => {
           onClose={() => setIsModalOpen(false)}
           teamLabelId={id}
           onSave={updateTeamLabels}
+        />
+      )}
+
+      {isAlertModalOpen && (
+        <AlertModal
+          isOpen={isAlertModalOpen}
+          type="delete"
+          title="Delete Team Label"
+          message="Are you sure you want to delete this Team Label"
+          icon={<FaTrash className="h-6 w-6 text-red-500" />}
+          onClose={() => {
+            setIsAlertModalOpen(false);
+            setTlToDelete(null);
+          }}
+          onConfirm={() => {
+            if (tlToDelete?.id) {
+              handleDeleteLabel(tlToDelete.id);
+            } else {
+              console.error('Team label id is null' + tlToDelete);
+            }
+          }}
         />
       )}
     </Layout>
