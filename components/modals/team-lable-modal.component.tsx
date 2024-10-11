@@ -1,28 +1,25 @@
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { teamLabelProxy } from '@/proxies/team-label.proxy';
-import Layout from '@/app/layout';
-import LoadingOverlay from '@/components/loading-overlay.component';
-import TracerButton from '@/components/tracer-button.component';
+import BaseModal from '../_base/base-modal.component';
+import { Organization } from '@/models/organization';
 import { TeamLabel } from '@/models/team-label';
-import { HiCheck } from 'react-icons/hi';
-import { Site } from '@/models/site';
-import { User } from '@/models/user';
 import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
+import { teamLabelProxy } from '@/proxies/team-label.proxy';
+import TracerButton from '../tracer-button.component';
 import toast, { Toaster } from 'react-hot-toast';
-import TeamLabelModal from '@/components/modals/team-lable-modal.component';
 
-interface Organization {
-  id: string;
-  name: string;
-  users: User[];
-  s3BucketName: string;
-  sites: Site[];
+interface TeamLabelModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  teamLabelId: string;
+  onSave: (teamLabel: TeamLabel) => void;
 }
 
-const TeamLabelDetails = () => {
-  const router = useRouter();
-  const { id } = router.query;
+const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
+  isOpen,
+  onClose,
+  teamLabelId,
+  onSave,
+}) => {
   const [teamLabel, setTeamLabel] = useState<TeamLabel>({
     id: '',
     checked: false,
@@ -33,14 +30,13 @@ const TeamLabelDetails = () => {
   const [organization, setOrganization] = useState<Organization[]>([]);
   const [selectedOrganization, setSelectedOrganization] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const isEditMode = !!id;
 
   const successToast = () => toast.success('Team label saved successfully');
   const successEditToast = () =>
     toast.success('Team label updated successfully');
   const errorToast = () => toast.error('Error saving team label');
+
+  const editMode = !!teamLabelId;
 
   useEffect(() => {
     const fetchOrganizations = async () => {
@@ -59,10 +55,10 @@ const TeamLabelDetails = () => {
 
   useEffect(() => {
     const fetchTeamLabel = async () => {
-      if (isEditMode && id) {
-        setIsLoading(true);
+      setIsLoading(true);
+      if (editMode && teamLabelId) {
         try {
-          const data = await teamLabelProxy.getTeamLabelById(id as string);
+          const data = await teamLabelProxy.getTeamLabelById(teamLabelId);
           setTeamLabel(data);
           setSelectedOrganization(data.owner.id || '');
         } catch (error) {
@@ -73,7 +69,7 @@ const TeamLabelDetails = () => {
       }
     };
     fetchTeamLabel();
-  }, [id, isEditMode]);
+  }, [editMode, teamLabelId]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -102,14 +98,16 @@ const TeamLabelDetails = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      if (isEditMode) {
+      if (editMode) {
         await teamLabelProxy.updateTeamLabel(teamLabel.id, teamLabel);
+        onSave(teamLabel);
         successEditToast();
       } else {
         await teamLabelProxy.createTeamLabel(teamLabel);
+        onSave(teamLabel);
         successToast();
       }
-      setTimeout(() => router.push('/team-labels'), 1000);
+      onClose();
     } catch (error) {
       console.error('Error saving team label:', error);
       errorToast();
@@ -119,13 +117,13 @@ const TeamLabelDetails = () => {
   };
 
   return (
-    <Layout>
-      <LoadingOverlay show={isLoading} />
-      <div className="my-4">
-        <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-          {isEditMode ? 'Edit Team Label' : 'Create New Team Label'}
-        </h1>
-      </div>
+    <BaseModal
+      title={editMode ? 'Edit Team Label' : 'Create Team Label'}
+      onClose={onClose}
+      isOpen={isOpen}
+      loading={isLoading}
+      onSave={() => onSave(teamLabel)}
+    >
       <div className="my-4">
         <label className="block text-sm font-medium text-gray-700">
           Label Name
@@ -159,22 +157,14 @@ const TeamLabelDetails = () => {
       <div className="flex">
         <div className="my-4">
           <TracerButton
-            name={isEditMode ? 'Update Label' : 'Create Label'}
+            name={editMode ? 'Update Label' : 'Create Label'}
             onClick={handleSubmit}
           />
         </div>
-        <div className="my-4 ml-5">
-          <button
-            className="rounded-md bg-red-500 px-4 py-2 text-white"
-            onClick={() => router.push('/team-labels')}
-          >
-            Cancel
-          </button>
-        </div>
       </div>
       <Toaster />
-    </Layout>
+    </BaseModal>
   );
 };
 
-export default TeamLabelDetails;
+export default TeamLabelModal;
