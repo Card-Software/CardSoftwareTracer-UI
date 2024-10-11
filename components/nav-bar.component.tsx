@@ -12,11 +12,6 @@ const Navbar: React.FC = () => {
   const [userNew, setUserNew] = useState<User | null>(null);
   const router = useRouter(); // Use useRouter from 'next/navigation'
 
-  useEffect(() => {
-    // Client-side check
-    console.log('teessss');
-  }, []);
-
   const user: User | null = userAuthenticationService.getUser();
 
   const handleProfile = () => {
