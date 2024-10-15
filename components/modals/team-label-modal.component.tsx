@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import BaseModal from '../_base/base-modal.component';
-import { Organization } from '@/models/organization';
 import { TeamLabel } from '@/models/team-label';
-import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
-import TracerButton from '../tracer-button.component';
+
 import toast, { Toaster } from 'react-hot-toast';
 
 interface TeamLabelModalProps {
@@ -27,7 +25,6 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
     labelName: '',
     owner: { id: '', name: '' },
   });
-  const [organization, setOrganization] = useState<Organization[]>([]);
   const [selectedOrganization, setSelectedOrganization] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,21 +34,6 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
   const errorToast = () => toast.error('Error saving team label');
 
   const editMode = !!teamLabelId;
-
-  useEffect(() => {
-    const fetchOrganizations = async () => {
-      setIsLoading(true);
-      try {
-        const data = await organizationManagementProxy.GetAllOrganizations();
-        setOrganization(data);
-      } catch (error) {
-        console.error('Error fetching organizations:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchOrganizations();
-  }, []);
 
   useEffect(() => {
     const fetchTeamLabel = async () => {
@@ -75,24 +57,10 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
-    if (name === 'organization') {
-      setSelectedOrganization(value);
-      const selectedOrg = organization.find((org) => org.id === value);
-      if (selectedOrg) {
-        setTeamLabel((prev) => ({
-          ...prev,
-          owner: {
-            id: selectedOrg.id,
-            name: selectedOrg.name,
-          },
-        }));
-      }
-    } else {
-      setTeamLabel((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    setTeamLabel((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async () => {
@@ -138,33 +106,6 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
           className="input-custom"
         />
       </div>
-      {editMode ? (
-        <div className="my-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Organization
-          </label>
-          <label htmlFor="">{teamLabel.owner.name} </label>
-        </div>
-      ) : (
-        <div className="my-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Organization
-          </label>
-          <select
-            name="organization"
-            value={selectedOrganization}
-            onChange={handleInputChange}
-            className="input-custom"
-          >
-            <option value="">Select Organization</option>
-            {organization.map((org) => (
-              <option key={org.id} value={org.id}>
-                {org.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
     </BaseModal>
   );
 };

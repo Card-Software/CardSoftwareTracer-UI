@@ -10,7 +10,7 @@ import TracerButton from '@/components/tracer-button.component';
 import Layout from '@/app/layout';
 import { FaTrash } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
-import TeamLabelModal from '@/components/modals/team-lable-modal.component';
+import TeamLabelModal from '@/components/modals/team-label-modal.component';
 import AlertModal from '@/components/modals/alert-modal-component';
 
 const TeamLabels = () => {
@@ -162,14 +162,12 @@ const TeamLabels = () => {
         ))}
       </div>
 
-      {isModalOpen && (
-        <TeamLabelModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          teamLabelId={id}
-          onSave={updateTeamLabels}
-        />
-      )}
+      <TeamLabelModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        teamLabelId={id}
+        onSave={updateTeamLabels}
+      />
 
       {isAlertModalOpen && (
         <AlertModal

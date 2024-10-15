@@ -28,16 +28,21 @@ const BaseModal: React.FC<BaseModalProps> = ({
 }) => {
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [opening, setOpening] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setVisible(true);
       setClosing(false);
+      setOpening(true);
+      setTimeout(() => {
+        setOpening(false);
+      }, 300);
     } else if (visible) {
       setClosing(true);
       setTimeout(() => {
         setVisible(false);
-      }, 300);
+      }, 200);
     }
   }, [isOpen]);
 
@@ -56,7 +61,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
 
   return (
     <div className={`modal-wrapper ${closing ? 'closing' : 'open'}`}>
-      <LoadingOverlay show={loading} />
+      <LoadingOverlay show={loading && !opening} />
       <div className="modal-overlay" onClick={handleClose} />
       <div className="modal-content">
         <div className="modal-header">

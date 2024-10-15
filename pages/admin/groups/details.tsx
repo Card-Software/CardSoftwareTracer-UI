@@ -168,12 +168,17 @@ const GroupDetails = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="my-4">
-        <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-          {isEditMode ? 'Edit Group' : 'Create New Group'}
-        </h1>
+      <div className="tool-bar">
+        <div className="tool-bar-title">
+          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
+            {isEditMode ? 'Edit Group' : 'Create New Group'}
+          </h1>
+        </div>
       </div>
-
+      <div
+        className="my-2 w-full border-b-4"
+        style={{ borderColor: 'var(--primary-color)' }}
+      ></div>
       <div className="my-4">
         <label className="block text-sm font-medium text-gray-700">
           Group Name
@@ -234,8 +239,27 @@ const GroupDetails = () => {
           ))}
         </select>
       </div>
+      <footer
+        className="stream-footer flex justify-between bg-gray-200 p-4"
+        style={{ backgroundColor: 'var(--primary-color)' }}
+      >
+        <div>
+          <TracerButton
+            name={isEditMode ? 'Update Group' : 'Create Group'}
+            onClick={handleSubmit}
+          />
+          <button
+            className="ml-5 rounded-md border border-white bg-none px-4 py-2 text-white hover:bg-gray-600"
+            onClick={() => router.back()}
+          >
+            Cancel
+          </button>
 
-      <div className="flex">
+          <Toaster />
+        </div>
+      </footer>
+
+      {/* <div className="flex">
         <div className="my-4">
           <TracerButton
             name={isEditMode ? 'Update Group' : 'Create Group'}
@@ -250,7 +274,7 @@ const GroupDetails = () => {
             Cancel
           </button>
         </div>
-      </div>
+      </div> */}
       <Toaster />
     </Layout>
   );
