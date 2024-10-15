@@ -1,0 +1,89 @@
+/* Tool-bar styles */
+.tool-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.tool-bar-title {
+  font-size: 1.875rem; /* Equivalent to text-3xl */
+  font-weight: bold;
+  color: var(
+    --primary-color
+  ); /* Use CSS variables or replace with the actual color */
+}
+
+.tool-bar-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Card styles */
+.card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.section-card {
+  flex: 1 1 calc(25% - 20px);
+  min-width: 250px;
+  max-width: 300px;
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.section-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.section-required {
+  background-color: #fff;
+}
+
+.section-not-required {
+  background-color: #e5e7eb;
+}
+
+.card-details {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Delete Button */
+.delete-button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #f56565;
+}
+
+.stream-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: var(--primary-color);
+}
+
+.stream-footer button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  color: white;
+}

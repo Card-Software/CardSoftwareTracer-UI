@@ -83,7 +83,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
             <button
               className=" border border-white bg-none text-white hover:bg-gray-600 "
               style={{ borderRadius: '10px' }}
-              onClick={onClose}
+              onClick={handleClose}
               type="button"
             >
               Close

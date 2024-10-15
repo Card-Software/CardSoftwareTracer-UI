@@ -1,0 +1,48 @@
+.stream-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stream-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.section-container {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(300px, 1fr)
+  ); /* Each column will have a minimum width of 300px, and it will expand to fill the remaining space */
+  margin-top: 20px;
+}
+
+.section-wrapper {
+  display: flex;
+  align-items: center; /* Align the section and arrow vertically */
+}
+
+.section-arrow {
+  margin-left: 10px; /* Adjust spacing if needed */
+}
+
+.add-new-section {
+  margin-top: 20px;
+}
+
+.add-new-section-button {
+  background-color: var(--primary-button);
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-new-section-button:hover {
+  background-color: var(--primary-button-hover);
+}

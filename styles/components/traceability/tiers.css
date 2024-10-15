@@ -1,0 +1,56 @@
+.tiers-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.tier-card {
+  background-color: #f1f1f1;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Highlight selected tier */
+.selected-tier {
+  background-color: #007bff; /* Change to the desired highlight color */
+  color: white;
+}
+
+.selected-tier .tier-name,
+.selected-tier .tier-description {
+  color: white; /* Ensure text is visible on highlight */
+}
+
+.tier-details-expanded {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.close-details {
+  margin-bottom: 10px;
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}

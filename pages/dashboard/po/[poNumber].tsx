@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
 import '../../../styles/dashboard.css';
+import '../../../styles/product-order-details.css';
 import styled from 'styled-components';
 import { ObjectId } from 'bson';
 import {
   FaExclamationCircle,
-  FaArrowRight,
   FaCheckCircle,
   FaFileExport,
   FaPencilAlt,
@@ -32,14 +32,11 @@ import TeamStatuses from '@/components/team-statuses.component'; // Import TeamS
 import { Status } from '@/models/status';
 import { organizationManagementProxy } from '@/proxies/organization-management.proxy';
 import ExportModal from '@/components/modals/export-modal.component';
-import { Site } from '@/models/site';
 import { activityLogProxy } from '@/proxies/activity-log.proxy';
 import { ActivityLog } from '@/models/activity-log';
 import ActivityLogModal from '@/components/modals/activity-log-modal.component';
 import { ActivityType } from '@/models/enum/activity-type';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Group } from '@/models/group';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
 import { SiblingProductOrder } from '@/models/sibling-product-order';
@@ -47,6 +44,10 @@ import ProductOrderDetails from '@/components/product-order-details';
 import { Note } from '@/models/note';
 import AlertModal from '@/components/modals/alert-modal-component';
 import toast, { Toaster } from 'react-hot-toast';
+import { activityLogService } from '@/services/activity-logs.service';
+import TraceabilityStreamComponent from '@/components/traceability/traceability-stream';
+import { Tier } from '@/models/tier';
+import TiersComponent from '@/components/traceability/tiers.component';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -56,18 +57,16 @@ const PurchaseOrderPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [productOrder, setProductOrder] = useState<ProductOrder | null>(null);
-  const [linkedOrders, setLinkedOrders] = useState<ProductOrder[]>([]);
   const [selectedSection, setSelectedSection] = useState<SectionModel | null>(
     null,
   );
   const [selectedStream, setSelectedStream] =
     useState<TracerStreamExtended | null>(null);
-  const [allSites, setAllSites] = useState<Site[]>([]);
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
   const [isStreamModalOpen, setIsStreamModalOpen] = useState(false);
   const [streamModalMode, setStreamModalMode] = useState<'edit' | 'add'>('add');
-  const [statuses, setStatuses] = useState<Status[]>([]); // New state for statuses
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false); // State for export modal
+  const [statuses, setStatuses] = useState<Status[]>([]);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [streamToExport, setStreamToExport] =
     useState<TracerStreamExtended | null>(null);
   const [childrenPos, SetChildrenPos] = useState<ProductOrder[]>([]);
@@ -98,6 +97,34 @@ const PurchaseOrderPage: React.FC = () => {
     null,
   );
 
+  const [tiersData, setTiersData] = useState<Tier[]>([
+    {
+      id: '1',
+      name: 'Tier 1',
+      description: 'Tier 1 Description',
+      tracerStream: null,
+    },
+    {
+      id: '2',
+      name: 'Tier 2',
+      description: 'Tier 2 Description',
+      tracerStream: null,
+    },
+    {
+      id: '3',
+      name: 'Tier 3',
+      description: 'Tier 3 Description',
+      tracerStream: null,
+    },
+    {
+      id: '4',
+      name: 'Tier 4',
+      description: 'Tier 4 Description',
+      tracerStream: null,
+    },
+  ]);
+
+  //#region Notify Alerts
   const notify = () => toast.success('Product Order updated successfully!');
   const notifyError = () => toast.error('Failed to save Product Order');
   const notifyDelete = () =>
@@ -107,11 +134,11 @@ const PurchaseOrderPage: React.FC = () => {
     toast.success('Tracer Stream deleted successfully!');
   const notifyDeleteErrorStream = () =>
     toast.error('Failed to delete Tracer Stream');
-
   const notifyDeleteSection = () =>
     toast.success('Section deleted successfully!');
   const notifyDeleteErrorSection = () =>
     toast.error('Failed to delete Section');
+  //#endregion
 
   useEffect(() => {
     const fetchOrderDetails = async () => {
@@ -121,6 +148,17 @@ const PurchaseOrderPage: React.FC = () => {
         const order = await orderManagementApiProxy.getProductOrder(
           poNumber as string,
         );
+
+        if (order?.childrenTracerStreams?.length > 0) {
+          console.log('Order:', order);
+          setTiersData((prevTiers) =>
+            prevTiers.map((tier, index) =>
+              index === 0
+                ? { ...tier, tracerStream: order.childrenTracerStreams[0] }
+                : tier,
+            ),
+          );
+        }
 
         setOriginalProductOrder(order);
 
@@ -135,7 +173,6 @@ const PurchaseOrderPage: React.FC = () => {
             { team: 'NT', teamStatus: 'Pending', feedback: '' },
           ];
         }
-        setAllSites(userAuthenticationService.getOrganization()?.sites || []);
         setIsLoading(false);
         setProductOrder(order);
         setStatuses(order.statuses || []); // Set initial statuses
@@ -153,7 +190,6 @@ const PurchaseOrderPage: React.FC = () => {
               orderManagementApiProxy.getProductOrder(ref),
             ),
           );
-          setLinkedOrders(linkedOrderDetails);
         }
       }
     };
@@ -225,7 +261,6 @@ const PurchaseOrderPage: React.FC = () => {
     activityType: ActivityType,
     tracerStreamId = '',
   ) => {
-    // Check if allActivityLogs is an array
     if (Array.isArray(allActivityLogs)) {
       const filteredLogs =
         activityType === ActivityType.StatusChange
@@ -241,31 +276,6 @@ const PurchaseOrderPage: React.FC = () => {
     }
     setActivityLogType(activityType);
     setIsActivityLogOpen(true);
-  };
-
-  const handleActivityLogClose = () => {
-    setIsActivityLogOpen(false);
-    setActivityLogsToDisplay([]);
-  };
-
-  // test function2
-  const handleUserChange = (value: string | Date, field: string) => {
-    handleAssignedUserChange({
-      target: { name: field, value: value },
-    } as React.ChangeEvent<HTMLSelectElement>);
-  };
-
-  const handleAssignedUserChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const userId = e.target.value;
-    const assignedUser = allUsers.find((user) => user.id === userId);
-    if (assignedUser) {
-      setProductOrder((prevOrder) => ({
-        ...prevOrder!,
-        assignedUser: assignedUser,
-      }));
-    }
   };
 
   const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
@@ -286,14 +296,6 @@ const PurchaseOrderPage: React.FC = () => {
       setPoToDelete(null);
       setIsAlertModalOpen(false);
     }
-  };
-
-  const handleSiteChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const siteRef = e.target.value;
-    setProductOrder((prevOrder) => ({
-      ...prevOrder!,
-      siteRef: siteRef,
-    }));
   };
 
   const getChildrenPos = async (productOrderNumbers: string[]) => {
@@ -357,13 +359,6 @@ const PurchaseOrderPage: React.FC = () => {
     setSelectedStream(stream);
     setStreamModalMode(mode);
     setIsStreamModalOpen(true);
-  };
-
-  const isExportEnabled = (stream: TracerStreamExtended) => {
-    const requiredSections = stream.sections.filter(
-      (section) => section.isRequired,
-    );
-    return requiredSections.every((section) => section.files.length > 0);
   };
 
   const nextSection = () => {
@@ -466,8 +461,6 @@ const PurchaseOrderPage: React.FC = () => {
   const handleExportButton = (stream: TracerStreamExtended) => {
     setStreamToExport(stream);
     setIsExportModalOpen(true);
-    // if (!productOrder) return;
-    // fileManagementService.downloadFilesFromS3Bucket(stream, productOrder);
   };
 
   const handleCloseActivityLogModal = () => {
@@ -502,60 +495,6 @@ const PurchaseOrderPage: React.FC = () => {
     });
   };
 
-  const insertLogs = () => {
-    productOrder?.statuses.forEach((status) => {
-      const originalStatus = originalProductOrder?.statuses.find(
-        (s) => s.team === status.team,
-      );
-      if (originalStatus?.teamStatus !== status.teamStatus) {
-        const activityLog: ActivityLog = {
-          productOrderReference: productOrder.id as string,
-          activityType: 'Status Change',
-          team: status.team,
-          teamStatus: status.teamStatus,
-          productOrderNumber: productOrder?.productOrderNumber || '',
-          userFirstName: user?.firstName || '',
-          userLastName: user?.lastname || '',
-          timeStamp: new Date(),
-          feedBack: status.teamStatus === 'Returned' ? status.feedback : '',
-        };
-        activityLogProxy.insertActivityLog(activityLog);
-
-        if (process.env.NEXT_PUBLIC_ENV === 'prod') {
-          if (status.team === 'Planning' && status.teamStatus === 'Completed') {
-            emailService.sendPoUpdateEmailToAllUsers(
-              productOrder?.productOrderNumber || '',
-              'Planning',
-              'Completed',
-            );
-          } else if (
-            status.team === 'SAC' &&
-            status.teamStatus === 'Returned'
-          ) {
-            emailService.sendPoUpdateEmailToAllUsers(
-              productOrder?.productOrderNumber || '',
-              'SAC',
-              'Returned',
-            );
-          } else if (
-            status.team === 'Planning' &&
-            status.teamStatus === 'Accomplish'
-          ) {
-            emailService.sendPoUpdateEmailToAllUsers(
-              productOrder?.productOrderNumber || '',
-              'Planning',
-              'Accomplish',
-            );
-          }
-        }
-      }
-    });
-
-    if (productOrder && originalProductOrder) {
-      originalProductOrder.statuses = productOrder.statuses;
-    }
-  };
-
   const handleSave = async () => {
     if (productOrder) {
       try {
@@ -564,7 +503,7 @@ const PurchaseOrderPage: React.FC = () => {
           await orderManagementApiProxy.updateProductOrder(productOrder);
         setIsLoading(false);
         if (response.status === 204) {
-          insertLogs();
+          activityLogService.insertLogs(productOrder, originalProductOrder);
           getUpdatedLogs(productOrder.id as string);
           router.push(`/dashboard/po/${productOrder.id as string}`);
           notify();
@@ -590,7 +529,7 @@ const PurchaseOrderPage: React.FC = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <Container>
+      <div className="container">
         <div>
           <Link
             href="/dashboard"
@@ -666,270 +605,47 @@ const PurchaseOrderPage: React.FC = () => {
               />
             </div>
           </div>
-          <CardContainer>
+
+          <div style={{ marginBottom: '10rem' }}>
+            <h1>Production Tiers</h1>
+            <TiersComponent tiers={tiersData} />
+          </div>
+
+          {/* <CardContainer>
             {productOrder.childrenTracerStreams.map((stream, index) => (
-              <React.Fragment key={stream.id}>
-                <Card>
-                  <div className="flex w-full flex-row justify-between">
-                    <div className="flex flex-col">
-                      <h1 className="text-xl font-bold text-[var(--primary-color)]">
-                        Name:
-                      </h1>
-                      <p className="text-base text-gray-500">
-                        {stream.friendlyName}
-                      </p>
-                      <p>
-                        <h1 className="text-xl font-bold text-[var(--primary-color)]">
-                          Product:
-                        </h1>
-                      </p>
-                      <p className="text-base text-gray-500">
-                        {stream.product}
-                      </p>
-                      <p>
-                        <h1 className="text-xl font-bold text-[var(--primary-color)]">
-                          Quantity:
-                        </h1>
-                      </p>
-                      <p className="text-base text-gray-500">
-                        {stream.quantity}
-                      </p>
-                    </div>
-                    <div className="flex max-h-14">
-                      <button
-                        disabled={!allActivityLogs.length}
-                        className="mb-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
-                        onClick={(e) => {
-                          handleActivityLogClick(
-                            ActivityType.FileUpload,
-                            stream.id,
-                          );
-                        }}
-                      >
-                        <FaHistory />
-                      </button>
-                      <button
-                        className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleExportButton(stream);
-                        }}
-                      >
-                        <FaFileExport />
-                      </button>
-                      <button
-                        className="ml-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStreamClick(stream, 'edit');
-                        }}
-                      >
-                        <FaPencilAlt />
-                      </button>
-
-                      <button
-                        className="square ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setStreamToDelete(stream);
-                          setIsAlertModalOpenStream(true);
-                        }}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </div>
-
-                  <SectionContainer>
-                    {stream.sections.map((section, secIndex) => (
-                      <React.Fragment key={section.sectionId}>
-                        <SectionCard
-                          onClick={() => handleSectionClick(section, stream)}
-                          $isrequired={section.isRequired}
-                        >
-                          <div className="flex flex-row items-start justify-between">
-                            <div className="flex flex-col">
-                              <div className="text-md">
-                                <strong>Section Name</strong>
-                              </div>
-                              <div>
-                                <p className="text-base text-gray-500">
-                                  {section.sectionName}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="ml-auto flex flex-row items-start">
-                              {section.files.length > 0 ? (
-                                <FaCheckCircle
-                                  color="#0080fc"
-                                  style={{ marginRight: '10px' }}
-                                />
-                              ) : (
-                                <FaExclamationCircle
-                                  color="red"
-                                  style={{ marginRight: '10px' }}
-                                />
-                              )}
-                              <DeleteButton
-                                className="square flex justify-end"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSectionToDelete(section);
-                                  setIsAlertModalOpenSection(true);
-                                }}
-                              >
-                                <FaTrash color="gray" />
-                              </DeleteButton>
-                            </div>
-                          </div>
-                          <CardDetails>
-                            <div className="flex flex-col">
-                              <div className="text-md">
-                                <strong>Description</strong>
-                              </div>
-                              <p className="text-base text-gray-500">
-                                {section.sectionDescription}
-                              </p>
-                            </div>
-                            {section.assignedUser && (
-                              <DetailItem>
-                                <strong>Assigned to:</strong>{' '}
-                                {section.assignedUser.firstName}{' '}
-                                {section.assignedUser.lastname}
-                              </DetailItem>
-                            )}
-                            {section.notes && section.notes.length > 0 && (
-                              <DetailItem>
-                                <strong>Notes:</strong>
-                                <ul>
-                                  {section.notes.map((note) => (
-                                    <li key={note.id}>{note.content}</li>
-                                  ))}
-                                </ul>
-                              </DetailItem>
-                            )}
-                            {section.teamLabels &&
-                              section.teamLabels.length > 0 && (
-                                <DetailItem>
-                                  <strong>Labels:</strong>
-                                  <ul className="flex gap-2">
-                                    {section.teamLabels.map((label) => (
-                                      <li
-                                        key={label.id}
-                                        className="max-w-[115px] truncate rounded-full bg-gray-100 px-3 py-1 text-sm text-blue-500"
-                                      >
-                                        {label.labelName}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </DetailItem>
-                              )}
-                          </CardDetails>
-                        </SectionCard>
-                        {secIndex < stream.sections.length - 1 && (
-                          <svg
-                            width="9"
-                            height="15"
-                            viewBox="0 0 9 15"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M2 2L7.5 7.5L2 13"
-                              stroke="#8D8D8D"
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </SectionContainer>
-                  {/* Add New Section Button - Separate div to avoid extra section */}
-                  <div
-                    onClick={() => {
-                      if (!user || !organization) return;
-                      handleSectionClick(
-                        {
-                          sectionId: new ObjectId().toString(),
-                          sectionName: '',
-                          sectionDescription: '',
-                          assignedUser: null,
-                          notes: [],
-                          position: 0,
-                          fileNameOnExport: '',
-                          files: [],
-                          isRequired: true,
-                          ownerRef: organization.id || '',
-                          teamLabels: [],
-                        },
-                        stream,
-                      );
-                    }}
-                  >
-                    <AddNewButton>+ Add New Section</AddNewButton>
-                  </div>
-                </Card>
-              </React.Fragment>
+              <TraceabilityStreamComponent
+                key={stream.id}
+                stream={stream}
+                onSectionSave={(updatedSection) =>
+                  handleSaveSection(updatedSection, null)
+                }
+                onSectionDelete={(section) => {
+                  setSectionToDelete(section);
+                  setIsAlertModalOpenSection(true);
+                }}
+                allActivityLogs={[]}
+                onActivityLogClick={function (
+                  activityType: string,
+                  streamId: string,
+                ): void {
+                  throw new Error('Function not implemented.');
+                }}
+                onExportClick={function (stream: TracerStreamExtended): void {
+                  throw new Error('Function not implemented.');
+                }}
+                onEditStream={function (
+                  stream: TracerStreamExtended,
+                  mode: 'edit' | 'add',
+                ): void {
+                  throw new Error('Function not implemented.');
+                }}
+                onDeleteStream={function (stream: TracerStreamExtended): void {
+                  throw new Error('Function not implemented.');
+                }}
+              />
             ))}
-          </CardContainer>
+          </CardContainer> */}
 
-          {isAlertModalOpen && (
-            <AlertModal
-              isOpen={isAlertModalOpen}
-              type="delete"
-              title="Delete Product Order"
-              message="Are you sure you want to delete this product order?"
-              icon={<FaTrash className="h-6 w-6 text-red-500" />}
-              onClose={() => {
-                setIsAlertModalOpen(false);
-                setPoToDelete(null);
-              }}
-              onConfirm={() => {
-                handleDeleteProductOrder(poToDelete as ProductOrder);
-                notifyDelete();
-                router.push('/dashboard');
-              }}
-            />
-          )}
-          {isAlertModalOpenStream && (
-            <AlertModal
-              isOpen={isAlertModalOpenStream}
-              type="delete"
-              title="Delete Tracer Stream"
-              message="Are you sure you want to delete this tracer stream?"
-              icon={<FaTrash className="h-6 w-6 text-red-500" />}
-              onClose={() => {
-                setIsAlertModalOpenStream(false);
-                setStreamToDelete(null);
-              }}
-              onConfirm={() => {
-                handleDeleteStream(streamToDeleteModal as TracerStreamExtended);
-                notifyDeleteStream();
-              }}
-            />
-          )}
-          {isAlertModalOpenSection && (
-            <AlertModal
-              isOpen={isAlertModalOpenSection}
-              type="delete"
-              title="Delete Section"
-              message="Are you sure you want to delete this section?"
-              icon={<FaTrash className="h-6 w-6 text-red-500" />}
-              onClose={() => {
-                setIsAlertModalOpenSection(false);
-                setSectionToDelete(null);
-              }}
-              onConfirm={() => {
-                handleDeleteSection(
-                  selectedStream as TracerStreamExtended,
-                  sectionToDelete as SectionModel,
-                );
-                notifyDeleteSection();
-              }}
-            />
-          )}
           {childrenPos.length > 0 && (
             <div className="mt-8">
               <h2 className="text-xl font-bold">Linked Product Orders</h2>
@@ -952,7 +668,7 @@ const PurchaseOrderPage: React.FC = () => {
             </div>
           )}
         </Section>
-      </Container>
+      </div>
       <footer
         className="stream-footer flex justify-between bg-gray-200 p-4"
         style={{ backgroundColor: 'var(--primary-color)' }}
@@ -975,21 +691,6 @@ const PurchaseOrderPage: React.FC = () => {
           <Toaster />
         </div>
       </footer>
-      <SectionModal
-        isOpen={isSectionModalOpen}
-        productOrderId={productOrder.id as string}
-        productOrder={productOrder.oldProductOrderNumber || ''}
-        tracerStreamId={selectedStream?.id || undefined}
-        initialSection={selectedSection as SectionModel}
-        onClose={handleCloseSectionModal}
-        onSave={handleSaveSection}
-        mode={
-          selectedSection?.sectionId
-            ? 'edit'
-            : 'sectionCreationOnExistingTracer'
-        }
-        totalSections={selectedStream?.sections?.length || 0}
-      />
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal
           originalTracerStream={
@@ -1048,26 +749,69 @@ const PurchaseOrderPage: React.FC = () => {
           onSave={handleSiblingProductOrderChange}
         />
       )}
+      {isAlertModalOpen && (
+        <AlertModal
+          isOpen={isAlertModalOpen}
+          type="delete"
+          title="Delete Product Order"
+          message="Are you sure you want to delete this product order?"
+          icon={<FaTrash className="h-6 w-6 text-red-500" />}
+          onClose={() => {
+            setIsAlertModalOpen(false);
+            setPoToDelete(null);
+          }}
+          onConfirm={() => {
+            handleDeleteProductOrder(poToDelete as ProductOrder);
+            notifyDelete();
+            router.push('/dashboard');
+          }}
+        />
+      )}
+      {isAlertModalOpenStream && (
+        <AlertModal
+          isOpen={isAlertModalOpenStream}
+          type="delete"
+          title="Delete Tracer Stream"
+          message="Are you sure you want to delete this tracer stream?"
+          icon={<FaTrash className="h-6 w-6 text-red-500" />}
+          onClose={() => {
+            setIsAlertModalOpenStream(false);
+            setStreamToDelete(null);
+          }}
+          onConfirm={() => {
+            handleDeleteStream(streamToDeleteModal as TracerStreamExtended);
+            notifyDeleteStream();
+          }}
+        />
+      )}
+      {isAlertModalOpenSection && (
+        <AlertModal
+          isOpen={isAlertModalOpenSection}
+          type="delete"
+          title="Delete Section"
+          message="Are you sure you want to delete this section?"
+          icon={<FaTrash className="h-6 w-6 text-red-500" />}
+          onClose={() => {
+            setIsAlertModalOpenSection(false);
+            setSectionToDelete(null);
+          }}
+          onConfirm={() => {
+            handleDeleteSection(
+              selectedStream as TracerStreamExtended,
+              sectionToDelete as SectionModel,
+            );
+            notifyDeleteSection();
+          }}
+        />
+      )}
     </Layout>
   );
 };
 
 export default withAuth(PurchaseOrderPage);
 
-const Container = styled.div`
-  padding: 10px;
-  margin-bottom: 30px;
-`;
-
 const Section = styled.section`
   margin-bottom: 40px;
-`;
-
-const SectionTitle = styled.h2`
-  border-bottom: 2px solid #ccc;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  text-align: center;
 `;
 
 const CardContainer = styled.div`
@@ -1115,15 +859,6 @@ const SectionCard = styled.div<{ $isrequired: boolean }>`
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
   background-color: ${(props) => (props.$isrequired ? '#fff' : '#e5e7eb')};
-`;
-
-const ArrowIcon = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  font-size: 24px;
-  color: gray;
 `;
 
 const CardDetails = styled.div`

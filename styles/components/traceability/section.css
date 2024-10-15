@@ -1,0 +1,63 @@
+.section-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.section-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.section-required {
+  background-color: #fff;
+}
+
+.section-not-required {
+  background-color: #e5e7eb;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.section-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.section-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.card-details {
+  margin-top: 10px;
+}
+
+.detail-item {
+  margin-bottom: 16px;
+}
+
+.label-item {
+  max-width: 115px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+  padding: 8px;
+  color: #3b82f6;
+}
+
+.delete-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
