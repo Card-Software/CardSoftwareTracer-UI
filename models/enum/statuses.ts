@@ -16,4 +16,5 @@ export enum PlanningStatuses {
   Completed = 'Completed',
   Returned = 'Returned',
   Accomplish = 'Accomplish',
+  PendingPOP = 'Pending POP',
 }
