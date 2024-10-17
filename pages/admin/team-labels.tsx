@@ -135,7 +135,7 @@ const TeamLabels = () => {
           <div
             key={teamLabel.id}
             className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
-            onClick={() => handleLabelClick(teamLabel.id)}
+            onClick={() => handleLabelClick(teamLabel?.id || '')}
           >
             <div>
               <h2 className="text-lg font-bold text-gray-700">

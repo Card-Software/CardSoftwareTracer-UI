@@ -1,6 +1,7 @@
 import { Note } from './note';
 import { SiblingProductOrder } from './sibling-product-order';
 import { Status } from './status';
+import { TeamStatusExtended } from './team-status';
 import { TracerStreamExtended } from './tracer-stream';
 import { User } from './user';
 
@@ -13,7 +14,7 @@ export interface ProductOrder {
   assignedUser?: User | null;
   createdDate: Date;
   client: string;
-  statuses: Status[];
+  teamStatuses: TeamStatusExtended[];
   externalProductOrderNumber?: string;
   product: string;
   quantity?: number;
