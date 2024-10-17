@@ -12,6 +12,7 @@ import { organizationManagementProxy } from '@/proxies/organization-management.p
 import { userProxy } from '@/proxies/user.proxy';
 import Select from 'react-select';
 import toast, { Toaster } from 'react-hot-toast';
+import { userAuthenticationService } from '@/services/user-authentication.service';
 
 interface Organization {
   id: string;
@@ -25,7 +26,7 @@ const GroupDetails = () => {
   const router = useRouter();
   const { id } = router.query;
   const isEditMode = !!id;
-  const [organization, setOrganization] = useState<Organization[]>([]);
+  const [organization, setOrganization] = useState<Organization>();
   const [selectedOrganization, setSelectedOrganization] = useState('');
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<
@@ -46,21 +47,6 @@ const GroupDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchOrganizations = async () => {
-      setIsLoading(true);
-      try {
-        const data = await organizationManagementProxy.GetAllOrganizations();
-        setOrganization(data);
-      } catch (error) {
-        console.error('Error fetching organizations:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchOrganizations();
-  }, []);
-
-  useEffect(() => {
     const fetchUsers = async () => {
       setIsLoading(true);
       try {
@@ -73,6 +59,10 @@ const GroupDetails = () => {
       }
     };
     fetchUsers();
+    const org = userAuthenticationService.getOrganization();
+    if (org) {
+      setOrganization(org);
+    }
   }, []);
 
   useEffect(() => {
@@ -85,7 +75,6 @@ const GroupDetails = () => {
           );
           if (groupToEdit) {
             setGroup(groupToEdit);
-            setSelectedOrganization(groupToEdit.ownerRef || '');
             setSelectedUsers(
               groupToEdit.membersEmail.map((email) => ({
                 label: email,
@@ -117,20 +106,12 @@ const GroupDetails = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      console.log('group:', group);
       if (isEditMode) {
         await userAuthorizationProxy.updateGroup(group.id as string, group);
         successEditToast();
       } else {
-        //  Create a new group with empty membersEmail
-        const createdGroup = await userAuthorizationProxy.createGroup({
-          ...group,
-          membersEmail: [],
-        });
-        await userAuthorizationProxy.updateGroup(createdGroup.id as string, {
-          ...createdGroup,
-          membersEmail: group.membersEmail,
-        });
+        group.ownerRef = organization?.id as string;
+        await userAuthorizationProxy.createGroup(group);
         successToast();
       }
       router.push('/admin/groups');
@@ -148,21 +129,10 @@ const GroupDetails = () => {
     >,
   ) => {
     const { name, value } = e.target;
-    if (name === 'organization') {
-      setSelectedOrganization(value);
-      const selectedOrg = organization.find((org) => org.id === value);
-      if (selectedOrg) {
-        setGroup((prev) => ({
-          ...prev,
-          ownerRef: selectedOrg.id,
-        }));
-      }
-    } else {
-      setGroup((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    setGroup((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   return (
@@ -221,24 +191,6 @@ const GroupDetails = () => {
         />
       </div>
 
-      <div className="my-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Owner Reference
-        </label>
-        <select
-          name="organization"
-          value={selectedOrganization}
-          onChange={handleInputChange}
-          className="input-custom"
-        >
-          <option value="">Select an Organization</option>
-          {organization.map((org) => (
-            <option key={org.id} value={org.id}>
-              {org.name}
-            </option>
-          ))}
-        </select>
-      </div>
       <footer
         className="stream-footer flex justify-between bg-gray-200 p-4"
         style={{ backgroundColor: 'var(--primary-color)' }}

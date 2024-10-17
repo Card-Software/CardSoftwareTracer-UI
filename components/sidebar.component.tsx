@@ -23,7 +23,7 @@ const menuItems: MenuItem[] = [
     subItems: [
       { id: 6, label: 'Groups', link: '/admin/groups' },
       { id: 7, label: 'Team Labels', link: '/admin/team-labels' },
-      { id: 8, label: 'Statuses', link: '#' },
+      { id: 8, label: 'Statuses', link: '/admin/team-statuses' },
     ],
   },
 ];

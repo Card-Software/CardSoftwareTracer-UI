@@ -5,9 +5,7 @@ class UserAuthorizationProxy {
 
   async getAllGroups(ownerRef: string): Promise<Group[]> {
     try {
-      const response = await axiosInstance.get(
-        `${this.controller}/${ownerRef}/all`,
-      );
+      const response = await axiosInstance.get(`${this.controller}/all`);
       return response.data;
     } catch (error) {
       console.log('error', error);
@@ -36,7 +34,7 @@ class UserAuthorizationProxy {
 
   async getGroupById(id: string): Promise<Group> {
     try {
-      const response = await axiosInstance.get(`${this.controller}/get/${id}`);
+      const response = await axiosInstance.get(`${this.controller}/${id}`);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -52,7 +50,6 @@ class UserAuthorizationProxy {
       throw error;
     }
   }
-
 }
 
 export const userAuthorizationProxy = new UserAuthorizationProxy();

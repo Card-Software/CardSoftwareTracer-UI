@@ -4,6 +4,8 @@ import { TeamLabel } from '@/models/team-label';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
 
 import toast, { Toaster } from 'react-hot-toast';
+import { Organization } from '@/models/organization';
+import { userAuthenticationService } from '@/services/user-authentication.service';
 
 interface TeamLabelModalProps {
   isOpen: boolean;
@@ -19,13 +21,12 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
   onSave,
 }) => {
   const [teamLabel, setTeamLabel] = useState<TeamLabel>({
-    id: '',
     checked: false,
     timeChecked: new Date(),
     labelName: '',
     owner: { id: '', name: '' },
   });
-  const [selectedOrganization, setSelectedOrganization] = useState('');
+  const [organization, SetOrganization] = useState<Organization | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const successToast = () => toast.success('Team label saved successfully');
@@ -36,13 +37,16 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
   const editMode = !!teamLabelId;
 
   useEffect(() => {
+    const org = userAuthenticationService.getOrganization();
+    if (org) {
+      SetOrganization(org);
+    }
     const fetchTeamLabel = async () => {
-      setIsLoading(true);
       if (editMode && teamLabelId) {
+        setIsLoading(true);
         try {
           const data = await teamLabelProxy.getTeamLabelById(teamLabelId);
           setTeamLabel(data);
-          setSelectedOrganization(data.owner.id || '');
         } catch (error) {
           console.error('Error fetching team label:', error);
         } finally {
@@ -67,10 +71,17 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
     setIsLoading(true);
     try {
       if (editMode) {
+        if (!teamLabel.id) {
+          throw new Error('Team label ID is missing');
+        }
         await teamLabelProxy.updateTeamLabel(teamLabel.id, teamLabel);
         onSave(teamLabel);
         successEditToast();
       } else {
+        if (!organization) {
+          throw new Error('Organization is missing');
+        }
+        teamLabel.owner = { id: organization.id, name: organization.name };
         const createdTeamLabel =
           await teamLabelProxy.createTeamLabel(teamLabel);
         onSave(createdTeamLabel);
@@ -92,7 +103,7 @@ const TeamLabelModal: React.FC<TeamLabelModalProps> = ({
       isOpen={isOpen}
       loading={isLoading}
       onSave={handleSubmit}
-      canSave={!!teamLabel.labelName && !!selectedOrganization}
+      canSave={!!teamLabel.labelName}
     >
       <div className="my-4">
         <label className="block text-sm font-medium text-gray-700">

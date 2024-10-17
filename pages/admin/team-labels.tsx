@@ -141,9 +141,6 @@ const TeamLabels = () => {
               <h2 className="text-lg font-bold text-gray-700">
                 {teamLabel.labelName}
               </h2>
-              <p className="text-sm text-gray-500">
-                Owner: {teamLabel.owner.name}
-              </p>
             </div>
             <div
               onClick={(e) => {
