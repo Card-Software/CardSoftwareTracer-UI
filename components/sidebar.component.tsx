@@ -195,7 +195,6 @@ const Sidebar: React.FC = () => {
                     <Link key={subItem.id} href={subItem.link || '#'}>
                       <div
                         className={`px-4 py-2 ${
-                          // pathname === subItem.link
                           pathname.includes(subItem.link || '')
                             ? 'bg-gray-200 font-bold text-black'
                             : 'hover:bg-gray-500 hover:text-white'
