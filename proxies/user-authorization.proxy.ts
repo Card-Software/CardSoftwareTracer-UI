@@ -44,7 +44,7 @@ class UserAuthorizationProxy {
 
   async deleteGroup(id: string): Promise<void> {
     try {
-      await axiosInstance.delete(`${this.controller}/delete/${id}`);
+      await axiosInstance.delete(`${this.controller}/${id}`);
     } catch (error) {
       console.error(error);
       throw error;
