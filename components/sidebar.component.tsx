@@ -2,33 +2,74 @@
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // Importing icons for toggle button
+import { FaChevronDown, FaChevronLeft, FaChevronRight } from 'react-icons/fa'; // Importing icons for toggle button
+import { userAuthenticationService } from '@/services/user-authentication.service';
+import { User } from '@/models/user';
 
 interface MenuItem {
   id: number;
   label: string;
-  link: string;
+  link?: string;
+  subItems?: MenuItem[];
 }
 
 const menuItems: MenuItem[] = [
   { id: 2, label: 'Trac. Stream', link: '/traceability-stream' },
   { id: 3, label: 'Dashboard', link: '/dashboard' },
   { id: 4, label: 'Man. Dashboard', link: '/manager-dashboard' },
+  {
+    id: 5,
+    label: 'Admin',
+    subItems: [
+      { id: 6, label: 'Groups', link: '/admin/groups' },
+      { id: 7, label: 'Team Labels', link: '/admin/team-labels' },
+      { id: 8, label: 'Statuses', link: '/admin/team-statuses' },
+    ],
+  },
 ];
 
 const Sidebar: React.FC = () => {
   const fullPath = usePathname() || '/';
   const highestHierarchyPath = '/' + fullPath.split('/')[1];
-  const [pathname, setPathname] = useState(highestHierarchyPath);
+  const [pathname, setPathname] = useState(fullPath);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false); // State for collapse
+  const [expandedItems, setExpandedItems] = useState<{
+    [key: number]: boolean;
+  }>({}); // State for expand
 
   useEffect(() => {
-    const highestHierarchy = '/' + fullPath.split('/')[1];
-    setPathname(highestHierarchy);
+    setPathname(fullPath);
+  }, [fullPath]);
+
+  useEffect(() => {
+    const user: User = userAuthenticationService.getUser() as User;
+    if (!user) return;
+    setIsAdmin(user.role.includes('Admin'));
+  }, []);
+
+  useEffect(() => {
+    const adminMenu = menuItems.find((item) => item.label === 'Admin');
+    if (adminMenu?.subItems) {
+      const expanded = adminMenu.subItems.some((subItem) =>
+        fullPath.includes(subItem.link || ''),
+      );
+      setExpandedItems((prevState) => ({
+        ...prevState,
+        [adminMenu.id]: expanded,
+      }));
+    }
   }, [fullPath]);
 
   const toggleCollapse = () => {
     setIsCollapsed((prevState) => !prevState);
+  };
+
+  const toggleExpand = (id: number) => {
+    setExpandedItems((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
   };
 
   return (
@@ -110,18 +151,61 @@ const Sidebar: React.FC = () => {
       <div className="flex flex-grow flex-col items-start">
         {menuItems.map((menu) => {
           const isActive = highestHierarchyPath === menu.link;
+          const isExpanded = expandedItems[menu.id];
           return (
-            <Link key={menu.id} href={menu.link} style={{ width: '100%' }}>
+            <div key={menu.id} style={{ width: '100%' }}>
+              {menu.link ? (
+                <Link href={menu.link}>
+                  <div
+                    className={`px-4 py-2 ${
+                      isActive
+                        ? 'bg-gray-200 font-bold text-black'
+                        : 'hover:bg-gray-500 hover:text-white'
+                    } ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} rounded-md transition-all duration-700 ease-in-out`}
+                  >
+                    {menu.label}
+                  </div>
+                </Link>
+              ) : (
+                isAdmin && (
+                  <div
+                    className={`cursor-pointer px-4 py-2 ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} rounded-md transition-all duration-700 ease-in-out`}
+                    onClick={() => toggleExpand(menu.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{menu.label}</span>
+                      <span
+                        className={`transition-transform duration-300 ease-in-out ${
+                          isExpanded ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      >
+                        <FaChevronDown size={12} color="gray" />
+                      </span>
+                    </div>
+                  </div>
+                )
+              )}
+
               <div
-                className={`px-4 py-2 ${
-                  isActive
-                    ? 'bg-gray-200 font-bold text-black'
-                    : 'hover:bg-gray-500 hover:text-white'
-                } ${isCollapsed ? 'w-0 opacity-0' : 'w-full opacity-100'} rounded-md transition-all duration-300 ease-in-out`}
+                className={`ml-5 mr-3 overflow-hidden transition-all duration-700 ease-in-out`}
               >
-                {menu.label}
+                {menu.subItems &&
+                  isExpanded &&
+                  menu.subItems.map((subItem) => (
+                    <Link key={subItem.id} href={subItem.link || '#'}>
+                      <div
+                        className={`px-4 py-2 ${
+                          pathname === subItem.link
+                            ? 'bg-gray-200 font-bold text-black'
+                            : 'hover:bg-gray-500 hover:text-white'
+                        } rounded-md transition-all duration-300 ease-in-out`}
+                      >
+                        {subItem.label}
+                      </div>
+                    </Link>
+                  ))}
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
