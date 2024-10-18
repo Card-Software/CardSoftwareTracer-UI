@@ -31,6 +31,7 @@ const Dashboard: React.FC = () => {
   const [allStatuses, setAllStatuses] = useState<TeamStatus[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
   const [filterValues, setFilterValues] = useState<PoSearchFilters>({
+    referenceNumber: null,
     productOrderNumber: null,
     externalPoNumber: null,
     startDate: null,
@@ -83,6 +84,7 @@ const Dashboard: React.FC = () => {
     const initialFilters = {
       productOrderNumber: getStringValue(query.productOrderNumber),
       externalPoNumber: getStringValue(query.externalPoNumber),
+      referenceNumber: getStringValue(query.referenceNumber),
       startDate: query.startDate
         ? moment(getStringValue(query.startDate))
         : null,
@@ -198,6 +200,7 @@ const Dashboard: React.FC = () => {
     setFilterValues({
       productOrderNumber: null,
       externalPoNumber: null,
+      referenceNumber: null,
       startDate: null,
       endDate: null,
       siteRef: null,
@@ -298,13 +301,29 @@ const Dashboard: React.FC = () => {
                 htmlFor="productOrderName"
                 className="block text-sm font-semibold text-gray-800"
               >
-                Product Order Name
+                Product Order
               </label>
               <input
                 type="text"
                 name="productOrderNumber"
                 id="productOrderName"
                 value={filterValues.productOrderNumber || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="productOrderName"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                Reference Number
+              </label>
+              <input
+                type="text"
+                name="referenceNumber"
+                id="referenceNumber"
+                value={filterValues.referenceNumber || ''}
                 onChange={handleFilterChange}
                 className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
