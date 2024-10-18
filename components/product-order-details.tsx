@@ -81,7 +81,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
       assignedUser: null,
       createdDate: new Date(),
       client: '',
-      statuses: [],
+      teamStatuses: [],
       externalProductOrderNumber: '',
       product: '',
       quantity: 0,

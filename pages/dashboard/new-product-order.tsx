@@ -29,6 +29,7 @@ import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import { Note } from '@/models/note';
 import toast, { Toaster } from 'react-hot-toast';
+import { TeamStatus, TeamStatusExtended } from '@/models/team-status';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -50,7 +51,7 @@ const NewProductOrder: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [statuses, setStatuses] = useState<Status[]>([]);
+  const [statuses, setStatuses] = useState<TeamStatusExtended[]>([]);
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
   const [invoiceDate, setInvoiceDate] = useState<Date>();
   const [siblingPoTextDisplay, setSiblingPoTextDisplay] = useState<string>('');
@@ -120,9 +121,9 @@ const NewProductOrder: React.FC = () => {
     setNotes(notes);
   };
 
-  const handleStatusChange = (newStatuses: Status[]) => {
+  const handleStatusChange = (newStatuses: TeamStatusExtended[]) => {
     setStatuses(newStatuses);
-    setValue('statuses', newStatuses);
+    setValue('teamStatuses', newStatuses);
   };
 
   const handleSiblingProductOrderChange = (newPOs: SiblingProductOrder[]) => {
@@ -144,7 +145,7 @@ const NewProductOrder: React.FC = () => {
 
     data.notes = notes;
     data.ownerRef = owner.id || '';
-    data.statuses = statuses; // Add the statuses to the form data
+    data.teamStatuses = statuses; // Add the statuses to the form data
     data.childrenTracerStreams = connectedTracerStreams;
     data.childrenPosReferences = connectedPOs.map(
       (ts) => ts.productOrderNumber,
@@ -251,7 +252,7 @@ const NewProductOrder: React.FC = () => {
               onChange={handleNotesChange}
             />
             <TeamStatuses
-              originalStatus={statuses}
+              originalStatuses={statuses}
               onChange={(newStatuses) => handleStatusChange(newStatuses)}
               disableHistoryButton={true}
               onHistoryClick={() => {}}

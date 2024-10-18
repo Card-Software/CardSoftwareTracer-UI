@@ -16,6 +16,16 @@ class OrganizationManagementProxy {
       throw error;
     }
   }
+
+  async GetAllOrganizations(): Promise<Organization[]> {
+    try {
+      const response = await axiosInstance.get('OrganizationController/all');
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
   //#endregion
 
   //#region

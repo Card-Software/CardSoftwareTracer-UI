@@ -14,11 +14,12 @@ import { PoSearchFilters } from '@/models/po-search-filter';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
-import { Statuses } from '@/models/enum/statuses';
 import { Site } from '@/models/site';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { User } from '@/models/user';
 import toast, { Toast } from 'react-hot-toast';
+import { TeamStatus } from '@/models/team-status';
+import { teamStatusProxy } from '@/proxies/team-status.proxy';
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
@@ -27,8 +28,10 @@ const Dashboard: React.FC = () => {
     ProductOrder[]
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [allStatuses, setAllStatuses] = useState<TeamStatus[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
   const [filterValues, setFilterValues] = useState<PoSearchFilters>({
+    referenceNumber: null,
     productOrderNumber: null,
     externalPoNumber: null,
     startDate: null,
@@ -58,6 +61,16 @@ const Dashboard: React.FC = () => {
       setAllSites(organization.sites || []);
       setAllUsers(organization.users || []);
     }
+
+    const fetchData = async () => {
+      try {
+        const statuses = await teamStatusProxy.getAllTeamStatus();
+        setAllStatuses(statuses);
+      } catch (error) {
+        console.error('Failed to fetch statuses:', error);
+      }
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -71,6 +84,7 @@ const Dashboard: React.FC = () => {
     const initialFilters = {
       productOrderNumber: getStringValue(query.productOrderNumber),
       externalPoNumber: getStringValue(query.externalPoNumber),
+      referenceNumber: getStringValue(query.referenceNumber),
       startDate: query.startDate
         ? moment(getStringValue(query.startDate))
         : null,
@@ -186,6 +200,7 @@ const Dashboard: React.FC = () => {
     setFilterValues({
       productOrderNumber: null,
       externalPoNumber: null,
+      referenceNumber: null,
       startDate: null,
       endDate: null,
       siteRef: null,
@@ -246,6 +261,10 @@ const Dashboard: React.FC = () => {
 
   // #endregion
 
+  const getStatusByName = (name: string) => {
+    return allStatuses.find((status) => status.name === name);
+  };
+
   return (
     <Layout>
       <LoadingOverlay show={fetchingPo.current} />
@@ -282,13 +301,29 @@ const Dashboard: React.FC = () => {
                 htmlFor="productOrderName"
                 className="block text-sm font-semibold text-gray-800"
               >
-                Product Order Name
+                Product Order
               </label>
               <input
                 type="text"
                 name="productOrderNumber"
                 id="productOrderName"
                 value={filterValues.productOrderNumber || ''}
+                onChange={handleFilterChange}
+                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="productOrderName"
+                className="block text-sm font-semibold text-gray-800"
+              >
+                Reference Number
+              </label>
+              <input
+                type="text"
+                name="referenceNumber"
+                id="referenceNumber"
+                value={filterValues.referenceNumber || ''}
                 onChange={handleFilterChange}
                 className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               />
@@ -382,7 +417,7 @@ const Dashboard: React.FC = () => {
                 className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
-                {Object.values(Statuses).map((status) => (
+                {getStatusByName('Planning')?.possibleValues.map((status) => (
                   <option key={status} value={status}>
                     {status}
                   </option>
@@ -405,7 +440,7 @@ const Dashboard: React.FC = () => {
                 className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
-                {Object.values(Statuses).map((status) => (
+                {getStatusByName('NT')?.possibleValues.map((status) => (
                   <option key={status} value={status}>
                     {status}
                   </option>
@@ -427,7 +462,7 @@ const Dashboard: React.FC = () => {
                 className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
               >
                 <option value="">Select Status</option>
-                {Object.values(Statuses).map((status) => (
+                {getStatusByName('SAC')?.possibleValues.map((status) => (
                   <option key={status} value={status}>
                     {status}
                   </option>
