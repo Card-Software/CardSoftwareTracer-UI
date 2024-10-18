@@ -47,6 +47,8 @@ import ProductOrderDetails from '@/components/product-order-details';
 import { Note } from '@/models/note';
 import AlertModal from '@/components/modals/alert-modal-component';
 import toast, { Toaster } from 'react-hot-toast';
+import { TeamStatusExtended } from '@/models/team-status';
+import { teamStatusProxy } from '@/proxies/team-status.proxy';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -66,7 +68,7 @@ const PurchaseOrderPage: React.FC = () => {
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
   const [isStreamModalOpen, setIsStreamModalOpen] = useState(false);
   const [streamModalMode, setStreamModalMode] = useState<'edit' | 'add'>('add');
-  const [statuses, setStatuses] = useState<Status[]>([]); // New state for statuses
+  const [statuses, setStatuses] = useState<TeamStatusExtended[]>([]); // New state for statuses
   const [isExportModalOpen, setIsExportModalOpen] = useState(false); // State for export modal
   const [streamToExport, setStreamToExport] =
     useState<TracerStreamExtended | null>(null);
@@ -128,17 +130,20 @@ const PurchaseOrderPage: React.FC = () => {
           getChildrenPos(order.childrenPosReferences);
         }
 
-        if (order.statuses.length === 0) {
-          order.statuses = [
-            { team: 'Planning', teamStatus: 'Pending', feedback: '' },
-            { team: 'SAC', teamStatus: 'Pending', feedback: '' },
-            { team: 'NT', teamStatus: 'Pending', feedback: '' },
-          ];
+        if (order.teamStatuses.length === 0) {
+          const statuses = await teamStatusProxy.getAllTeamStatus();
+          const statusesExtended = statuses.map((status) => ({
+            id: status.id as string,
+            name: status.name,
+            selectedValue: '',
+            feedback: '',
+          }));
+          order.teamStatuses = statusesExtended;
         }
         setAllSites(userAuthenticationService.getOrganization()?.sites || []);
         setIsLoading(false);
         setProductOrder(order);
-        setStatuses(order.statuses || []); // Set initial statuses
+        setStatuses(order.teamStatuses || []); // Set initial statuses
 
         activityLogProxy.getActivityLogByPo(order.id as string).then((logs) => {
           setAllActivityLogs(logs);
@@ -305,10 +310,10 @@ const PurchaseOrderPage: React.FC = () => {
     SetChildrenPos(childrenPos);
   };
 
-  const handleStatusChange = (newStatuses: Status[]) => {
+  const handleStatusChange = (newStatuses: TeamStatusExtended[]) => {
     setStatuses(newStatuses);
     if (productOrder) {
-      setProductOrder({ ...productOrder, statuses: newStatuses });
+      setProductOrder({ ...productOrder, teamStatuses: newStatuses });
     }
   };
 
@@ -503,34 +508,37 @@ const PurchaseOrderPage: React.FC = () => {
   };
 
   const insertLogs = () => {
-    productOrder?.statuses.forEach((status) => {
-      const originalStatus = originalProductOrder?.statuses.find(
-        (s) => s.team === status.team,
+    productOrder?.teamStatuses.forEach((status) => {
+      const originalStatus = originalProductOrder?.teamStatuses.find(
+        (s) => s.id === status.id,
       );
-      if (originalStatus?.teamStatus !== status.teamStatus) {
+      if (originalStatus?.selectedValue !== status.selectedValue) {
         const activityLog: ActivityLog = {
           productOrderReference: productOrder.id as string,
           activityType: 'Status Change',
-          team: status.team,
-          teamStatus: status.teamStatus,
+          team: status.name,
+          teamStatus: status.selectedValue,
           productOrderNumber: productOrder?.productOrderNumber || '',
           userFirstName: user?.firstName || '',
           userLastName: user?.lastname || '',
           timeStamp: new Date(),
-          feedBack: status.teamStatus === 'Returned' ? status.feedback : '',
+          feedBack: status.selectedValue === 'Returned' ? status.feedback : '',
         };
         activityLogProxy.insertActivityLog(activityLog);
 
         if (process.env.NEXT_PUBLIC_ENV === 'prod') {
-          if (status.team === 'Planning' && status.teamStatus === 'Completed') {
+          if (
+            status.name === 'Planning' &&
+            status.selectedValue === 'Completed'
+          ) {
             emailService.sendPoUpdateEmailToAllUsers(
               productOrder?.productOrderNumber || '',
               'Planning',
               'Completed',
             );
           } else if (
-            status.team === 'SAC' &&
-            status.teamStatus === 'Returned'
+            status.name === 'SAC' &&
+            status.selectedValue === 'Returned'
           ) {
             emailService.sendPoUpdateEmailToAllUsers(
               productOrder?.productOrderNumber || '',
@@ -538,8 +546,8 @@ const PurchaseOrderPage: React.FC = () => {
               'Returned',
             );
           } else if (
-            status.team === 'Planning' &&
-            status.teamStatus === 'Accomplish'
+            status.name === 'Planning' &&
+            status.selectedValue === 'Accomplish'
           ) {
             emailService.sendPoUpdateEmailToAllUsers(
               productOrder?.productOrderNumber || '',
@@ -552,7 +560,7 @@ const PurchaseOrderPage: React.FC = () => {
     });
 
     if (productOrder && originalProductOrder) {
-      originalProductOrder.statuses = productOrder.statuses;
+      originalProductOrder.teamStatuses = productOrder.teamStatuses;
     }
   };
 
@@ -657,7 +665,7 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleNotesChange}
               />
               <TeamStatuses
-                originalStatus={statuses}
+                originalStatuses={statuses}
                 onChange={handleStatusChange}
                 disableHistoryButton={!allActivityLogs.length}
                 onHistoryClick={() =>

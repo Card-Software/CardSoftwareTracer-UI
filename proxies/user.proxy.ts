@@ -15,6 +15,16 @@ class UserProxy {
       throw error;
     }
   }
+
+  async getAllUsers(): Promise<User[]> {
+    try {
+      const response = await axiosInstance.get(`UserController/all`);
+      return response.data;
+    } catch (error) {
+      console.log('error', error);
+      throw error;
+    }
+  }
 }
 
 export const userProxy = new UserProxy();
