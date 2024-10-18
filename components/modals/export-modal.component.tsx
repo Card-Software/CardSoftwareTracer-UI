@@ -44,7 +44,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
 
   useEffect(() => {
     const sectionsWithSelectedLabels = stream.sections.filter((section) =>
-      section.teamLabels.some((label) => selectedTeamLabels.includes(label.id)),
+      section.teamLabels.some((label) =>
+        selectedTeamLabels.includes(label.id as string),
+      ),
     );
     setSelectedSections(sectionsWithSelectedLabels);
   }, [selectedTeamLabels, stream.sections]);
