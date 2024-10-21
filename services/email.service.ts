@@ -15,9 +15,9 @@ class EmailService {
     this.allUsers.forEach((user) => {
       if (user.email) {
         const data: PoStatusChanged = {
-          recipient: user.email,
+          recipient: [user.email],
           poNumber: poNumber,
-          name: user.firstName + ' ' + user.lastname,
+          // name: user.firstName + ' ' + user.lastname,
           emailOfChange: this.user.email as string,
           team: team,
           status: status,
@@ -31,9 +31,9 @@ class EmailService {
     this.allUsers.forEach((user) => {
       if (user.email) {
         const data: ProductOrderCreatedEmail = {
-          recipient: user.email,
+          recipient: [user.email],
           poNumber: poNumber,
-          name: user.firstName + ' ' + user.lastname,
+          // name: user.firstName + ' ' + user.lastname,
           emailOfChange: this.user.email as string,
         };
         emailProxy.EmailPoCreation(data);
