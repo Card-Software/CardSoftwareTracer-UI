@@ -12,33 +12,25 @@ class EmailService {
     team: string,
     status: string,
   ): void {
-    this.allUsers.forEach((user) => {
-      if (user.email) {
-        const data: PoStatusChanged = {
-          recipient: user.email,
-          poNumber: poNumber,
-          name: user.firstName + ' ' + user.lastname,
-          emailOfChange: this.user.email as string,
-          team: team,
-          status: status,
-        };
-        emailProxy.EmailPoStatusChanged(data);
-      }
-    });
+    const emails = this.allUsers.map((user) => user.email as string);
+    const data: PoStatusChanged = {
+      recipient: emails,
+      poNumber: poNumber,
+      team: team,
+      status: status,
+      emailOfChange: this.user.email as string,
+    };
+    emailProxy.EmailPoStatusChanged(data);
   }
 
   sendPoCreationEmail(poNumber: string): void {
-    this.allUsers.forEach((user) => {
-      if (user.email) {
-        const data: ProductOrderCreatedEmail = {
-          recipient: user.email,
-          poNumber: poNumber,
-          name: user.firstName + ' ' + user.lastname,
-          emailOfChange: this.user.email as string,
-        };
-        emailProxy.EmailPoCreation(data);
-      }
-    });
+    const emails = this.allUsers.map((user) => user.email as string);
+    const data: ProductOrderCreatedEmail = {
+      recipient: emails,
+      poNumber: poNumber,
+      emailOfChange: this.user.email as string,
+    };
+    emailProxy.EmailPoCreation(data);
   }
 }
 

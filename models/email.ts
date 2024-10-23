@@ -4,8 +4,8 @@ export interface PoStatusChanged extends ProductOrderCreatedEmail {
 }
 
 export interface ProductOrderCreatedEmail {
-  recipient: string;
+  recipient: string[];
   poNumber: string;
-  name: string;
+  // name: string;
   emailOfChange: string;
 }
