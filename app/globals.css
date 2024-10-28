@@ -238,3 +238,63 @@ button.square {
   align-items: center;
   padding-left: 1rem;
 }
+
+/* #region table */
+/* Styles for the table */
+.standard-table {
+  min-width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e5e7eb; /* Corresponds to divide-gray-200 */
+}
+
+/* Sticky header styles */
+.standard-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #f9fafb; /* bg-gray-50 */
+}
+
+/* Table header cells */
+.standard-table th {
+  cursor: pointer;
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280; /* text-gray-500 */
+}
+
+/* Table body */
+.standard-table tbody {
+  cursor: pointer;
+  background-color: white;
+}
+
+.standard-table thead tr {
+  background-color: #f3f4f6 !important;
+}
+
+/* Table row styles */
+.standard-table tr:nth-child(odd) {
+  background-color: white;
+}
+
+.standard-table tr:nth-child(even) {
+  background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+.standard-table tr {
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+}
+
+/* Table cell */
+.standard-table td {
+  white-space: nowrap;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  color: #6b7280; /* text-gray-500 */
+}
+
+/* #endregion */
