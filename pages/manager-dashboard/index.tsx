@@ -1068,6 +1068,3 @@ const ManagerDashboard: React.FC = () => {
 };
 
 export default withAuth(ManagerDashboard);
-function renderInputContainer() {
-  throw new Error('Function not implemented.');
-}

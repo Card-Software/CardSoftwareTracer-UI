@@ -3,6 +3,7 @@ import { userAuthenticationService } from '@/services/user-authentication.servic
 import { User } from '@/models/user';
 import Layout from '@/app/layout';
 import { userProxy } from '@/proxies/user.proxy';
+import withAuth from '@/hoc/auth';
 
 const ProfilePage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<User | null>(null);
@@ -208,4 +209,4 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default ProfilePage;
+export default withAuth(ProfilePage);

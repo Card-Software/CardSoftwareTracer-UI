@@ -14,6 +14,7 @@ const menuItems: MenuItem[] = [
   { id: 2, label: 'Trac. Stream', link: '/traceability-stream' },
   { id: 3, label: 'Dashboard', link: '/dashboard' },
   { id: 4, label: 'Man. Dashboard', link: '/manager-dashboard' },
+  { id: 5, label: 'Requests', link: '/requests' },
 ];
 
 const Sidebar: React.FC = () => {
