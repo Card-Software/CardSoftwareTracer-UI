@@ -44,7 +44,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
 
   useEffect(() => {
     const sectionsWithSelectedLabels = stream.sections.filter((section) =>
-      section.teamLabels.some((label) => selectedTeamLabels.includes(label.id)),
+      section.teamLabels.some((label) =>
+        selectedTeamLabels.includes(label.id as string),
+      ),
     );
     setSelectedSections(sectionsWithSelectedLabels);
   }, [selectedTeamLabels, stream.sections]);
@@ -61,9 +63,9 @@ const ExportModal: React.FC<ExportModalProps> = ({
 
   const handleTeamLabelChange = (teamLabel: TeamLabel) => {
     setSelectedTeamLabels((prevSelected) =>
-      prevSelected.includes(teamLabel.id)
-        ? prevSelected.filter((id) => id !== teamLabel.id)
-        : [...prevSelected, teamLabel.id],
+      prevSelected.includes(teamLabel.id as string)
+        ? prevSelected.filter((id) => id !== (teamLabel.id as string))
+        : [...prevSelected, teamLabel.id as string],
     );
   };
 
@@ -125,7 +127,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
           <div key={label.id} className="flex items-center space-x-2">
             <input
               type="checkbox"
-              checked={selectedTeamLabels.includes(label.id)}
+              checked={selectedTeamLabels.includes(label.id as string)}
               onChange={() => handleTeamLabelChange(label)}
             />
             <span>{label.labelName}</span>

@@ -7,7 +7,7 @@ export enum Role {
 
 export interface User {
   id?: string;
-  email?: string;
+  email: string;
   password?: string;
   organizationRef: string; // Organization type is assumed to be defined elsewhere
   role: string[];

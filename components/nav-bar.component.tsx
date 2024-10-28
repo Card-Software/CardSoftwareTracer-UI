@@ -9,6 +9,7 @@ import { User } from '@/models/user';
 const Navbar: React.FC = () => {
   const [loggedIn, setLoggedIn] = useState(true); // Simulate login state
   const [showLogoutMenu, setShowLogoutMenu] = useState(false);
+  const [userNew, setUserNew] = useState<User | null>(null);
   const router = useRouter(); // Use useRouter from 'next/navigation'
 
   const user: User | null = userAuthenticationService.getUser();
@@ -21,7 +22,14 @@ const Navbar: React.FC = () => {
   // Check if the user is logged in
   useEffect(() => {
     const loggedIn = userAuthenticationService.isLoggedIn();
-    setLoggedIn(loggedIn);
+    if (loggedIn) {
+      setLoggedIn(loggedIn);
+    }
+
+    const user = userAuthenticationService.getUser();
+    if (user) {
+      setUserNew(user);
+    }
   }, []);
 
   const handleLogout = () => {
@@ -66,7 +74,7 @@ const Navbar: React.FC = () => {
           {/* Profile Icon */}
           <div>
             <h3 className="text-white">
-              {user?.firstName} {user?.lastname}
+              {userNew?.firstName} {userNew?.lastname}
             </h3>
           </div>
           <div className="cursor-pointer" onClick={handleProfile}>

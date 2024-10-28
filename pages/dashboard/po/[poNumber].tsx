@@ -48,6 +48,8 @@ import { activityLogService } from '@/services/activity-logs.service';
 import TraceabilityStreamComponent from '@/components/traceability/traceability-stream';
 import { Tier } from '@/models/tier';
 import TiersComponent from '@/components/traceability/tiers.component';
+import { TeamStatusExtended } from '@/models/team-status';
+import { teamStatusProxy } from '@/proxies/team-status.proxy';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -65,8 +67,8 @@ const PurchaseOrderPage: React.FC = () => {
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
   const [isStreamModalOpen, setIsStreamModalOpen] = useState(false);
   const [streamModalMode, setStreamModalMode] = useState<'edit' | 'add'>('add');
-  const [statuses, setStatuses] = useState<Status[]>([]);
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [statuses, setStatuses] = useState<TeamStatusExtended[]>([]); // New state for statuses
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false); // State for export modal
   const [streamToExport, setStreamToExport] =
     useState<TracerStreamExtended | null>(null);
   const [childrenPos, SetChildrenPos] = useState<ProductOrder[]>([]);
@@ -166,16 +168,19 @@ const PurchaseOrderPage: React.FC = () => {
           getChildrenPos(order.childrenPosReferences);
         }
 
-        if (order.statuses.length === 0) {
-          order.statuses = [
-            { team: 'Planning', teamStatus: 'Pending', feedback: '' },
-            { team: 'SAC', teamStatus: 'Pending', feedback: '' },
-            { team: 'NT', teamStatus: 'Pending', feedback: '' },
-          ];
+        if (order.teamStatuses.length === 0) {
+          const statuses = await teamStatusProxy.getAllTeamStatus();
+          const statusesExtended = statuses.map((status) => ({
+            id: status.id as string,
+            name: status.name,
+            selectedValue: '',
+            feedback: '',
+          }));
+          order.teamStatuses = statusesExtended;
         }
         setIsLoading(false);
         setProductOrder(order);
-        setStatuses(order.statuses || []); // Set initial statuses
+        setStatuses(order.teamStatuses || []); // Set initial statuses
 
         activityLogProxy.getActivityLogByPo(order.id as string).then((logs) => {
           setAllActivityLogs(logs);
@@ -307,10 +312,10 @@ const PurchaseOrderPage: React.FC = () => {
     SetChildrenPos(childrenPos);
   };
 
-  const handleStatusChange = (newStatuses: Status[]) => {
+  const handleStatusChange = (newStatuses: TeamStatusExtended[]) => {
     setStatuses(newStatuses);
     if (productOrder) {
-      setProductOrder({ ...productOrder, statuses: newStatuses });
+      setProductOrder({ ...productOrder, teamStatuses: newStatuses });
     }
   };
 
@@ -495,6 +500,63 @@ const PurchaseOrderPage: React.FC = () => {
     });
   };
 
+  const insertLogs = () => {
+    productOrder?.teamStatuses.forEach((status) => {
+      const originalStatus = originalProductOrder?.teamStatuses.find(
+        (s) => s.id === status.id,
+      );
+      if (originalStatus?.selectedValue !== status.selectedValue) {
+        const activityLog: ActivityLog = {
+          productOrderReference: productOrder.id as string,
+          activityType: 'Status Change',
+          team: status.name,
+          teamStatus: status.selectedValue,
+          productOrderNumber: productOrder?.productOrderNumber || '',
+          userFirstName: user?.firstName || '',
+          userLastName: user?.lastname || '',
+          timeStamp: new Date(),
+          feedBack: status.selectedValue === 'Returned' ? status.feedback : '',
+        };
+        activityLogProxy.insertActivityLog(activityLog);
+
+        if (process.env.NEXT_PUBLIC_ENV === 'prod') {
+          if (
+            status.name === 'Planning' &&
+            status.selectedValue === 'Completed'
+          ) {
+            emailService.sendPoUpdateEmailToAllUsers(
+              productOrder?.productOrderNumber || '',
+              'Planning',
+              'Completed',
+            );
+          } else if (
+            status.name === 'SAC' &&
+            status.selectedValue === 'Returned'
+          ) {
+            emailService.sendPoUpdateEmailToAllUsers(
+              productOrder?.productOrderNumber || '',
+              'SAC',
+              'Returned',
+            );
+          } else if (
+            status.name === 'Planning' &&
+            status.selectedValue === 'Accomplish'
+          ) {
+            emailService.sendPoUpdateEmailToAllUsers(
+              productOrder?.productOrderNumber || '',
+              'Planning',
+              'Accomplish',
+            );
+          }
+        }
+      }
+    });
+
+    if (productOrder && originalProductOrder) {
+      originalProductOrder.teamStatuses = productOrder.teamStatuses;
+    }
+  };
+
   const handleSave = async () => {
     if (productOrder) {
       try {
@@ -596,7 +658,7 @@ const PurchaseOrderPage: React.FC = () => {
                 onChange={handleNotesChange}
               />
               <TeamStatuses
-                originalStatus={statuses}
+                originalStatuses={statuses}
                 onChange={handleStatusChange}
                 disableHistoryButton={!allActivityLogs.length}
                 onHistoryClick={() =>

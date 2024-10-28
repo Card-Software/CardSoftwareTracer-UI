@@ -5,25 +5,22 @@ import TracerButton from '@/components/tracer-button.component';
 import { HiPlus, HiFilter, HiArrowUp } from 'react-icons/hi';
 import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
-import { ProductOrder } from '@/models/product-order';
 import withAuth from '@/hoc/auth';
 import LoadingOverlay from '@/components/loading-overlay.component';
-import { AllResponse } from '@/models/all-response';
 import { PoSearchFilters } from '@/models/po-search-filter';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
-import { Statuses } from '@/models/enum/statuses';
 import { Site } from '@/models/site';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { User } from '@/models/user';
-import { reportsService } from '@/services/reports.service';
 import { FaFileExport } from 'react-icons/fa';
 import { ProductOrderSnapshot } from '@/models/product-order-snapshot';
 import { SnapshotPaginatedResult } from '@/models/snapshot-paginated-result';
-import * as XLSX from 'xlsx';
 import ArrayModal from '@/components/modals/table-modal.component';
 import { fileManagementApiProxy } from '@/proxies/file-management.proxy';
+import { TeamStatus } from '@/models/team-status';
+import { teamStatusProxy } from '@/proxies/team-status.proxy';
 
 const ManagerDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,6 +58,7 @@ const ManagerDashboard: React.FC = () => {
   const [filterValues, setFilterValues] = useState<PoSearchFilters>({
     productOrderNumber: null,
     externalPoNumber: null,
+    referenceNumber: null,
     startDate: null,
     endDate: null,
     siteRef: null,
@@ -82,7 +80,7 @@ const ManagerDashboard: React.FC = () => {
       });
     }
   };
-
+  const [allStatuses, setAllStatuses] = useState<TeamStatus[]>([]);
   const [pageSize, setPageSize] = useState<number>(50);
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalResults, setTotalResults] = useState<number>(0);
@@ -106,6 +104,16 @@ const ManagerDashboard: React.FC = () => {
       setAllSites(organization.sites || []);
       setAllUsers(organization.users || []);
     }
+
+    const fetchData = async () => {
+      try {
+        const statuses = await teamStatusProxy.getAllTeamStatus();
+        setAllStatuses(statuses);
+      } catch (error) {
+        console.error('Failed to fetch statuses:', error);
+      }
+    };
+    fetchData();
   }, []);
 
   // Handle query parameters and filter initialization
@@ -120,6 +128,7 @@ const ManagerDashboard: React.FC = () => {
     const initialFilters = {
       productOrderNumber: getStringValue(query.productOrderNumber),
       externalPoNumber: getStringValue(query.externalPoNumber),
+      referenceNumber: getStringValue(query.referenceNumber),
       startDate: query.startDate
         ? moment(getStringValue(query.startDate))
         : null,
@@ -245,6 +254,7 @@ const ManagerDashboard: React.FC = () => {
     setFilterValues({
       productOrderNumber: null,
       externalPoNumber: null,
+      referenceNumber: null,
       startDate: null,
       endDate: null,
       siteRef: null,
@@ -422,6 +432,10 @@ const ManagerDashboard: React.FC = () => {
     setFilteredProductOrders(sortedOrders);
   }, [sortedOrders]);
 
+  const getStatusByName = (name: string) => {
+    return allStatuses.find((status) => status.name === name);
+  };
+
   return (
     <>
       <Layout>
@@ -473,13 +487,29 @@ const ManagerDashboard: React.FC = () => {
                   htmlFor="productOrderName"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  Product Order Name
+                  Product Order
                 </label>
                 <input
                   type="text"
                   name="productOrderNumber"
                   id="productOrderName"
                   value={filterValues.productOrderNumber || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="referenceNumber"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Reference Number
+                </label>
+                <input
+                  type="text"
+                  name="referenceNumber"
+                  id="referenceNumber"
+                  value={filterValues.referenceNumber || ''}
                   onChange={handleFilterChange}
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 />
@@ -593,7 +623,7 @@ const ManagerDashboard: React.FC = () => {
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
-                  {Object.values(Statuses).map((status) => (
+                  {getStatusByName('Planning')?.possibleValues.map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>
@@ -615,7 +645,7 @@ const ManagerDashboard: React.FC = () => {
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
-                  {Object.values(Statuses).map((status) => (
+                  {getStatusByName('NT')?.possibleValues.map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>
@@ -637,7 +667,7 @@ const ManagerDashboard: React.FC = () => {
                   className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
                 >
                   <option value="">Select Status</option>
-                  {Object.values(Statuses).map((status) => (
+                  {getStatusByName('SAC')?.possibleValues.map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>

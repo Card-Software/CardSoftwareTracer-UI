@@ -54,7 +54,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
       <Link href={`/dashboard/po/${productOrder.id as string}`}>
         <div
           className="flex flex-col justify-between rounded-md border border-gray-400 p-4"
-          style={{ height: '210px', width: '300px' }}
+          style={{ height: '260px', width: '300px' }}
         >
           <div className="mb-1 flex flex-row items-center justify-between">
             <h2 className="font-semibold text-black">Product Order</h2>
@@ -67,6 +67,14 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
           </div>
           <div className="mb-1">
             <p className="text-sm text-gray-500">{poNumber}</p>
+          </div>
+          <div className="mb-1">
+            <p className="mt-1 text-sm font-semibold text-black">
+              Reference Number
+            </p>
+            <p className="text-sm text-gray-500">
+              {productOrder.referenceNumber || 'N/A'}
+            </p>
           </div>
           <div className="mb-1">
             <p className="mt-1 text-sm font-semibold text-black">
