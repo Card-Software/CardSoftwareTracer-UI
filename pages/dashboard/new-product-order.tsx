@@ -150,17 +150,11 @@ const NewProductOrder: React.FC = () => {
     data.childrenPosReferences = connectedPOs.map(
       (ts) => ts.productOrderNumber,
     );
-
-    console.log(data);
     data.notes = [];
     setIsLoading(true);
     try {
       const result = await orderManagementApiProxy.createProductOrder(data);
 
-      if (!result) {
-        console.error('Failed to save Product Order');
-        return;
-      }
       if (process.env.NEXT_PUBLIC_ENV === 'prod') {
         emailService.sendPoCreationEmail(data.productOrderNumber);
       }
