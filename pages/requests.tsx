@@ -3,6 +3,7 @@ import withAuth from '@/hoc/auth';
 import Layout from '@/app/layout';
 import { HiPlus } from 'react-icons/hi';
 import TracerButton from '@/components/tracer-button.component';
+import RequestModal from '@/components/modals/request-modal.component';
 
 const RequestsPage: React.FC = () => {
   const router = useRouter();
@@ -44,8 +45,7 @@ const RequestsPage: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      <div />
+      <RequestModal onClose={() => {}} />
     </Layout>
   );
 };

@@ -268,8 +268,12 @@ button.square {
 
 /* Table body */
 .standard-table tbody {
-  cursor: pointer;
+  cursor: default;
   background-color: white;
+}
+
+.standard-table td.clickable {
+  cursor: pointer;
 }
 
 .standard-table thead tr {
