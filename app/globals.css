@@ -274,6 +274,8 @@ button.square {
 
 .standard-table td.clickable {
   cursor: pointer;
+  cursor: pointer;
+  background-color: white;
 }
 
 .standard-table thead tr {

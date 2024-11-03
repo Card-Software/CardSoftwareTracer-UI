@@ -77,27 +77,23 @@ const TraceabilityStream = () => {
       ></div>
       <div className="flex flex-row items-start justify-start">
         <div className="w-full overflow-auto">
-          <table className="w-full border-collapse border border-gray-300">
+          <table className="standard-table">
             <thead>
-              <tr className="bg-gray-400 text-white">
-                <th className="border-b border-gray-300 px-4 py-2">Name</th>
-                <th className="border-b border-gray-300 px-4 py-2">Details</th>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Details</th>
               </tr>
             </thead>
             <tbody>
               {filteredStreams.map((stream, index) => (
                 <tr
                   key={stream.id}
-                  className={`cursor-pointer ${
-                    index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-                  } hover:bg-gray-200`}
+                  className="!important hover:bg-gray-200"
                   onClick={handleTracerClick(stream.name || '')}
                 >
-                  <td className="border-b border-gray-300 px-4 py-2">
-                    {stream.name}
-                  </td>
-                  <td className="border-b border-gray-300 px-4 py-2">
-                    <span className="mt-1 block text-sm text-gray-500">
+                  <td>{stream.name}</td>
+                  <td style={{ whiteSpace: 'wrap' }}>
+                    <span>
                       {stream.sections
                         .map((section) => section.sectionName)
                         .join(', ')}
