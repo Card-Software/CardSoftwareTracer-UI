@@ -304,3 +304,47 @@ button.square {
 }
 
 /* #endregion */
+
+/* #region form-box */
+label {
+  color: #0000008a;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.align,
+form {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.form-box {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  .flow {
+    margin-top: 0;
+  }
+}
+
+.panel > * > header > :not(:last-child),
+.row > :not(:last-child) {
+  margin-right: 1.5rem;
+}
+
+.flow > * + *:not(.row),
+.align > * + *:not(.row),
+form > * + *:not(.row) {
+  margin-top: 1.5rem;
+}
