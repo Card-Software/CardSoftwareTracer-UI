@@ -116,7 +116,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
         </select>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
         {teamStatuses.map((status) => (
           <div key={status.id} className="mb-6">
             <div className="flex flex-col gap-2">
