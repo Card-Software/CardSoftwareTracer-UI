@@ -118,6 +118,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
               currentUser.role.includes('Admin') ? (
                 <div className="flex items-center space-x-2">
                   <button
+                    type="button"
                     onClick={() => handleEditNote(index)}
                     className="p-2 text-gray-500 hover:text-yellow-500 focus:outline-none"
                     style={{ border: 'none', boxShadow: 'none' }}
@@ -125,6 +126,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
                     <FaEdit />
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDeleteNote(index)}
                     className="p-2 text-gray-500 hover:text-red-500 focus:outline-none"
                     style={{ border: 'none', boxShadow: 'none' }}

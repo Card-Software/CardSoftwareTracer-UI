@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FaHistory } from 'react-icons/fa';
 import { TeamStatus, TeamStatusExtended } from '@/models/team-status';
 import { teamStatusProxy } from '@/proxies/team-status.proxy';
+import { IoClose } from 'react-icons/io5';
 
 interface TeamStatusesProps {
   onChange: (updatedStatuses: TeamStatusExtended[]) => void;
@@ -18,6 +19,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
 }) => {
   const [teamStatuses, SetTeamStatuses] = useState<TeamStatusExtended[]>([]);
   const [allTeamStatuses, SetAllTeamStatuses] = useState<TeamStatus[]>([]);
+  const [teamStatusDeleted, SetTeamStatusDeleted] = useState<string>();
 
   useEffect(() => {
     if (originalStatuses) {
@@ -60,6 +62,13 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
     return allTeamStatuses.find((s) => s.id === id);
   };
 
+  const deleteTeamStatus = (id: string) => {
+    SetTeamStatusDeleted(id);
+    const updatedStatuses = teamStatuses.filter((status) => status.id !== id);
+    SetTeamStatuses(updatedStatuses);
+    onChange(updatedStatuses);
+  };
+
   return (
     <div className="max-w-lg rounded-lg border bg-white shadow-lg">
       <div className="flex items-center justify-between rounded-t-lg bg-[var(--primary-color)] p-4 pb-1">
@@ -75,13 +84,52 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
+      <div className="border-b p-4">
+        <select
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            const selectedStatus = getTeamStatus(selectedId);
+            if (selectedStatus) {
+              const updatedStatuses = [
+                ...teamStatuses,
+                {
+                  id: selectedId,
+                  name: selectedStatus.name,
+                  selectedValue: '',
+                },
+              ];
+              SetTeamStatuses(updatedStatuses);
+              onChange(updatedStatuses);
+              e.target.value = '';
+            }
+          }}
+          className="w-full rounded-lg bg-gray-100 px-4 py-2 text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="">Select a team status</option>
+          {allTeamStatuses
+            .filter((status) => !teamStatuses.some((ts) => ts.id === status.id))
+            .map((status) => (
+              <option key={status.id} value={status.id}>
+                {status.name}
+              </option>
+            ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
         {teamStatuses.map((status) => (
           <div key={status.id} className="mb-6">
             <div className="flex flex-col gap-2">
-              <label className="text-lg font-semibold text-gray-700">
-                {status.name}
-              </label>
+              <div className="flex items-center justify-between px-2">
+                <label className="text-md font-semibold text-gray-700">
+                  {status.name}
+                </label>
+                <IoClose
+                  className="cursor-pointer hover:text-red-500"
+                  onClick={() => deleteTeamStatus(status.id)}
+                />
+              </div>
+
               <select
                 onChange={(e) =>
                   teamStatusSelectedValue(status.id, e.target.value)

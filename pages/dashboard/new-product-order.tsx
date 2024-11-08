@@ -150,7 +150,7 @@ const NewProductOrder: React.FC = () => {
     data.childrenPosReferences = connectedPOs.map(
       (ts) => ts.productOrderNumber,
     );
-    data.notes = [];
+    data.notes = notes ;
     setIsLoading(true);
     try {
       const result = await orderManagementApiProxy.createProductOrder(data);
