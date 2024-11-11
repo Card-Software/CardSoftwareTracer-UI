@@ -4,7 +4,7 @@ import Layout from '@/app/layout';
 import { HiPlus } from 'react-icons/hi';
 import TracerButton from '@/components/tracer-button.component';
 import RequestModal from '@/components/modals/request-modal.component';
-import { TierRequest } from '@/models/tier-request';
+import { TierRequest, TierRequestMaterialized } from '@/models/tier-request';
 import { useState } from 'react';
 
 const RequestsPage: React.FC = () => {
@@ -13,15 +13,20 @@ const RequestsPage: React.FC = () => {
   const [clickedTierRequest, setClickedTierRequest] = useState<TierRequest>();
   const [showModal, setShowModal] = useState(false);
 
-  const tierRequests: TierRequest[] = [
+  const tierRequests: TierRequestMaterialized[] = [
     {
       id: 'req-001',
       requesterTierReference: 'TIER-SJ01',
       requesterOrganizationId: 'org-sierra-textiles',
       requesterOrganizationName: 'Sierra Textiles',
+      requesterProductOrderInfo: {
+        productOrderReference: 'PO-2024-001',
+        productOrderNumber: '2024-001',
+      },
       requesteeOrganizationId: 'org-honduras-spinning-mills',
       requesteeOrganizationName: 'Honduras Spinning Mills',
       tierInfo: {
+        id: 'tier-rm01',
         name: 'Raw Materials Extraction',
         tierLevel: 3,
         description:
@@ -29,7 +34,7 @@ const RequestsPage: React.FC = () => {
       },
       completed: true,
       emailRecipient: 'honduras@spinningmills.com',
-      requesteeProductOrderNumber: 'PO-2024-001',
+      requesteeProductOrderReference: 'PO-2024-001',
       requesteeTierReference: '123sdf-234sdf-345sdf',
       requestTime: new Date('2024-10-15T10:00:00Z'),
       completedTime: new Date('2024-10-16T10:00:00Z'),
@@ -38,18 +43,23 @@ const RequestsPage: React.FC = () => {
     {
       id: 'req-002',
       requesterTierReference: 'TIER-RM03',
+      requesterProductOrderInfo: {
+        productOrderReference: 'PO-2024-002',
+        productOrderNumber: '2024-002',
+      },
       requesterOrganizationId: 'org-northern-textiles',
       requesterOrganizationName: 'Northern Textiles',
       requesteeOrganizationId: 'org-sierra-textiles',
       requesteeOrganizationName: 'Sierra Textiles',
       tierInfo: {
+        id: 'tier-rm03',
         name: 'Raw Materials',
         tierLevel: 3,
         description: 'Details on raw materials used in fabric production',
       },
       completed: false, // This request is not yet completed
       emailRecipient: 'sierra@sierratextiles.com',
-      requesteeProductOrderNumber: undefined,
+      requesteeProductOrderReference: undefined,
       requesteeTierReference: undefined,
       requestTime: new Date('2024-09-22T14:30:00Z'),
       sharePreviousTiers: false, // Previous tiers are not shared in this request
@@ -132,7 +142,7 @@ const RequestsPage: React.FC = () => {
               <tr key={request.id} onClick={() => onTierRequestClick(request)}>
                 <td>{request.requesterOrganizationName}</td>
                 <td>{request.requesteeOrganizationName}</td>
-                <td>{request.requesteeProductOrderNumber}</td>
+                <td>{request.requesterProductOrderInfo?.productOrderNumber}</td>
                 <td>
                   ({request.tierInfo.tierLevel}){request.tierInfo.name}
                 </td>

@@ -610,7 +610,7 @@ const PurchaseOrderPage: React.FC = () => {
             </div>
             <div className="tool-bar-buttons">
               <TracerButton
-                name="Add Tracer Stream"
+                name="Add Tier"
                 icon={<HiPlus />}
                 onClick={() =>
                   handleStreamClick({} as TracerStreamExtended, 'add')

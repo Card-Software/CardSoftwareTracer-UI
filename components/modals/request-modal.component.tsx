@@ -3,10 +3,10 @@ import React from 'react';
 import { ActivityLog } from '@/models/activity-log';
 import { ActivityType } from '@/models/enum/activity-type';
 import BaseModal from '../_base/base-modal.component';
-import { TierRequest } from '@/models/tier-request';
+import { TierRequest, TierRequestMaterialized } from '@/models/tier-request';
 
 interface RequestModalProps {
-  tierRequest?: TierRequest;
+  tierRequest?: TierRequestMaterialized;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -57,10 +57,13 @@ const RequestModal: React.FC<RequestModalProps> = ({
         {canEdit ? (
           <input
             className="input-custom"
-            value={tierRequest?.requesteeProductOrderNumber}
+            value={tierRequest?.requesterProductOrderInfo?.productOrderNumber}
           />
         ) : (
-          <p>{tierRequest?.requesteeProductOrderNumber ?? 'Not Completed'} </p>
+          <p>
+            {tierRequest?.requesterProductOrderInfo?.productOrderNumber ??
+              'Not Completed'}{' '}
+          </p>
         )}
       </div>
       <div className="form-box">

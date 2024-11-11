@@ -16,3 +16,12 @@ export interface TierRequest {
   requestTime?: Date;
   completedTime?: Date;
 }
+
+export interface TierRequestMaterialized extends TierRequest {
+  requesterProductOrderInfo?: productOrderInfo;
+}
+
+export interface productOrderInfo {
+  productOrderReference: string;
+  productOrderNumber: string;
+}

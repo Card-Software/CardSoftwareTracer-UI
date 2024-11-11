@@ -10,7 +10,7 @@ export interface TierDto {
 }
 
 export interface Tier {
-  id: string; // mongo db
+  id: string;
   tierInfo: TierInfo;
   stream: TracerStreamExtended;
   externalRequestRef: string;
