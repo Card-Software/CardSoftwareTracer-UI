@@ -1,8 +1,6 @@
 import Layout from '@/app/layout';
 import TracerButton from '@/components/tracer-button.component';
 import React, { useEffect, useState } from 'react';
-import '@/styles/traceability-stream.css';
-import '../../styles/dashboard.css';
 import { HiPlus } from 'react-icons/hi';
 import dynamic from 'next/dynamic';
 import { FaTrash } from 'react-icons/fa';

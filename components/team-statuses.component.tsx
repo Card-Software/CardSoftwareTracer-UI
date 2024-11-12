@@ -103,7 +103,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
               e.target.value = '';
             }
           }}
-          className="w-full rounded-lg bg-gray-100 px-4 py-2 text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full "
         >
           <option value="">Select a team status</option>
           {allTeamStatuses
@@ -121,9 +121,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
           <div key={status.id} className="mb-2">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between px-2">
-                <label className="text-md font-semibold text-gray-700">
-                  {status.name}
-                </label>
+                <label>{status.name}</label>
                 <IoClose
                   className="cursor-pointer hover:text-red-500"
                   onClick={() => deleteTeamStatus(status.id)}
@@ -135,7 +133,6 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
                   teamStatusSelectedValue(status.id, e.target.value)
                 }
                 value={status.selectedValue}
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 {getTeamStatus(status.id)?.possibleValues.map((status) => (
                   <option key={status} value={status}>

@@ -1,8 +1,6 @@
 import Layout from '@/app/layout';
 import TracerButton from '@/components/tracer-button.component';
 import React, { useEffect, useRef, useState } from 'react';
-import '../../styles/dashboard.css';
-import '@/styles/traceability-stream.css';
 import { HiPlus } from 'react-icons/hi';
 import { useRouter } from 'next/router';
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
@@ -55,54 +53,50 @@ const TraceabilityStream = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="tool-bar">
-        <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            Traceability Stream
-          </h1>
+      <div className="content">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Traceability Stream</h1>
+            <div className="row">
+              {IsAdmin && (
+                <TracerButton
+                  name="Add"
+                  icon={<HiPlus />}
+                  onClick={handleRedirect}
+                />
+              )}
+            </div>
+          </div>
         </div>
-        <div className="tool-bar-buttons">
-          {IsAdmin && (
-            <TracerButton
-              name="Add"
-              icon={<HiPlus />}
-              onClick={handleRedirect}
-            />
-          )}
-        </div>
-      </div>
-      <div
-        className="my-4 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
-      <div className="flex flex-row items-start justify-start">
-        <div className="w-full overflow-auto">
-          <table className="standard-table">
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStreams.map((stream, index) => (
-                <tr
-                  key={stream.id}
-                  className="!important hover:bg-gray-200"
-                  onClick={handleTracerClick(stream.name || '')}
-                >
-                  <td>{stream.name}</td>
-                  <td style={{ whiteSpace: 'wrap' }}>
-                    <span>
-                      {stream.sections
-                        .map((section) => section.sectionName)
-                        .join(', ')}
-                    </span>
-                  </td>
+        <div className="flex flex-row items-start justify-start">
+          <div className="w-full overflow-auto">
+            <table className="standard-table">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Details</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredStreams.map((stream, index) => (
+                  <tr
+                    key={stream.id}
+                    className="!important hover:bg-gray-200"
+                    onClick={handleTracerClick(stream.name || '')}
+                  >
+                    <td>{stream.name}</td>
+                    <td style={{ whiteSpace: 'wrap' }}>
+                      <span>
+                        {stream.sections
+                          .map((section) => section.sectionName)
+                          .join(', ')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </Layout>

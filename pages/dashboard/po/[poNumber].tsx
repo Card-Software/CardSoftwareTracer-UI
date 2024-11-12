@@ -753,11 +753,7 @@ const PurchaseOrderPage: React.FC = () => {
           }}
         />
       )}
-      <TierModal
-        isOpen={false}
-        onClose={() => {}}
-        onSave={() => {}}
-      ></TierModal>
+      <TierModal isOpen={true} onClose={() => {}} onSave={() => {}}></TierModal>
     </Layout>
   );
 };
