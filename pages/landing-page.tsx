@@ -17,11 +17,17 @@ const About = () => {
         <div className="absolute inset-0 bg-black opacity-50"></div>
 
         <Navbar />
-        <section className="relative z-10 flex-grow content-center py-12 text-center">
+        <section className="relative flex-grow content-center py-12 text-center">
           <div>
-            <h1 className="mb-6 text-6xl font-bold text-white">Connect Every Step.</h1>
-            <h1 className="mb-6 text-6xl font-bold text-white">Track Every Tier.</h1>
-            <h1 className="mb-8 text-6xl font-bold text-white">Transform Your Traceability.</h1>
+            <h1 className="mb-6 text-6xl font-bold text-white">
+              Connect Every Step.
+            </h1>
+            <h1 className="mb-6 text-6xl font-bold text-white">
+              Track Every Tier.
+            </h1>
+            <h1 className="mb-8 text-6xl font-bold text-white">
+              Transform Your Traceability.
+            </h1>
           </div>
           <p className="mx-auto mb-8 max-w-4xl text-xl text-white">
             With CS Tracer, see the entire production process from raw materials
@@ -49,7 +55,21 @@ const About = () => {
         </section>
       </div>
 
-      <section></section>
+      <section className="flex-grow content-center py-12 text-center">
+        <h1 className="mb-6 text-6xl ">What is CS Tracer?</h1>
+        <p className="mx-auto mb-8 max-w-4xl text-xl">
+          CS Tracer is a powerful, tier-based traceability platform that
+          empowers companies to manage every stage of production with unmatched
+          clarity and connectivity. Whether you're managing a single tier or
+          overseeing the entire production process, CS Tracer keeps your
+          documentation organized, accessible, and securely connected across
+          teams and partners.
+        </p>
+        <p className="mx-auto mb-8 max-w-4xl text-xl">
+          From material extraction to the finished product—CS Tracer supports
+          your journey to full traceability.
+        </p>
+      </section>
 
       {/* <footer
         className="py-4 text-center text-white"
