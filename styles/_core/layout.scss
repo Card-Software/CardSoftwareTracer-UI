@@ -16,6 +16,13 @@
   gap: 1.5rem;
 }
 
+.space{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
 .panel > * > header > :not(:last-child),
 .row > :not(:last-child) {
   margin-right: 1.5rem;

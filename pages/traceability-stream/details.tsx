@@ -248,176 +248,172 @@ const Details = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="mb-20">
-        <div>
-          <Link
-            href="/traceability-stream"
-            className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
-          >
-            Traceability Stream
-          </Link>
-          <span className="text-sm text-gray-500"> &gt; Details</span>
-        </div>
-        <div className="tool-bar">
-          <div className="tool-bar-title">
-            <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-              {isEditing
-                ? 'Edit Traceability Stream'
-                : 'Add Traceability Stream'}
-            </h1>
-          </div>
-          <div className="tool-bar-buttons">
-            {IsAdmin && (
-              <TracerButton
-                name="Section"
-                icon={<HiPlus />}
-                onClick={handleAddSection}
-              />
-            )}
-          </div>
-        </div>
-
-        <div
-          className="my-2 w-full border-b-4"
-          style={{ borderColor: 'var(--primary-color)' }}
-        ></div>
-
-        {error && <p className="text-red-500">{error}</p>}
-
-        <div className="my-4">
-          <label htmlFor="name" className="block">
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={tracerStream.name}
-            onChange={handleTracerStreamChange}
-            className="input-custom"
-          />
-        </div>
-
-        <div className="my-4">
-          <label htmlFor="description" className="block">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={tracerStream.description}
-            onChange={handleTracerStreamChange}
-            className="input-custom"
-          />
-        </div>
-
-        <div className="mb-4">
-          <p>
-            Traceability stream starts from top to bottom. E.g., Position 1 is
-            the first stage, and position n is the last stage.
-          </p>
-        </div>
-
-        <div>
-          <DragDropContext onDragEnd={handleOnDragEnd}>
-            <Droppable droppableId="sections">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {tracerStream.sections.map((section, index) => (
-                    <Draggable
-                      key={section.sectionId}
-                      draggableId={section.sectionId}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={`mb-4 grid grid-cols-5 items-center gap-4 rounded-lg p-4 ${
-                            section.isRequired
-                              ? 'border border-gray-300 bg-gray-100'
-                              : 'border border-gray-300 bg-white'
-                          }`}
-                        >
-                          {/* Section Name */}
-                          <div>
-                            <p className="font-bold text-gray-700">
-                              Section Name:
-                            </p>
-                            <p className="font-bold">{section.sectionName}</p>
-                          </div>
-
-                          {/* Section Description */}
-                          <div>
-                            <p className="font-bold text-gray-700">
-                              Description:
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {section.sectionDescription}
-                            </p>
-                          </div>
-
-                          {/* Section Position */}
-                          <div>
-                            <p className="font-bold text-gray-700">Position:</p>
-                            <p className="text-sm text-gray-500">
-                              {section.position}
-                            </p>
-                          </div>
-
-                          {/* Section Labels */}
-                          <div className="">
-                            <p className="font-bold text-gray-700">Labels:</p>
-                            {section.teamLabels.length > 0 ? (
-                              <div className="flex space-x-2">
-                                {section.teamLabels.map((label) => (
-                                  <div
-                                    key={label.id}
-                                    className={`max-w-[120px] rounded-2xl p-1 px-4 text-sm ${
-                                      section.isRequired
-                                        ? 'border border-blue-500 bg-white text-blue-500'
-                                        : 'bg-gray-100 text-blue-500'
-                                    }`}
-                                  >
-                                    <span className="block overflow-hidden truncate whitespace-nowrap">
-                                      {label.labelName}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-sm text-gray-500">No labels</p>
-                            )}
-                          </div>
-
-                          {/* Edit/Delete buttons */}
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => openModal('Edit Section', section)}
-                              className="rounded-md border border-blue-500 bg-white px-4 py-2 text-blue-500 shadow-none hover:bg-blue-500 hover:text-white"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => {
-                                setSectionToDelete(section);
-                                setIsAlertModalOpen(true);
-                              }}
-                              className="square text-red-500 hover:text-red-700"
-                            >
-                              <FaTrash className="h-5 w-5 fill-black" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
+      <div className="content">
+        <div className="flow">
+          <div>
+            <div className="navigation">
+              <Link href="/traceability-stream" className="map">
+                Traceability Stream
+              </Link>
+              <span className="text-sm text-gray-500"> &gt; Details</span>
+            </div>
+            <div aria-label="Toolbar">
+              <div className="tool-bar-content">
+                <h1>
+                  {isEditing
+                    ? 'Edit Traceability Stream'
+                    : 'Add Traceability Stream'}
+                </h1>
+                <div>
+                  {IsAdmin && (
+                    <TracerButton
+                      name="Section"
+                      icon={<HiPlus />}
+                      onClick={handleAddSection}
+                    />
+                  )}
                 </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+              </div>
+            </div>
+          </div>
+
+          <div className="space">
+            <div>
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={tracerStream.name}
+                onChange={handleTracerStreamChange}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                value={tracerStream.description}
+                onChange={handleTracerStreamChange}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <p>
+                Traceability stream starts from top to bottom. E.g., Position 1
+                is the first stage, and position n is the last stage.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <DragDropContext onDragEnd={handleOnDragEnd}>
+              <Droppable droppableId="sections">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    {tracerStream.sections.map((section, index) => (
+                      <Draggable
+                        key={section.sectionId}
+                        draggableId={section.sectionId}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`mb-4 grid grid-cols-5 items-center gap-4 rounded-lg p-4 ${
+                              section.isRequired
+                                ? 'border border-gray-300 bg-gray-100'
+                                : 'border border-gray-300 bg-white'
+                            }`}
+                          >
+                            {/* Section Name */}
+                            <div>
+                              <p>Section Name:</p>
+                              <p className="font-bold">{section.sectionName}</p>
+                            </div>
+
+                            {/* Section Description */}
+                            <div>
+                              <p className="font-bold text-gray-700">
+                                Description:
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {section.sectionDescription}
+                              </p>
+                            </div>
+
+                            {/* Section Position */}
+                            <div>
+                              <p className="font-bold text-gray-700">
+                                Position:
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {section.position}
+                              </p>
+                            </div>
+
+                            {/* Section Labels */}
+                            <div className="">
+                              <p className="font-bold text-gray-700">Labels:</p>
+                              {section.teamLabels.length > 0 ? (
+                                <div className="flex space-x-2">
+                                  {section.teamLabels.map((label) => (
+                                    <div
+                                      key={label.id}
+                                      className={`max-w-[120px] rounded-2xl p-1 px-4 text-sm ${
+                                        section.isRequired
+                                          ? 'border border-blue-500 bg-white text-blue-500'
+                                          : 'bg-gray-100 text-blue-500'
+                                      }`}
+                                    >
+                                      <span className="block overflow-hidden truncate whitespace-nowrap">
+                                        {label.labelName}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-gray-500">
+                                  No labels
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Edit/Delete buttons */}
+                            <div className="flex items-center space-x-2">
+                              <button
+                                onClick={() =>
+                                  openModal('Edit Section', section)
+                                }
+                                className="rounded-md border border-blue-500 bg-white px-4 py-2 text-blue-500 shadow-none hover:bg-blue-500 hover:text-white"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSectionToDelete(section);
+                                  setIsAlertModalOpen(true);
+                                }}
+                                className="square text-red-500 hover:text-red-700"
+                              >
+                                <FaTrash className="h-5 w-5 fill-black hover:fill-red-600" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </div>
         </div>
 
         {isAlertModalOpen && (
@@ -446,27 +442,16 @@ const Details = () => {
         />
       </div>
 
-      <footer
-        className="stream-footer flex justify-between bg-gray-200 p-4"
-        style={{ backgroundColor: 'var(--primary-color)' }}
-      >
-        <div>
-          <button
-            className="rounded-md border border-white bg-none px-4 py-2 text-white hover:bg-gray-600"
-            onClick={() => router.back()}
-          >
-            Cancel
+      <footer>
+        <button className="cancel" onClick={() => router.back()}>
+          Cancel
+        </button>
+        {IsAdmin && (
+          <button onClick={handleSave} className="mainAction">
+            {isLoading ? 'Saving...' : 'Save'}
           </button>
-          {IsAdmin && (
-            <button
-              onClick={handleSave}
-              className="ml-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            >
-              {isLoading ? 'Saving...' : 'Save'}
-            </button>
-          )}
-          <Toaster />
-        </div>
+        )}
+        <Toaster />
       </footer>
     </Layout>
   );
