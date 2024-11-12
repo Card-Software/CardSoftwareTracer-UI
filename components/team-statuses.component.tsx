@@ -118,7 +118,7 @@ const TeamStatuses: React.FC<TeamStatusesProps> = ({
 
       <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
         {teamStatuses.map((status) => (
-          <div key={status.id} className="mb-6">
+          <div key={status.id} className="mb-2">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between px-2">
                 <label className="text-md font-semibold text-gray-700">

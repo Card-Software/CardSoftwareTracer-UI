@@ -144,10 +144,6 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
   const getUserObject = (userId: string): User => {
     return allUsers.find((user) => user.id === userId) as User;
   };
-
-  const getSiteObject = (siteId: string): Site => {
-    return allSites.find((site) => site.id === siteId) as Site;
-  };
   // #endregion
 
   return (
@@ -166,7 +162,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
             />
           )}
         />
-        <p className="whitespace-pre-line text-sm text-red-500">
+        <p className="error">
           {errors.productOrderDetails?.productOrderNumber?.message}
         </p>
       </div>
@@ -217,7 +213,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
             />
           )}
         />
-        <p className="whitespace-pre-line text-sm text-red-500">
+        <p className="error">
           {errors.productOrderDetails?.externalProductOrderNumber?.message}
         </p>
       </div>
@@ -295,9 +291,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
             />
           )}
         />
-        <p className="whitespace-pre-line text-sm text-red-500">
-          {errors.productOrderDetails?.client?.message}
-        </p>
+        <p className="error">{errors.productOrderDetails?.client?.message}</p>
       </div>
 
       <div className="form-box">
@@ -312,7 +306,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
             />
           )}
         />
-        <p className="whitespace-pre-line text-sm text-red-500">
+        <p className="error">
           {errors.productOrderDetails?.createdDate?.message}
         </p>
       </div>
@@ -363,13 +357,11 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
             />
           )}
         />
-        <p className="whitespace-pre-line text-sm text-red-500">
-          {errors.productOrderDetails?.product?.message}
-        </p>
+        <p className="error">{errors.productOrderDetails?.product?.message}</p>
       </div>
 
       {/* Row 4: 1 Column Spanning All 4 Columns */}
-      <div className="form-box col-span-4">
+      <div className="form-box">
         <label>Description</label>
         <Controller
           name={'productOrderDetails.description'}

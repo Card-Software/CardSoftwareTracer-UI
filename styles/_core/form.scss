@@ -19,6 +19,12 @@ form {
   flex-direction: column;
 }
 
+p.error {
+  white-space: pre-line; // Equivalent to whitespace-pre-line
+  font-size: 0.875rem; // Equivalent to text-sm
+  color: #ef4444;
+}
+
 // Apply consistent focus and hover background color for inputs, selects, and textareas
 input:not([type='checkbox']):not([type='radio']):not([disabled]):focus,
 input:not([type='checkbox']):not([type='radio']):not([disabled]):hover,

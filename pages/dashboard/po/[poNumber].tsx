@@ -626,21 +626,19 @@ const PurchaseOrderPage: React.FC = () => {
           </div>
         </div>
       </div>
-      <footer className="page">
-        <div>
-          <button className="cancel" onClick={() => router.back()}>
-            Cancel
-          </button>
-          <button
-            onClick={() => {
-              handleSave();
-            }}
-            className="ml-3 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
-            {isLoading ? 'Saving...' : 'Save'}
-          </button>
-          <Toaster />
-        </div>
+      <footer>
+        <button className="cancel" onClick={() => router.back()}>
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            handleSave();
+          }}
+          className="mainAction"
+        >
+          {isLoading ? 'Saving...' : 'Save'}
+        </button>
+        <Toaster />
       </footer>
       {isStreamModalOpen && selectedStream && (
         <TracerStreamModal
@@ -765,7 +763,3 @@ const PurchaseOrderPage: React.FC = () => {
 };
 
 export default withAuth(PurchaseOrderPage);
-
-const Section = styled.section`
-  margin-bottom: 40px;
-`;
