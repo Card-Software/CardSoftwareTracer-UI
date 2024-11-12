@@ -43,8 +43,9 @@ const ActivityLogModal: React.FC<ActivityLogModalProps> = ({
                 )}
                 {displayType === ActivityType.StatusChange && (
                   <div className="mr-2 text-sm font-normal text-gray-500 dark:text-gray-300">
-                    {log.userFirstName} {log.userLastName} updated status to{' '}
-                    {'"'}
+                    {log.userFirstName} {log.userLastName} updated {'"'}
+                    {log.team}
+                    {'"'} status to {'"'}
                     {log.teamStatus}
                     {'"'}.
                     {log.feedBack && (
