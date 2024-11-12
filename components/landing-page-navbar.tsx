@@ -6,7 +6,6 @@ const Navbar = () => {
     <nav className="relative mx-8 flex justify-center p-6">
       <div className="flex items-center space-x-16">
         <div className="flex items-center space-x-2">
-          {' '}
           {/* Reduced space between the logo and the title */}
           <svg
             width="65"
