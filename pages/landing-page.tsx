@@ -55,9 +55,9 @@ const About = () => {
         </section>
       </div>
 
-      <section className="flex-grow content-center py-12 text-center">
+      {/* <section className="flex-grow content-center py-12 text-center">
         <h1 className="mb-6 text-6xl ">What is CS Tracer?</h1>
-        <p className="mx-auto mb-8 max-w-4xl text-xl">
+        <p className="mx-auto mb-8 max-w-7xl text-xl text-justify">
           CS Tracer is a powerful, tier-based traceability platform that
           empowers companies to manage every stage of production with unmatched
           clarity and connectivity. Whether you're managing a single tier or
@@ -65,10 +65,37 @@ const About = () => {
           documentation organized, accessible, and securely connected across
           teams and partners.
         </p>
-        <p className="mx-auto mb-8 max-w-4xl text-xl">
+        <p className="mx-auto mb-8 max-w-7xl text-xl text-justify">
           From material extraction to the finished product—CS Tracer supports
           your journey to full traceability.
         </p>
+
+      </section> */}
+
+      <section className="flex-grow content-center py-12 pt-24 text-center">
+        <h1 className="mb-6 text-4xl font-bold">What is CS Tracer?</h1>
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-4 text-justify text-lg leading-relaxed">
+            CS Tracer is a powerful, tier-based traceability platform that
+            empowers companies to manage every stage of production with
+            unmatched clarity and connectivity. Whether you're managing a single
+            tier or overseeing the entire production process, CS Tracer keeps
+            your documentation organized, accessible, and securely connected
+            across teams and partners.
+          </p>
+          <p className="mb-8 text-lg italic leading-relaxed">
+            From material extraction to the finished product—CS Tracer supports
+            your journey to full traceability.
+          </p>
+
+          <div className="flex h-96 w-full items-center justify-center overflow-hidden rounded-3xl">
+            <img
+              src="/img-1.jpg"
+              alt="Image placeholder"
+              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+            />
+          </div>
+        </div>
       </section>
 
       {/* <footer
