@@ -83,8 +83,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
       externalProductOrderNumber: '',
       product: '',
       quantity: 0,
-      childrenTracerStreams: [],
-      childrenPosReferences: [],
+      tiers: [],
       siteRef: '',
       lot: '',
       referenceNumber: '',
@@ -153,17 +152,14 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
 
   return (
     <div className="grid grid-cols-4 grid-rows-4 gap-x-4">
-      {/* Row 1: 5 Columns */}
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Product Order Number
-        </label>
+      <div className="form-box">
+        <label>Product Order Number</label>
         <Controller
           name={'productOrderDetails.productOrderNumber'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="text"
               {...field}
               value={field.value ?? ''}
@@ -175,16 +171,14 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         </p>
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Reference Number
-        </label>
+      <div className="form-box">
+        <label>Reference Number</label>
         <Controller
           name={'productOrderDetails.referenceNumber'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="text"
               {...field}
               value={field.value ?? ''}
@@ -193,16 +187,14 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         />
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Lot
-        </label>
+      <div className="form-box">
+        <label>Lot</label>
         <Controller
           name={'productOrderDetails.lot'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="text"
               {...field}
               value={field.value ?? ''}
@@ -211,16 +203,14 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         />
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          External Product Order Number
-        </label>
+      <div className="form-box">
+        <label>External Product Order Number</label>
         <Controller
           name={'productOrderDetails.externalProductOrderNumber'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="text"
               {...field}
               value={field.value ?? ''}
@@ -232,17 +222,15 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         </p>
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Assigned To
-        </label>
+      <div className="form-box">
+        <label>Assigned To</label>
         <Controller
           name={'productOrderDetails.assignedUser'}
           control={control}
           render={({ field }) => (
             <select
+              className="w-full"
               onChange={(e) => field.onChange(getUserObject(e.target.value))}
-              className="input-custom"
             >
               <option value="">Select User</option>
               {allUsers.map((user) => (
@@ -255,17 +243,15 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         />
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Site
-        </label>
+      <div className="form-box">
+        <label>Site</label>
         <Controller
           name={'productOrderDetails.siteRef'}
           control={control}
           render={({ field }) => (
             <select
+              className="w-full"
               onChange={(e) => field.onChange(e.target.value)}
-              className="input-custom"
             >
               <option value="">Select Site</option>
               {allSites.map((site) => (
@@ -279,16 +265,14 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
       </div>
 
       {/* Row 2: 4 Columns */}
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Provider
-        </label>
+      <div className="form-box">
+        <label>Provider</label>
         <Controller
           name={'productOrderDetails.provider'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="text"
               {...field}
               value={field.value ?? ''}
@@ -297,16 +281,14 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         />
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Client
-        </label>
+      <div className="form-box">
+        <label>Client</label>
         <Controller
           name={'productOrderDetails.client'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="text"
               {...field}
               value={field.value ?? ''}
@@ -318,10 +300,8 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         </p>
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Date Created
-        </label>
+      <div className="form-box">
+        <label>Date Created</label>
         <Controller
           name={'productOrderDetails.createdDate'}
           control={control}
@@ -329,7 +309,6 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
             <DatePicker
               selected={field.value}
               onChange={(date) => field.onChange(date)}
-              className="input-custom"
             />
           )}
         />
@@ -339,33 +318,29 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
       </div>
 
       {/* Row 3: 4 Columns */}
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Invoice Date
-        </label>
+      <div className="form-box">
+        <label>Invoice Date</label>
         <Controller
           name={'productOrderDetails.invoiceDate'}
           control={control}
           render={({ field }) => (
             <DatePicker
+              className="w-full"
               selected={field.value}
               onChange={(date) => field.onChange(date)}
-              className="input-custom"
             />
           )}
         />
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Quantity
-        </label>
+      <div className="form-box">
+        <label>Quantity</label>
         <Controller
           name={'productOrderDetails.quantity'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="number"
               {...field}
               value={field.value ?? ''}
@@ -374,16 +349,14 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
         />
       </div>
 
-      <div className="form-box col-span-1">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Product
-        </label>
+      <div className="form-box">
+        <label>Product</label>
         <Controller
           name={'productOrderDetails.product'}
           control={control}
           render={({ field }) => (
             <input
-              className="input-custom"
+              className="w-full"
               type="text"
               {...field}
               value={field.value ?? ''}
@@ -397,15 +370,11 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
 
       {/* Row 4: 1 Column Spanning All 4 Columns */}
       <div className="form-box col-span-4">
-        <label className="mb-2 block text-sm font-bold text-gray-700">
-          Description
-        </label>
+        <label>Description</label>
         <Controller
           name={'productOrderDetails.description'}
           control={control}
-          render={({ field }) => (
-            <textarea {...field} className="input-custom" />
-          )}
+          render={({ field }) => <textarea {...field} />}
         />
       </div>
     </div>

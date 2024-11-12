@@ -1,18 +1,9 @@
 import React, { useState, useEffect, useRef, use } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '@/app/layout';
-import '../../../styles/dashboard.css';
 import '../../../styles/product-order-details.css';
 import styled from 'styled-components';
-import { ObjectId } from 'bson';
-import {
-  FaExclamationCircle,
-  FaCheckCircle,
-  FaFileExport,
-  FaPencilAlt,
-  FaTrash,
-  FaHistory,
-} from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 import Notes from '@/components/notes.component';
 import SectionModal from '@/components/modals/section-modal.component';
 import TracerStreamModal from '@/components/modals/tracer-stream-modal.component';
@@ -45,11 +36,14 @@ import { Note } from '@/models/note';
 import AlertModal from '@/components/modals/alert-modal-component';
 import toast, { Toaster } from 'react-hot-toast';
 import { activityLogService } from '@/services/activity-logs.service';
-import TraceabilityStreamComponent from '@/components/traceability/traceability-stream';
 import { Tier } from '@/models/tier';
 import TiersComponent from '@/components/traceability/tiers.component';
 import { TeamStatusExtended } from '@/models/team-status';
 import { teamStatusProxy } from '@/proxies/team-status.proxy';
+import { TierInfo } from '@/models/tier-info';
+import tierData from '@/tests/tier-data/tiers.json';
+import { all } from 'axios';
+import TierModal from '@/components/modals/tier-modal.component';
 
 const PurchaseOrderPage: React.FC = () => {
   const router = useRouter();
@@ -98,33 +92,9 @@ const PurchaseOrderPage: React.FC = () => {
   const [sectionToDelete, setSectionToDelete] = useState<SectionModel | null>(
     null,
   );
+  const [allTiersInfo, setAllTiersInfo] = useState<TierInfo[]>(tierData);
 
-  const [tiersData, setTiersData] = useState<Tier[]>([
-    {
-      id: '1',
-      name: 'Tier 1',
-      description: 'Tier 1 Description',
-      tracerStream: null,
-    },
-    {
-      id: '2',
-      name: 'Tier 2',
-      description: 'Tier 2 Description',
-      tracerStream: null,
-    },
-    {
-      id: '3',
-      name: 'Tier 3',
-      description: 'Tier 3 Description',
-      tracerStream: null,
-    },
-    {
-      id: '4',
-      name: 'Tier 4',
-      description: 'Tier 4 Description',
-      tracerStream: null,
-    },
-  ]);
+  const [tiersData, setTiersData] = useState<Tier[]>([]);
 
   //#region Notify Alerts
   const notify = () => toast.success('Product Order updated successfully!');
@@ -591,24 +561,17 @@ const PurchaseOrderPage: React.FC = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="container">
-        <div>
-          <Link
-            href="/dashboard"
-            className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
-          >
+      <div className="content">
+        <div className="navigation">
+          <Link href="/dashboard" className="map">
             Dashboard
           </Link>
           <span className="text-sm text-gray-500"> &gt; PO Details</span>
         </div>
-        <Section>
-          <div className="tool-bar">
-            <div className="tool-bar-title">
-              <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-                Product Order Details
-              </h1>
-            </div>
-            <div className="tool-bar-buttons">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Product Order Details</h1>
+            <div className="row">
               <TracerButton
                 name="Add Tier"
                 icon={<HiPlus />}
@@ -626,120 +589,46 @@ const PurchaseOrderPage: React.FC = () => {
                     setPoToDelete(productOrder);
                     setIsAlertModalOpen(true);
                   }}
-                  className="border-1 border-red-500 bg-red-500 font-medium text-white hover:bg-red-400 hover:text-white"
-                  style={{ borderRadius: '10px 10px 10px 10px' }}
+                  className="delete flat"
                 >
-                  <div className="flex flex-row align-middle">
-                    <div className="pe-1 pt-1">
-                      <FaTrash color="white" />
-                    </div>
-                    <p> Delete PO </p>
-                  </div>
+                  <FaTrash color="white" />
+
+                  <p> Delete PO </p>
                 </button>
               )}
             </div>
           </div>
-          <div
-            className="my-4 mt-3 w-full border-b-4"
-            style={{ borderColor: 'var(--primary-color)' }}
-          ></div>
-          <div className="mt-3">
-            <ProductOrderDetails
-              initialProductOrderDetails={productOrder}
-              onChange={handleProductOrderChange}
+        </div>
+        <div className="flow">
+          <ProductOrderDetails
+            initialProductOrderDetails={productOrder}
+            onChange={handleProductOrderChange}
+          />
+          <div className="row">
+            <Notes
+              notes={productOrder.notes}
+              currentUser={currentUser}
+              onChange={handleNotesChange}
+            />
+            <TeamStatuses
+              originalStatuses={statuses}
+              onChange={handleStatusChange}
+              disableHistoryButton={!allActivityLogs.length}
+              onHistoryClick={() =>
+                handleActivityLogClick(ActivityType.StatusChange)
+              }
             />
           </div>
 
-          <div className="my-4">
-            <div className="row flex gap-10">
-              <Notes
-                notes={productOrder.notes}
-                currentUser={currentUser}
-                onChange={handleNotesChange}
-              />
-              <TeamStatuses
-                originalStatuses={statuses}
-                onChange={handleStatusChange}
-                disableHistoryButton={!allActivityLogs.length}
-                onHistoryClick={() =>
-                  handleActivityLogClick(ActivityType.StatusChange)
-                }
-              />
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '10rem' }}>
-            <h1>Production Tiers</h1>
+          <div>
+            <h1>Tiers</h1>
             <TiersComponent tiers={tiersData} />
           </div>
-
-          {/* <CardContainer>
-            {productOrder.childrenTracerStreams.map((stream, index) => (
-              <TraceabilityStreamComponent
-                key={stream.id}
-                stream={stream}
-                onSectionSave={(updatedSection) =>
-                  handleSaveSection(updatedSection, null)
-                }
-                onSectionDelete={(section) => {
-                  setSectionToDelete(section);
-                  setIsAlertModalOpenSection(true);
-                }}
-                allActivityLogs={[]}
-                onActivityLogClick={function (
-                  activityType: string,
-                  streamId: string,
-                ): void {
-                  throw new Error('Function not implemented.');
-                }}
-                onExportClick={function (stream: TracerStreamExtended): void {
-                  throw new Error('Function not implemented.');
-                }}
-                onEditStream={function (
-                  stream: TracerStreamExtended,
-                  mode: 'edit' | 'add',
-                ): void {
-                  throw new Error('Function not implemented.');
-                }}
-                onDeleteStream={function (stream: TracerStreamExtended): void {
-                  throw new Error('Function not implemented.');
-                }}
-              />
-            ))}
-          </CardContainer> */}
-
-          {childrenPos.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-xl font-bold">Linked Product Orders</h2>
-              <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {childrenPos.map((po) => (
-                  <div
-                    key={po.productOrderNumber}
-                    className="rounded-lg bg-white p-6 shadow-lg"
-                  >
-                    <h3 className="text-lg font-bold">
-                      {po.productOrderNumber} - {po.client}
-                    </h3>
-                    <p className="text-sm text-gray-500">{po.description}</p>
-                    <Link href={`/dashboard/po/${po.productOrderNumber}`}>
-                      <p className="">View Details</p>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </Section>
+        </div>
       </div>
-      <footer
-        className="stream-footer flex justify-between bg-gray-200 p-4"
-        style={{ backgroundColor: 'var(--primary-color)' }}
-      >
+      <footer className="page">
         <div>
-          <button
-            className="rounded-md border border-white bg-none px-4 py-2 text-white hover:bg-gray-600"
-            onClick={() => router.back()}
-          >
+          <button className="cancel" onClick={() => router.back()}>
             Cancel
           </button>
           <button
@@ -866,6 +755,11 @@ const PurchaseOrderPage: React.FC = () => {
           }}
         />
       )}
+      <TierModal
+        isOpen={false}
+        onClose={() => {}}
+        onSave={() => {}}
+      ></TierModal>
     </Layout>
   );
 };
@@ -874,79 +768,4 @@ export default withAuth(PurchaseOrderPage);
 
 const Section = styled.section`
   margin-bottom: 40px;
-`;
-
-const CardContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  position: relative;
-  flex-grow: 1;
-`;
-
-const Card = styled.div`
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: box-shadow 0.3s ease;
-  &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-`;
-
-const SectionContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 20px;
-  align-items: center;
-`;
-
-const SectionCard = styled.div<{ $isrequired: boolean }>`
-  flex: 1 1 calc(25% - 20px);
-  min-width: 250px;
-  max-width: 300px;
-  margin-bottom: 20px;
-  word-wrap: break-word;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: box-shadow 0.3s ease;
-  &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
-  background-color: ${(props) => (props.$isrequired ? '#fff' : '#e5e7eb')};
-`;
-
-const CardDetails = styled.div`
-  font-size: 14px;
-`;
-
-const DetailItem = styled.div`
-  margin-bottom: 16px;
-`;
-
-const AddNewButton = styled.button`
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  background-color: var(--primary-button);
-  color: white;
-  transition: background-color 0.3s ease;
-`;
-
-const DeleteButton = styled.button`
-  background-color: transparent;
-  border: none;
-  padding: 0;
-  margin-left: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  color: #f56565;
 `;

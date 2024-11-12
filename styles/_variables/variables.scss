@@ -1,0 +1,16 @@
+// variables.scss
+$primary-color: #051b38;
+$primary-button: #0080fc;
+$primary-button-hover: #0066c9;
+$secondary-button: #0066c9;
+$text-color: #000000;
+$delete-button: #db0002;
+$delete-button-hover: #bd0002;
+
+:root {
+  --primary-color: #{$primary-color};
+  --primary-button: #{$primary-button};
+  --primary-button-hover: #{$primary-button-hover};
+  --secondary-button: #{$secondary-button};
+  --text-color: #{$text-color};
+}

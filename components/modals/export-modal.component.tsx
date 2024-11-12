@@ -94,7 +94,7 @@ const ExportModal: React.FC<ExportModalProps> = ({
       loading={loading}
       title="Export"
     >
-      <div className="tool-bar-buttons">
+      <div className="tool-bar-buttons" aria-label='too'>
         <TracerButton onClick={handleSelectAll} name="Select All" />
         <button
           onClick={handleDeselectAll}

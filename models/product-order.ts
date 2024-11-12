@@ -18,7 +18,7 @@ export interface ProductOrder {
   externalProductOrderNumber?: string;
   product: string;
   quantity?: number;
-  tier: Tier[];
+  tiers: Tier[];
   siteRef?: string;
   lot?: string;
   referenceNumber?: string;

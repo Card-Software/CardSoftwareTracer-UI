@@ -20,8 +20,7 @@ const TracerButton: React.FC<TracerButtonProps> = ({
       onClick={onClick}
       type={type}
       disabled={disabled}
-      className={`w-fit-content text-nowrap rounded-md px-4 py-2 text-white transition-colors duration-300 ease-in-out 
-      ${disabled ? 'cursor-not-allowed bg-gray-500' : 'cursor-pointer bg-[var(--primary-button)] hover:bg-[var(--primary-button-hover)]'}`}
+      className="mainAction"
     >
       {icon && <span className="mr-2 inline-block">{icon}</span>}
       <span>{name}</span>

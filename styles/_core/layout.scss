@@ -1,0 +1,55 @@
+.row {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  .flow {
+    margin-top: 0;
+  }
+}
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.panel > * > header > :not(:last-child),
+.row > :not(:last-child) {
+  margin-right: 1.5rem;
+}
+
+.flow > * + *:not(.row),
+.align > * + *:not(.row),
+form > * + *:not(.row) {
+  margin-top: 1.5rem;
+}
+
+.navigation {
+  margin-top: -1rem;
+}
+
+main {
+  flex: 1;
+  z-index: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+
+  & > .content {
+    flex: 1;
+    overflow: auto;
+    padding: 1.5rem;
+    background: #fff;
+  }
+}
+
+@media only screen and (min-width: 961px) {
+  main > .content {
+    padding: 2.25rem;
+  }
+}

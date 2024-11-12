@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import './globals.css';
+import './globals.scss';
 import Navbar from '@/components/nav-bar.component';
 import Sidebar from '@/components/sidebar.component';
 
@@ -13,7 +13,7 @@ const Layout: React.FC<Props> = ({ children }) => {
       <Navbar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto px-8 py-4">{children}</main>
+        <main>{children}</main>
       </div>
     </div>
   );

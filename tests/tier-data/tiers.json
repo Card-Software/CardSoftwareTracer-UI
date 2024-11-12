@@ -1,0 +1,32 @@
+[
+  {
+    "id": "5f5b3b3b9b7e5b001f6f3b1b",
+    "name": "Raw Material Extraction",
+    "tierLevel": 4,
+    "description": "Document regarding Raw Material Extraction"
+  },
+  {
+    "id": "5f5b3b3b9b7e5b001f6f3b1c",
+    "name": "Raw Material Processing",
+    "tierLevel": 3,
+    "description": "Document regarding Raw Material Processing"
+  },
+  {
+    "id": "5f5b3b3b9b7e5b001f6f3b1d",
+    "name": "Material Production",
+    "tierLevel": 2,
+    "description": "Document regarding Material Production"
+  },
+  {
+    "id": "5f5b3b3b9b7e5b001f6f3b1e",
+    "name": "Finished Product Assembly",
+    "tierLevel": 1,
+    "description": "Document regarding Finished Product Assembly"
+  },
+  {
+    "id": "5f5b3b3b9b7e5b001f6f3b1f",
+    "name": "Product Distribution",
+    "tierLevel": 0,
+    "description": "Document regarding Product Distribution"
+  }
+]

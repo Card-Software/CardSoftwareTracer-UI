@@ -1,6 +1,6 @@
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { useState, KeyboardEvent, useEffect } from 'react';
-import '../app/globals.css';
+import '../app/globals.scss';
 import router from 'next/router';
 import LoadingOverlay from '@/components/loading-overlay.component';
 import Head from 'next/head';

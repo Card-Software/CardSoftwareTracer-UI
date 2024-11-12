@@ -1,0 +1,77 @@
+label {
+  color: #0000008a;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.align,
+form {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+.form-box {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+}
+
+// Apply consistent focus and hover background color for inputs, selects, and textareas
+input:not([type='checkbox']):not([type='radio']):not([disabled]):focus,
+input:not([type='checkbox']):not([type='radio']):not([disabled]):hover,
+select:not([disabled]):focus,
+select:not([disabled]):hover,
+textarea:not([disabled]):focus,
+textarea:not([disabled]):hover {
+  background: #ebf8ff; // Matches the original `input-custom` focus background
+  outline: none;
+}
+
+// Base styles for non-checkbox, non-radio, non-disabled inputs and textareas
+input:not([type='checkbox']):not([type='radio']):not([disabled]),
+textarea:not([disabled]) {
+  border: 1px solid #d1d5db; // Matches border color
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); // Matches shadow styleMatches original border color
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05); // Matches original shadow
+  border-radius: 0.375rem; // Matches original rounded-md border
+}
+
+// Style for text inputs
+input:not([type='checkbox']):not([type='radio']) {
+  border: 1px solid #d1d5db; // Matches border color
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); // Matches shadow style
+  height: 2rem;
+  line-height: 2rem;
+}
+
+// Style for select elements
+select:not([disabled]) {
+  border: 1px solid #d1d5db; // Matches border color
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); // Matches shadow style
+  padding: 0 calc(0.375rem / 2);
+  border-radius: 0.375rem;
+}
+
+// General settings for input, select, and textarea elements
+input,
+select {
+  height: 2.25rem;
+  line-height: 2.25rem;
+}
+
+input,
+select,
+textarea {
+  font-family: Roboto, sans-serif;
+  font-size: 1rem;
+  padding: 0 0.375rem;
+}
+
+// Adjust border-bottom color for focused select elements
+select:focus {
+  outline: none;
+  border-bottom-color: hsl(0, 0%, 60%);
+}

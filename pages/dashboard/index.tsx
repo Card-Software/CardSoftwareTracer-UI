@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Layout from '@/app/layout';
-import '../../styles/dashboard.css';
 import TracerButton from '@/components/tracer-button.component';
 import { HiPlus, HiFilter } from 'react-icons/hi';
 import ProductOrderItem from '@/components/product-order-item.component';

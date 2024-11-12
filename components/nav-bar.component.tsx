@@ -2,8 +2,7 @@
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { useRouter } from 'next/navigation'; // Correct import for Next.js App Router
 import React, { useEffect, useState } from 'react';
-import { FiLogIn } from 'react-icons/fi'; // Importing a login icon from react-icons
-import '../styles/main.css';
+import { FiLogIn } from 'react-icons/fi';
 import { User } from '@/models/user';
 
 const Navbar: React.FC = () => {
