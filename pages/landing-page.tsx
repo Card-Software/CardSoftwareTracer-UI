@@ -259,6 +259,44 @@ const About = () => {
             </p>
           </div>
         </div>
+        {/* Divs */}
+        <div className="mx-auto flex max-w-6xl space-x-5 pt-8">
+          <div
+            className="flex w-1/3 flex-col items-center justify-center rounded-3xl p-14"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <h3 className="mb-6 font-bold text-white">Live Document Sharing</h3>
+            <p className="text-center text-white">
+              Request, view, and share documents instantly across tiers.
+            </p>
+          </div>
+
+          <div
+            className="flex w-1/3 flex-col items-center justify-center rounded-3xl p-14"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <h3 className="mb-6 font-bold text-white">
+              Real-Time Transparency
+            </h3>
+            <p className="text-center text-white">
+              Monitor document completion, pending items, and progress updates
+              from partners.
+            </p>
+          </div>
+
+          <div
+            className="flex w-1/3 flex-col items-center justify-center rounded-3xl p-14"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <h3 className="mb-6 font-bold text-white">
+              Connectivity Across Processes
+            </h3>
+            <p className="text-center text-white">
+              Seamlessly collaborate with partners, gaining visibility into
+              every tier’s document status and history.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* <footer
