@@ -23,16 +23,16 @@ const Navbar = () => {
           </svg>
           <h1 className="text-white text-2xl font-bold">Card Software</h1>
         </div>
-        <Link href="#" className="text-lg text-white">
+        <Link href="#about" className="text-lg text-white">
           About CS Tracer
         </Link>
-        <Link href="#" className="text-lg text-white">
+        <Link href="#tier-system" className="text-lg text-white">
           Tier System
         </Link>
-        <Link href="#" className="text-lg text-white">
+        <Link href="#features" className="text-lg text-white">
           Features
         </Link>
-        <Link href="#" className="text-lg text-white">
+        <Link href="#how-it-works" className="text-lg text-white">
           How It Works
         </Link>
         <Link href="#" className="text-lg font-bold text-white">

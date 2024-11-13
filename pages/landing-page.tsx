@@ -58,7 +58,7 @@ const About = () => {
       </div>
 
       {/* About CS Trace Section */}
-      <section className="flex-grow content-center py-12 pt-24 text-center">
+      <section  id='about' className="flex-grow content-center py-12 pt-24 text-center">
         <h1 className="mb-6 text-5xl font-bold">What is CS Tracer?</h1>
         <div className="mx-auto max-w-6xl">
           <p className="mb-4 text-justify text-xl leading-relaxed">
@@ -85,7 +85,7 @@ const About = () => {
       </section>
 
       {/* Tier-Based Traceability for Every Level Section */}
-      <section className="flex-grow content-center py-12 pt-24 text-center">
+      <section id='tier-system' className="flex-grow content-center py-12 pt-24 text-center">
         <h1 className="mb-6 text-5xl font-bold">
           Tier-Based Traceability for Every Level
         </h1>
@@ -297,6 +297,11 @@ const About = () => {
             </p>
           </div>
         </div>
+      </section>
+
+      <section id='features' className='flex-grow content-center'>
+       
+
       </section>
 
       {/* <footer
