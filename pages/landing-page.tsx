@@ -85,29 +85,6 @@ const About = () => {
       </section>
 
       {/* Tier-Based Traceability for Every Level Section */}
-      {/* <section className="flex-grow content-center py-12 pt-24 text-center">
-        <h1 className="mb-6 text-5xl font-bold">
-          Tier-Based Traceability for Every Level{' '}
-        </h1>
-        <div className="mx-auto max-w-6xl">
-          <p className="mb-4 text-center text-xl leading-relaxed">
-            In today’s interconnected supply chains, visibility is key.
-          </p>
-          <p className="mb-4 text-center text-xl leading-relaxed">
-            CS Tracer introduces a new way to manage traceability and connect
-            suppliers across every tier of production. Our system{' '}
-            <strong>supports</strong> the full hierarchy of textile production,
-            helping you track documents and data from:{' '}
-            <strong>Tier 4 (Raw Materials)</strong> all the way to{' '}
-            <strong>Tier 0 (Retail)</strong>.
-          </p>
-        </div>
-
-        Aqui van los tiers en esta seccion
-        <div className="mx-auto max-w-6xl"></div>
-      </section> */}
-
-      {/* Tier-Based Traceability for Every Level Section */}
       <section className="flex-grow content-center py-12 pt-24 text-center">
         <h1 className="mb-6 text-5xl font-bold">
           Tier-Based Traceability for Every Level
@@ -127,45 +104,159 @@ const About = () => {
         </div>
 
         {/* Tiers Section */}
-        <div className="mx-auto flex max-w-6xl items-center justify-between space-x-4 rounded-lg p-4 first-letter:relative">
+        <div className="relative z-10 mx-auto flex max-w-6xl items-center justify-between space-x-4 rounded-lg p-4 pt-8">
           {/* Tier 4 */}
           <div
-            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
+            className="relative items-center rounded-full px-20 py-8"
             style={{ backgroundColor: 'var(--primary-color)' }}
           >
-            <span className="text-lg font-semibold italic">Tier 4</span>
+            <span className="font-semibold italic text-white">Tier 4</span>
+
+            <div
+              className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
+              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+            >
+              {' '}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="h-10 w-10"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
           </div>
 
           {/* Tier 3 */}
           <div
-            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
-            style={{ backgroundColor: 'var(--primary-color)' }}
+            className="relative items-center rounded-full px-20 py-8"
+            style={{ backgroundColor: 'var(--primary-color)', marginLeft: '0' }}
           >
-            <span className="text-lg font-semibold italic">Tier 3</span>
+            <span className="font-semibold italic text-white">Tier 3</span>
+
+            <div
+              className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
+              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+            >
+              {' '}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="h-10 w-10"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
           </div>
 
           {/* Tier 2 */}
           <div
-            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
-            style={{ backgroundColor: 'var(--primary-color)' }}
+            className="relative items-center rounded-full px-20 py-8"
+            style={{ backgroundColor: 'var(--primary-color)', marginLeft: '0' }}
           >
-            <span className="text-lg font-semibold italic">Tier 2</span>
+            <span className="font-semibold italic text-white">Tier 2</span>
+
+            <div
+              className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
+              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+            >
+              {' '}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="h-10 w-10"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
           </div>
 
           {/* Tier 1 */}
           <div
-            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
-            style={{ backgroundColor: 'var(--primary-color)' }}
+            className="relative items-center rounded-full px-20 py-8"
+            style={{ backgroundColor: 'var(--primary-color)', marginLeft: '0' }}
           >
-            <span className="text-lg font-semibold italic">Tier 1</span>
+            <span className="font-semibold italic text-white">Tier 1</span>
+
+            <div
+              className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
+              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                className="h-10 w-10"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
           </div>
 
           {/* Tier 0 */}
           <div
-            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
-            style={{ backgroundColor: 'var(--primary-color)' }}
+            className="relative items-center rounded-full px-20 py-8"
+            style={{ backgroundColor: 'var(--primary-color)', marginLeft: '0' }}
           >
-            <span className="text-lg font-semibold italic">Tier 0</span>
+            <span className="font-semibold italic text-white">Tier 0</span>
+          </div>
+        </div>
+
+        {/* Image and Text */}
+        <div className="mx-auto flex max-w-6xl space-x-10 pt-8">
+          {/* Imagen */}
+          <div className="flex h-96 w-1/2 items-center justify-center overflow-hidden rounded-3xl">
+            <img
+              src="/img-1.jpg"
+              alt="Image placeholder"
+              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+            />
+          </div>
+
+          {/* Texto */}
+          <div className="h-100% w-1/2 flex-row">
+            <p className="text-left text-lg leading-relaxed">
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam
+              nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam
+              erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci
+              tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
+              consequat. Duis autem
+            </p>
+            <ul className="list-none pl-5 pt-5 text-left text-lg leading-relaxed">
+              <li className="mb-2">- Lorem ipsum dolor sit amet</li>
+              <li className="mb-2">- Lorem ipsum dolor sit amet</li>
+              <li className="mb-2">- Lorem ipsum dolor sit amet</li>
+            </ul>
+            <p className="pt-5 text-left text-lg leading-relaxed">
+              Lorem ipsum dolor sit amet, consectetuer
+            </p>
           </div>
         </div>
       </section>
