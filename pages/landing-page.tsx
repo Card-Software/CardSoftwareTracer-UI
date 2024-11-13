@@ -58,7 +58,10 @@ const About = () => {
       </div>
 
       {/* About CS Trace Section */}
-      <section  id='about' className="flex-grow content-center py-12 pt-24 text-center">
+      <section
+        id="about"
+        className="flex-grow content-center py-12 pt-24 text-center"
+      >
         <h1 className="mb-6 text-5xl font-bold">What is CS Tracer?</h1>
         <div className="mx-auto max-w-6xl">
           <p className="mb-4 text-justify text-xl leading-relaxed">
@@ -85,7 +88,10 @@ const About = () => {
       </section>
 
       {/* Tier-Based Traceability for Every Level Section */}
-      <section id='tier-system' className="flex-grow content-center py-12 pt-24 text-center">
+      <section
+        id="tier-system"
+        className="flex-grow content-center py-12 pt-24 text-center"
+      >
         <h1 className="mb-6 text-5xl font-bold">
           Tier-Based Traceability for Every Level
         </h1>
@@ -114,7 +120,7 @@ const About = () => {
 
             <div
               className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
-              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+              style={{ backgroundColor: '#D51E3E' }}
             >
               {' '}
               <svg
@@ -143,7 +149,7 @@ const About = () => {
 
             <div
               className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
-              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+              style={{ backgroundColor: '#D51E3E' }}
             >
               {' '}
               <svg
@@ -172,7 +178,7 @@ const About = () => {
 
             <div
               className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
-              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+              style={{ backgroundColor: '#D51E3E' }}
             >
               {' '}
               <svg
@@ -201,7 +207,7 @@ const About = () => {
 
             <div
               className="absolute right-[-32px] top-1/2 z-30 -translate-y-1/2 transform rounded-full p-1 text-white"
-              style={{ backgroundColor: '#D51E3E' }} // Estilo en línea para el color de fondo personalizado
+              style={{ backgroundColor: '#D51E3E' }}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -299,9 +305,39 @@ const About = () => {
         </div>
       </section>
 
-      <section id='features' className='flex-grow content-center'>
-       
-
+      <section id="features" className="flex-grow content-center">
+        <section id="features" className="flex-grow content-center py-8">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
+            <div className="feature-item">
+              <h3>Inventory Management</h3>
+              <p>Real-time insights and support for multiple locations.</p>
+            </div>
+            <div className="feature-item">
+              <h3>Purchase Management</h3>
+              <p>Manage purchase orders and reorder points efficiently.</p>
+            </div>
+            <div className="feature-item">
+              <h3>Sales Order Management</h3>
+              <p>Track and manage sales orders with ease.</p>
+            </div>
+            <div className="feature-item">
+              <h3>Planning and Forecasting</h3>
+              <p>Automate planning using historical data.</p>
+            </div>
+            <div className="feature-item">
+              <h3>Production Management</h3>
+              <p>Automatically allocate resources and manage production.</p>
+            </div>
+            <div className="feature-item">
+              <h3>Cloud Accounting</h3>
+              <p>Seamlessly sync inventory and accounting data.</p>
+            </div>
+            <div className="feature-item">
+              <h3>Warehouse Management</h3>
+              <p>Optimize workflows and warehouse operations.</p>
+            </div>
+          </div>
+        </section>
       </section>
 
       {/* <footer
