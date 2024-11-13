@@ -23,9 +23,7 @@ import { teamStatusProxy } from '@/proxies/team-status.proxy';
 const Dashboard: React.FC = () => {
   const router = useRouter();
   const [productOrders, setProductOrders] = useState<ProductOrder[]>([]);
-  const [filteredProductOrders, setFilteredProductOrders] = useState<
-    ProductOrder[]
-  >([]);
+  const [filteredProductOrders, setFilteredProductOrders] = useState<ProductOrder[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [allStatuses, setAllStatuses] = useState<TeamStatus[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState<boolean>(false);
@@ -84,9 +82,7 @@ const Dashboard: React.FC = () => {
       productOrderNumber: getStringValue(query.productOrderNumber),
       externalPoNumber: getStringValue(query.externalPoNumber),
       referenceNumber: getStringValue(query.referenceNumber),
-      startDate: query.startDate
-        ? moment(getStringValue(query.startDate))
-        : null,
+      startDate: query.startDate ? moment(getStringValue(query.startDate)) : null,
       endDate: query.endDate ? moment(getStringValue(query.endDate)) : null,
       siteRef: getStringValue(query.siteRef),
       planningStatus: getStringValue(query.planningStatus),
@@ -116,10 +112,7 @@ const Dashboard: React.FC = () => {
     Object.keys(filterValues).forEach((key) => {
       const value = filterValues[key as keyof PoSearchFilters];
       if (value !== null && value !== '') {
-        query[key] =
-          typeof value === 'object' && value.toISOString
-            ? value.toISOString()
-            : String(value);
+        query[key] = typeof value === 'object' && value.toISOString ? value.toISOString() : String(value);
       }
     });
 
@@ -138,16 +131,14 @@ const Dashboard: React.FC = () => {
       if (fetchingPo.current) return;
       fetchingPo.current = true;
       setIsLoading(true);
-      const response: AllResponse =
-        await orderManagementApiProxy.searchProductOrdersByFilters(
-          filters,
-          pageNumber,
-          pageSize,
-        );
+      const response: AllResponse = await orderManagementApiProxy.searchProductOrdersByFilters(
+        filters,
+        pageNumber,
+        pageSize,
+      );
       fetchingPo.current = false;
       const sorted = response.results.sort(
-        (a, b) =>
-          new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime(),
+        (a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime(),
       );
       setProductOrders(sorted);
       setFilteredProductOrders(sorted);
@@ -164,9 +155,7 @@ const Dashboard: React.FC = () => {
   const toggleFilterVisibility = () => {
     setIsFilterVisible(!isFilterVisible);
   };
-  const handleFilterChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFilterValues({
       ...filterValues,
       [e.target.name]: e.target.value,
@@ -228,10 +217,8 @@ const Dashboard: React.FC = () => {
   };
   // #endregion
 
-  const successDeleteMessage = () =>
-    toast.success('Product Order deleted successfully!');
-  const errorDeleteMessage = () =>
-    toast.error('Failed to delete Product Order');
+  const successDeleteMessage = () => toast.success('Product Order deleted successfully!');
+  const errorDeleteMessage = () => toast.error('Failed to delete Product Order');
 
   // #region Delete Product Order
   const handleDeleteProductOrder = async (orderToDelete: ProductOrder) => {
@@ -242,12 +229,8 @@ const Dashboard: React.FC = () => {
     try {
       setIsLoading(true);
       await orderManagementApiProxy.deleteProductOrder(orderToDelete.id);
-      setProductOrders(
-        productOrders.filter((order) => order.id !== orderToDelete.id),
-      );
-      setFilteredProductOrders(
-        filteredProductOrders.filter((order) => order.id !== orderToDelete.id),
-      );
+      setProductOrders(productOrders.filter((order) => order.id !== orderToDelete.id));
+      setFilteredProductOrders(filteredProductOrders.filter((order) => order.id !== orderToDelete.id));
       successDeleteMessage();
     } catch (error) {
       console.error('Failed to delete Product Order', error);
@@ -267,272 +250,220 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       <LoadingOverlay show={fetchingPo.current} />
-      <div className="tool-bar">
-        <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            Dashboard
-          </h1>
-        </div>
-        <div className="tool-bar-buttons">
-          <TracerButton
-            name="Add New PO"
-            icon={<HiPlus />}
-            onClick={() => router.push('/dashboard/new-product-order')}
-          />
-          <button
-            onClick={toggleFilterVisibility}
-            className="flex items-center rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-          >
-            <HiFilter className="mr-2" />
-            Filter
-          </button>
-        </div>
-      </div>
-      <div
-        className="my-4 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      />
-      {isFilterVisible && (
-        <div className="my-6 flex flex-col rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
-          <div className="grid flex-grow grid-cols-3 gap-4">
-            <div>
-              <label
-                htmlFor="productOrderName"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Product Order
-              </label>
-              <input
-                type="text"
-                name="productOrderNumber"
-                id="productOrderName"
-                value={filterValues.productOrderNumber || ''}
-                onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      <div className="content">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Dashboard</h1>
+            <div className="row">
+              <TracerButton
+                name="Add New PO"
+                icon={<HiPlus />}
+                onClick={() => router.push('/dashboard/new-product-order')}
               />
-            </div>
-            <div>
-              <label
-                htmlFor="productOrderName"
-                className="block text-sm font-semibold text-gray-800"
+              <button
+                onClick={toggleFilterVisibility}
+                className="flex items-center rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
               >
-                Reference Number
-              </label>
-              <input
-                type="text"
-                name="referenceNumber"
-                id="referenceNumber"
-                value={filterValues.referenceNumber || ''}
-                onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="externalPoNumber"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                External Product Order
-              </label>
-              <input
-                type="text"
-                name="externalPoNumber"
-                id="externalPoNumber"
-                value={filterValues.externalPoNumber || ''}
-                onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="assignedUserRef"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                User
-              </label>
-              <select
-                name="assignedUserRef"
-                id="assignedUserRef"
-                value={filterValues.assignedUserRef || ''}
-                onChange={handleUserChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              >
-                <option value="">Select an associate</option>
-                {allUsers.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.firstName} {user.lastname}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="startDate"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Start Date
-              </label>
-              <DatePicker
-                selected={
-                  filterValues.startDate
-                    ? filterValues.startDate.toDate()
-                    : null
-                }
-                onChange={(date) => handleDateChange('startDate', date)}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                dateFormat="yyyy/MM/dd"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="endDate"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                End Date
-              </label>
-              <DatePicker
-                selected={
-                  filterValues.endDate ? filterValues.endDate.toDate() : null
-                }
-                onChange={(date) => handleDateChange('endDate', date)}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-1 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                dateFormat="yyyy/MM/dd"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="planningStatus"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Planning Status
-              </label>
-              <select
-                name="planningStatus"
-                id="planningStatus"
-                value={filterValues.planningStatus || ''}
-                onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              >
-                <option value="">Select Status</option>
-                {getStatusByName('Planning')?.possibleValues.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="ntStatus"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                NT Status
-              </label>
-              <select
-                name="ntStatus"
-                id="ntStatus"
-                value={filterValues.ntStatus || ''}
-                onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              >
-                <option value="">Select Status</option>
-                {getStatusByName('NT')?.possibleValues.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="sacStatus"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                SAC Status
-              </label>
-              <select
-                name="sacStatus"
-                id="sacStatus"
-                value={filterValues.sacStatus || ''}
-                onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              >
-                <option value="">Select Status</option>
-                {getStatusByName('SAC')?.possibleValues.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label
-                htmlFor="siteRef"
-                className="block text-sm font-semibold text-gray-800"
-              >
-                Site
-              </label>
-              <select
-                name="siteRef"
-                id="siteRef"
-                value={filterValues.siteRef || ''}
-                onChange={handleFilterChange}
-                className="mt-2 block w-full rounded-md border border-gray-300 bg-white p-2 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              >
-                <option value="">Select a site</option>
-                {allSites.map((site) => (
-                  <option key={site.id} value={site.id}>
-                    {site.name}
-                  </option>
-                ))}
-              </select>
+                <HiFilter className="mr-2" />
+                Filter
+              </button>
             </div>
           </div>
-          <div className="mt-4 flex w-full justify-end gap-2">
-            <button
-              onClick={clearFilters}
-              style={{ borderRadius: '10px 10px 10px 10px' }}
-              className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
-            >
-              Clear All
-            </button>
-            <TracerButton
-              type="submit"
-              name="Apply Filter"
-              onClick={() => fetchProductOrders(filterValues)}
-            />
-          </div>
         </div>
-      )}
-      <div
-        className=" mt-4 grid grid-cols-3 gap-4"
-        style={{ marginBottom: '6rem' }}
-      >
-        {filteredProductOrders.length > 0 ? (
-          filteredProductOrders.map((order) => (
-            <ProductOrderItem
-              key={order.id}
-              productOrder={order}
-              handleDeleteProductOrder={handleDeleteProductOrder}
-            />
-          ))
-        ) : (
-          <p>No product orders available.</p>
+        {isFilterVisible && (
+          <div className="my-6 flex flex-col rounded-lg border border-gray-300 bg-white p-6 shadow-lg">
+            <div className="grid flex-grow grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="productOrderName" className="block text-sm font-semibold text-gray-800">
+                  Product Order
+                </label>
+                <input
+                  type="text"
+                  name="productOrderNumber"
+                  id="productOrderName"
+                  value={filterValues.productOrderNumber || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 w-full p-1"
+                />
+              </div>
+              <div>
+                <label htmlFor="productOrderName" className="block text-sm font-semibold text-gray-800">
+                  Reference Number
+                </label>
+                <input
+                  type="text"
+                  name="referenceNumber"
+                  id="referenceNumber"
+                  value={filterValues.referenceNumber || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 w-full p-1"
+                />
+              </div>
+              <div>
+                <label htmlFor="externalPoNumber" className="block text-sm font-semibold text-gray-800">
+                  External Product Order
+                </label>
+                <input
+                  type="text"
+                  name="externalPoNumber"
+                  id="externalPoNumber"
+                  value={filterValues.externalPoNumber || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 w-full p-1"
+                />
+              </div>
+              <div>
+                <label htmlFor="assignedUserRef" className="block text-sm font-semibold text-gray-800">
+                  User
+                </label>
+                <select
+                  name="assignedUserRef"
+                  id="assignedUserRef"
+                  value={filterValues.assignedUserRef || ''}
+                  onChange={handleUserChange}
+                  className="mt-2 w-full p-1"
+                >
+                  <option value="">Select an associate</option>
+                  {allUsers.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.firstName} {user.lastname}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="startDate" className="block text-sm font-semibold text-gray-800">
+                  Start Date
+                </label>
+                <DatePicker
+                  selected={filterValues.startDate ? filterValues.startDate.toDate() : null}
+                  onChange={(date) => handleDateChange('startDate', date)}
+                  className="mt-2 w-full p-1"
+                  dateFormat="yyyy/MM/dd"
+                />
+              </div>
+              <div>
+                <label htmlFor="endDate" className="block text-sm font-semibold text-gray-800">
+                  End Date
+                </label>
+                <DatePicker
+                  selected={filterValues.endDate ? filterValues.endDate.toDate() : null}
+                  onChange={(date) => handleDateChange('endDate', date)}
+                  className="mt-2 w-full p-1"
+                  dateFormat="yyyy/MM/dd"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="planningStatus" className="block text-sm font-semibold text-gray-800">
+                  Planning Status
+                </label>
+                <select
+                  name="planningStatus"
+                  id="planningStatus"
+                  value={filterValues.planningStatus || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 w-full p-1"
+                >
+                  <option value="">Select Status</option>
+                  {getStatusByName('Planning')?.possibleValues.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="ntStatus" className="block text-sm font-semibold text-gray-800">
+                  NT Status
+                </label>
+                <select
+                  name="ntStatus"
+                  id="ntStatus"
+                  value={filterValues.ntStatus || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 w-full p-1"
+                >
+                  <option value="">Select Status</option>
+                  {getStatusByName('NT')?.possibleValues.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="sacStatus" className="block text-sm font-semibold text-gray-800">
+                  SAC Status
+                </label>
+                <select
+                  name="sacStatus"
+                  id="sacStatus"
+                  value={filterValues.sacStatus || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 w-full p-1"
+                >
+                  <option value="">Select Status</option>
+                  {getStatusByName('SAC')?.possibleValues.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="siteRef" className="block text-sm font-semibold text-gray-800">
+                  Site
+                </label>
+                <select
+                  name="siteRef"
+                  id="siteRef"
+                  value={filterValues.siteRef || ''}
+                  onChange={handleFilterChange}
+                  className="mt-2 w-full p-1"
+                >
+                  <option value="">Select a site</option>
+                  {allSites.map((site) => (
+                    <option key={site.id} value={site.id}>
+                      {site.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="mt-4 flex w-full justify-end gap-2">
+              <button
+                onClick={clearFilters}
+                style={{ borderRadius: '10px 10px 10px 10px' }}
+                className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
+              >
+                Clear All
+              </button>
+              <TracerButton type="submit" name="Apply Filter" onClick={() => fetchProductOrders(filterValues)} />
+            </div>
+          </div>
         )}
+        <div className="mt-4 grid grid-cols-3 gap-4 mb-[6rem]">
+          {filteredProductOrders.length > 0 ? (
+            filteredProductOrders.map((order) => (
+              <ProductOrderItem
+                key={order.id}
+                productOrder={order}
+                handleDeleteProductOrder={handleDeleteProductOrder}
+              />
+            ))
+          ) : (
+            <p>No product orders available.</p>
+          )}
+        </div>
       </div>
-      <footer
-        className="stream-footer fixed bottom-0 flex w-full items-center justify-between p-4"
-        style={{
-          backgroundColor: 'var(--primary-color)',
-          maxWidth: 'calc(100% - 175px)',
-        }}
-      >
+
+      <footer>
         <span className="text-white">Total Results: {totalResults}</span>
 
-        <div className="flex items-center">
+        <div className="ml-auto">
           <button
             onClick={() => handlePageChange(pageNumber - 1)}
             disabled={pageNumber === 1}
