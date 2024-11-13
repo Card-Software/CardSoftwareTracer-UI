@@ -133,6 +133,18 @@ const PurchaseOrderPage: React.FC = () => {
         }
 
         setOriginalProductOrder(order);
+        setTiersData([
+          {
+            id: '1',
+            tierInfo: {
+              id: '1',
+              name: 'Tier 1',
+              tierLevel: 1,
+              description: 'Tier 1 Description',
+            },
+            stream: order.childrenTracerStreams[0],
+          },
+        ]);
 
         if (order.childrenPosReferences.length > 0) {
           getChildrenPos(order.childrenPosReferences);
@@ -753,7 +765,11 @@ const PurchaseOrderPage: React.FC = () => {
           }}
         />
       )}
-      <TierModal isOpen={true} onClose={() => {}} onSave={() => {}}></TierModal>
+      <TierModal
+        isOpen={false}
+        onClose={() => {}}
+        onSave={() => {}}
+      ></TierModal>
     </Layout>
   );
 };

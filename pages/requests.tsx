@@ -85,45 +85,39 @@ const RequestsPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="tool-bar">
-        <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            Requests
-          </h1>
-        </div>
-        <div className="tool-bar-buttons">
-          <div className="ml-4 flex items-center">
-            <button
-              onClick={() => setFilter('all')}
-              className={`mx-2 ${filter === 'all' ? 'font-semibold text-blue-500' : ''}`}
-            >
-              All Requests
-            </button>
-            <button
-              onClick={() => setFilter('sent')}
-              className={`mx-2 ${filter === 'sent' ? 'font-semibold text-blue-500' : ''}`}
-            >
-              Sent Requests
-            </button>
-            <button
-              onClick={() => setFilter('received')}
-              className={`mx-2 ${filter === 'received' ? 'font-semibold text-blue-500' : ''}`}
-            >
-              Received Requests
-            </button>
+      <div className="content">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Requests</h1>
+            <div>
+              <div className="row">
+                <button
+                  onClick={() => setFilter('all')}
+                  className={`mx-2 ${filter === 'all' ? 'font-semibold text-blue-500' : ''}`}
+                >
+                  All Requests
+                </button>
+                <button
+                  onClick={() => setFilter('sent')}
+                  className={`mx-2 ${filter === 'sent' ? 'font-semibold text-blue-500' : ''}`}
+                >
+                  Sent Requests
+                </button>
+                <button
+                  onClick={() => setFilter('received')}
+                  className={`mx-2 ${filter === 'received' ? 'font-semibold text-blue-500' : ''}`}
+                >
+                  Received Requests
+                </button>
+                <TracerButton
+                  name="Start New Request"
+                  icon={<HiPlus />}
+                  onClick={() => {}}
+                />
+              </div>
+            </div>
           </div>
-          <TracerButton
-            name="Start New Request"
-            icon={<HiPlus />}
-            onClick={() => {}}
-          />
         </div>
-      </div>
-      <div
-        className="my-4 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
-      <div>
         <table className="standard-table">
           <thead>
             <tr>
@@ -171,6 +165,7 @@ const RequestsPage: React.FC = () => {
           </tbody>
         </table>
       </div>
+
       <RequestModal
         onClose={() => {
           onModalClose();

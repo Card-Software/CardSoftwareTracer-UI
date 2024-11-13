@@ -1,6 +1,5 @@
 import React, { use, useEffect, useMemo, useRef, useState } from 'react';
 import Layout from '@/app/layout';
-import '../../styles/dashboard.css';
 import TracerButton from '@/components/tracer-button.component';
 import { HiPlus, HiFilter, HiArrowUp } from 'react-icons/hi';
 import { useRouter } from 'next/router';

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Layout from '@/app/layout';
 import Notes from '@/components/notes.component';
-import '@/styles/traceability-stream.css';
 import { HiPlus } from 'react-icons/hi';
 import Link from 'next/link';
 import { orderManagementApiProxy } from '@/proxies/order-management.proxy';
@@ -17,11 +16,9 @@ import withAuth from '@/hoc/auth';
 import LoadingOverlay from '@/components/loading-overlay.component'; // Ensure you import the LoadingOverlay component
 import { TeamLabel } from '@/models/team-label';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
-import { useForm, Controller, set, Control } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import TeamStatuses from '@/components/team-statuses.component'; // Import the TeamStatuses component
-import { Status } from '@/models/status';
 import { Site } from '@/models/site';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { emailService } from '@/services/email.service';
 import SiblingProductOrdersModal from '@/components/modals/sibling-product-orders-modal.component';
@@ -29,7 +26,7 @@ import { SiblingProductOrder } from '@/models/sibling-product-order';
 import ProductOrderDetails from '@/components/product-order-details';
 import { Note } from '@/models/note';
 import toast, { Toaster } from 'react-hot-toast';
-import { TeamStatus, TeamStatusExtended } from '@/models/team-status';
+import { TeamStatusExtended } from '@/models/team-status';
 
 const NewProductOrder: React.FC = () => {
   const router = useRouter();
@@ -150,7 +147,7 @@ const NewProductOrder: React.FC = () => {
     data.childrenPosReferences = connectedPOs.map(
       (ts) => ts.productOrderNumber,
     );
-    data.notes = notes ;
+    data.notes = notes;
     setIsLoading(true);
     try {
       const result = await orderManagementApiProxy.createProductOrder(data);
@@ -207,39 +204,36 @@ const NewProductOrder: React.FC = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="mb-4">
-        <Link
-          href="/dashboard"
-          className="cursor-pointer text-sm text-gray-500 hover:text-blue-500 hover:underline"
-        >
-          Dashboard
-        </Link>
-        <span className="text-sm text-gray-500"> &gt; Add New PO</span>
-      </div>
-      <div className="mb-5 flex flex-row items-center">
-        <div className="me-8 text-xl">
-          <h1>Add New Product Order</h1>
+      <div className="content">
+        <div className="navigation">
+          <Link href="/dashboard" className="map">
+            Dashboard
+          </Link>
+          <span className="text-sm text-gray-500"> &gt; Add New PO</span>
         </div>
-        <div className="flex flex-row flex-nowrap space-x-4">
-          <TracerButton
-            name="Add Tracer Stream"
-            icon={<HiPlus />}
-            onClick={() => setIsModalOpen(true)}
-          />
-          <TracerButton
-            name={`${siblingPoTextDisplay} Sibling Pos`}
-            onClick={() => setIsSiblingProductOrderModalOpen(true)}
-          />
-        </div>
-      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '5rem' }}>
-        <ProductOrderDetails
-          initialProductOrderDetails={null}
-          onChange={handleProductOrderDetailsChange}
-        />
-        <div className="my-6">
-          <div className="row flex gap-10">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Add New Product Order</h1>
+            <div className="row">
+              <TracerButton
+                name="Add Tracer Stream"
+                icon={<HiPlus />}
+                onClick={() => setIsModalOpen(true)}
+              />
+              <TracerButton
+                name={`${siblingPoTextDisplay} Sibling Pos`}
+                onClick={() => setIsSiblingProductOrderModalOpen(true)}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flow">
+          <ProductOrderDetails
+            initialProductOrderDetails={null}
+            onChange={handleProductOrderDetailsChange}
+          />
+          <div className="row mt-6">
             <Notes
               notes={notes}
               currentUser={user}
@@ -252,48 +246,43 @@ const NewProductOrder: React.FC = () => {
               onHistoryClick={() => {}}
             />
           </div>
-        </div>
-        <div className="mb-6">
-          <label className="mb-2 block text-sm font-bold text-gray-700">
-            Connected Tracer Streams
-          </label>
-          <div className="flex flex-wrap gap-4">
-            {connectedTracerStreams.map((ts) => (
-              <div
-                key={ts.id}
-                className="inline-block rounded-lg bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-800 shadow-md"
-              >
-                <div className="mb-1">
-                  <span className="font-bold">Name:</span> {ts.friendlyName}
+          <div>
+            <label>Connected Tracer Streams</label>
+            <div className="flex flex-wrap gap-4">
+              {connectedTracerStreams.map((ts) => (
+                <div
+                  key={ts.id}
+                  className="inline-block rounded-lg bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-800 shadow-md"
+                >
+                  <div className="mb-1">
+                    <span className="font-bold">Name:</span> {ts.friendlyName}
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold">Product:</span> {ts.product}
+                  </div>
+                  <div className="mb-1">
+                    <span className="font-bold">Quantity:</span> {ts.quantity}
+                  </div>
                 </div>
-                <div className="mb-1">
-                  <span className="font-bold">Product:</span> {ts.product}
-                </div>
-                <div className="mb-1">
-                  <span className="font-bold">Quantity:</span> {ts.quantity}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-        <footer className="stream-footer flex bg-gray-200 p-4">
-          <button
-            type="button"
-            className="me-6 rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
-            onClick={() => router.back()}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="rounded-md bg-[var(--primary-button)] px-4 py-2 text-white hover:bg-[var(--primary-button-hover)]"
-            onClick={() => successPO()}
-          >
-            Save
-          </button>
-          <Toaster />
-        </footer>
-      </form>
+      </div>
+
+      <footer>
+        <button type="button" className="cancel" onClick={() => router.back()}>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="mainAction"
+          onClick={() => successPO()}
+        >
+          Save
+        </button>
+        <Toaster />
+      </footer>
       {isModalOpen && (
         <TracerStreamModal
           originalTracerStream={null}

@@ -1,26 +1,24 @@
 import { S3ObjectDto } from '@/models/s3-object-dto';
 import axiosInstance from '@/utils/axiosInstance';
+import { Observable, from, map } from 'rxjs';
 class FileManagementProxy {
   //#region
-  async UploadFile(
+  UploadFile(
     bucketName: string,
     productOrder: string,
     nameOfTracerStream: string,
     sectionName: string,
     file: File,
-  ): Promise<any> {
-    try {
-      const prefix = `${productOrder}/${nameOfTracerStream}/${sectionName}`;
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await axiosInstance.post(
+  ): Observable<any> {
+    const prefix = `${productOrder}/${nameOfTracerStream}/${sectionName}`;
+    const formData = new FormData();
+    formData.append('file', file);
+    return from(
+      axiosInstance.post(
         `File/UploadFile?bucketName=${bucketName}&prefix=${prefix}`,
         formData,
-      );
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to upload file');
-    }
+      ),
+    );
   }
 
   async DeleteFile(bucketName: string, key: string): Promise<any> {
@@ -47,6 +45,13 @@ class FileManagementProxy {
     } catch (error) {
       throw new Error('Failed to get all files');
     }
+  }
+  GetAllFiles(bucketName: string, prefix: string): Observable<S3ObjectDto[]> {
+    return from(
+      axiosInstance.get(
+        `File/AllFiles?bucketName=${bucketName}&prefix=${prefix}`,
+      ),
+    ).pipe(map((response) => response.data));
   }
 }
 

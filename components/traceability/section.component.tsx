@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaCheckCircle, FaExclamationCircle, FaTrash } from 'react-icons/fa';
 import SectionModal from '@/components/modals/section-modal.component'; // Import the section modal
 import { Section as SectionModel } from '@/models/section';
 import '../../styles/components/traceability/section.css';
+import { SectionService } from '@/services/sections.service';
 
 interface SectionComponentProps {
+  serviceLoaded: boolean;
   section: SectionModel;
   onSectionSave: (updatedSection: SectionModel) => void;
   onDelete: (section: SectionModel) => void;
 }
 
-const SectionComponent: React.FC<SectionComponentProps> = ({
-  section,
-  onSectionSave,
-  onDelete,
-}) => {
+const SectionComponent: React.FC<SectionComponentProps> = ({ serviceLoaded, section, onSectionSave, onDelete }) => {
   const [isSectionModalOpen, setIsSectionModalOpen] = useState(false);
+  const sectionService = React.useRef<SectionService | null>(null);
 
   const handleSectionClick = () => {
     setIsSectionModalOpen(true);
+    sectionService.current?.setEditingSection(section.sectionId);
   };
 
   const handleSaveSection = (updatedSection: SectionModel) => {
@@ -26,12 +26,16 @@ const SectionComponent: React.FC<SectionComponentProps> = ({
     onSectionSave(updatedSection);
   };
 
+  useEffect(() => {
+    if (serviceLoaded) {
+      sectionService.current = SectionService.getInstance();
+    }
+  }, [serviceLoaded]);
+
   return (
     <>
       <div
-        className={`section-card ${
-          section.isRequired ? 'section-required' : 'section-not-required'
-        }`}
+        className={`section-card ${section.isRequired ? 'section-required' : 'section-not-required'}`}
         onClick={handleSectionClick}
       >
         <div className="section-header">
@@ -40,11 +44,7 @@ const SectionComponent: React.FC<SectionComponentProps> = ({
             <p className="text-base text-gray-500">{section.sectionName}</p>
           </div>
           <div className="section-actions">
-            {section.files.length > 0 ? (
-              <FaCheckCircle color="#0080fc" />
-            ) : (
-              <FaExclamationCircle color="red" />
-            )}
+            {section.files.length > 0 ? <FaCheckCircle color="#0080fc" /> : <FaExclamationCircle color="red" />}
             <button
               className="delete-button"
               onClick={(e) => {
@@ -60,15 +60,12 @@ const SectionComponent: React.FC<SectionComponentProps> = ({
         <div className="card-details">
           <div className="section-description">
             <strong>Description</strong>
-            <p className="text-base text-gray-500">
-              {section.sectionDescription}
-            </p>
+            <p className="text-base text-gray-500">{section.sectionDescription}</p>
           </div>
 
           {section.assignedUser && (
             <div className="detail-item">
-              <strong>Assigned to:</strong> {section.assignedUser.firstName}{' '}
-              {section.assignedUser.lastname}
+              <strong>Assigned to:</strong> {section.assignedUser.firstName} {section.assignedUser.lastname}
             </div>
           )}
 
@@ -101,10 +98,8 @@ const SectionComponent: React.FC<SectionComponentProps> = ({
       {isSectionModalOpen && (
         <SectionModal
           isOpen={isSectionModalOpen}
-          initialSection={section}
           onClose={() => setIsSectionModalOpen(false)}
           onSave={handleSaveSection}
-          productOrderId={''}
           mode={'edit'}
         />
       )}

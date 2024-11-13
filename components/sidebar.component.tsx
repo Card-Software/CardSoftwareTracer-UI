@@ -76,7 +76,7 @@ const Sidebar: React.FC = () => {
   return (
     <aside
       className={`sidebar flex h-full min-h-screen ${
-        isCollapsed ? 'w-16' : 'w-44'
+        isCollapsed ? 'w-16' : 'w-44 min-w-44'
       } flex-col border-e-2 border-white bg-gray-100 text-black transition-all duration-300 ease-in-out`}
     >
       {/* Toggle Button */}

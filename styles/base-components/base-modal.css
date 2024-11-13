@@ -28,6 +28,55 @@
     opacity: 0;
   }
 }
+.modal-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: auto; /* Let width adjust based on content */
+  max-width: 100%; /* Prevent overflow beyond the viewport */
+  overflow: hidden;
+  transition: width 0.3s;
+  z-index: 1000;
+  display: flex; /* Helps the modal content define width */
+}
+
+.modal-wrapper.open {
+  width: auto; /* Allows the width to expand based on content */
+}
+
+.modal-content {
+  max-width: 100vw; /* Ensures it doesn't exceed the viewport width */
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px 0 0 8px;
+  animation-duration: 0.3s;
+  animation-fill-mode: forwards;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* .modal-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s;
+  z-index: 1000;
+}
+
+.modal-wrapper.open {
+  width: 40%;
+}
 
 .modal-content {
   position: absolute;
@@ -45,27 +94,19 @@
   animation-fill-mode: forwards;
 }
 
+
+.modal-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+} */
+
 .modal-wrapper.open .modal-content {
   animation-name: slideInRight;
 }
 
 .modal-wrapper.closing .modal-content {
   animation-name: slideOutRight;
-}
-
-.modal-wrapper {
-  position: fixed;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: 0;
-  overflow: hidden;
-  transition: width 0.3s;
-  z-index: 1000;
-}
-
-.modal-wrapper.open {
-  width: 40%;
 }
 
 .modal-overlay {
@@ -99,12 +140,6 @@
   font-size: 1.5rem;
   font-weight: 500;
   color: #fff;
-}
-
-.modal-body {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
 }
 
 .modal-footer {

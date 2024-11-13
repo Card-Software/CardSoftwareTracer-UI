@@ -1,16 +1,10 @@
-import React from 'react';
-import {
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaFileExport,
-  FaHistory,
-  FaPencilAlt,
-  FaTrash,
-} from 'react-icons/fa';
+import React, { use, useEffect, useState } from 'react';
+import { FaCheckCircle, FaExclamationCircle, FaFileExport, FaHistory, FaPencilAlt, FaTrash } from 'react-icons/fa';
 import { TracerStreamExtended } from '@/models/tracer-stream';
 import SectionComponent from './section.component'; // Import the single section component
 import '../../styles/components/traceability/traceability-stream.css'; // Styling for this component
 import { Section } from '@/models/section';
+import { SectionService } from '@/services/sections.service';
 
 interface TraceabilityStreamProps {
   stream: TracerStreamExtended;
@@ -33,33 +27,38 @@ const TraceabilityStreamComponent: React.FC<TraceabilityStreamProps> = ({
   onSectionSave,
   onSectionDelete,
 }) => {
+  const [sectionServiceLoaded, setSectionServiceLoaded] = useState(false);
+  useEffect(() => {
+    // Initialize the singleton instance with the current stream data
+    const sectionService = SectionService.getInstance(stream.sections, '1223', stream.id as string, '22255');
+    console.log('Initialized Sections:', sectionService.getSections());
+
+    setSectionServiceLoaded(true);
+    // Cleanup on unmount: reset the singleton instance
+    return () => {
+      SectionService.resetInstance();
+      console.log('SectionService instance has been reset');
+    };
+  }, [stream]);
   return (
     <React.Fragment key={stream.id}>
       <div className="stream-card">
         <div className="flex w-full flex-row justify-between">
           <div className="flex flex-col">
-            <h1 className="text-xl font-bold text-[var(--primary-color)]">
-              Name:
-            </h1>
+            <h1 className="text-xl font-bold text-[var(--primary-color)]">Name:</h1>
             <p className="text-base text-gray-500">{stream.friendlyName}</p>
 
-            <h1 className="text-xl font-bold text-[var(--primary-color)]">
-              Product:
-            </h1>
+            <h1 className="text-xl font-bold text-[var(--primary-color)]">Product:</h1>
             <p className="text-base text-gray-500">{stream.product}</p>
 
-            <h1 className="text-xl font-bold text-[var(--primary-color)]">
-              Quantity:
-            </h1>
+            <h1 className="text-xl font-bold text-[var(--primary-color)]">Quantity:</h1>
             <p className="text-base text-gray-500">{stream.quantity}</p>
           </div>
           <div className="flex max-h-14">
             <button
               disabled={!allActivityLogs?.length}
               className="mb-2 rounded bg-[var(--primary-button)] px-4 py-2 font-bold text-white hover:bg-[var(--primary-button-hover)]"
-              onClick={() =>
-                onActivityLogClick('FileUpload', stream.id as string)
-              }
+              onClick={() => onActivityLogClick('FileUpload', stream.id as string)}
             >
               <FaHistory />
             </button>
@@ -92,6 +91,7 @@ const TraceabilityStreamComponent: React.FC<TraceabilityStreamProps> = ({
             <React.Fragment key={section.sectionId}>
               <div className="section-wrapper">
                 <SectionComponent
+                  serviceLoaded={sectionServiceLoaded}
                   section={section}
                   onSectionSave={onSectionSave}
                   onDelete={onSectionDelete}

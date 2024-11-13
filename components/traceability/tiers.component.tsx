@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import TraceabilityStreamComponent from './traceability-stream'; // Import your tracer stream component
+import TraceabilityStreamComponent from './traceability-stream.component'; // Import your tracer stream component
 import { Section } from '@/models/section';
 import { Tier } from '@/models/tier';
 import { TracerStreamExtended } from '@/models/tracer-stream';
@@ -26,13 +26,11 @@ const TiersComponent: React.FC<TiersComponentProps> = ({ tiers }) => {
         {tiers.map((tier) => (
           <div
             key={tier.id}
-            className={`tier-card ${
-              selectedTier?.id === tier.id ? 'selected-tier' : ''
-            }`} // Add 'selected-tier' class when the tier is selected
+            className={`tier-card ${selectedTier?.id === tier.id ? 'selected-tier' : ''}`} // Add 'selected-tier' class when the tier is selected
             onClick={() => handleTierClick(tier)}
           >
-            <h3 className="tier-name">{tier.name}</h3>
-            <p className="tier-description">{tier.description}</p>
+            <h3 className="tier-name">{tier.tierInfo.name}</h3>
+            <p className="tier-description">{tier.tierInfo.description}</p>
           </div>
         ))}
       </div>
@@ -42,25 +40,19 @@ const TiersComponent: React.FC<TiersComponentProps> = ({ tiers }) => {
           <button onClick={handleCloseDetails} className="close-details">
             Close
           </button>
-          <div>{selectedTier.tracerStream?.name}</div>
+          <div>{selectedTier.stream.friendlyName}</div>
 
-          {selectedTier.tracerStream ? (
+          {selectedTier.stream ? (
             <TraceabilityStreamComponent
-              stream={selectedTier.tracerStream}
+              stream={selectedTier.stream}
               allActivityLogs={[]}
-              onActivityLogClick={function (
-                activityType: string,
-                streamId: string,
-              ): void {
+              onActivityLogClick={function (activityType: string, streamId: string): void {
                 throw new Error('Function not implemented.');
               }}
               onExportClick={function (stream: TracerStreamExtended): void {
                 throw new Error('Function not implemented.');
               }}
-              onEditStream={function (
-                stream: TracerStreamExtended,
-                mode: 'edit' | 'add',
-              ): void {
+              onEditStream={function (stream: TracerStreamExtended, mode: 'edit' | 'add'): void {
                 throw new Error('Function not implemented.');
               }}
               onDeleteStream={function (stream: TracerStreamExtended): void {
@@ -76,8 +68,8 @@ const TiersComponent: React.FC<TiersComponentProps> = ({ tiers }) => {
           ) : (
             <div className="tier-info">
               {/* Show connected tier details */}
-              <h2>{selectedTier.name}</h2>
-              <p>{selectedTier.description}</p>
+              <h2>{selectedTier.tierInfo.name}</h2>
+              <p>{selectedTier.tierInfo.description}</p>
               {/* You can load more details here */}
             </div>
           )}

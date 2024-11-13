@@ -1,8 +1,5 @@
-import { useRouter } from 'next/router';
 import React, { useEffect, useRef, useState } from 'react';
-import { userAuthenticationService } from '@/services/user-authentication.service';
 import LoadingOverlay from '@/components/loading-overlay.component';
-import '@/styles/traceability-stream.css';
 import { HiPlus } from 'react-icons/hi';
 import TracerButton from '@/components/tracer-button.component';
 import Layout from '@/app/layout';

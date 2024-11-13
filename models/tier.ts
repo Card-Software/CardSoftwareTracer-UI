@@ -13,5 +13,5 @@ export interface Tier {
   id: string;
   tierInfo: TierInfo;
   stream: TracerStreamExtended;
-  externalRequestRef: string;
+  externalRequestRef?: string;
 }

@@ -21,6 +21,7 @@ import { forkJoin, of } from 'rxjs';
 import { from } from 'rxjs';
 import AlertModal from './alert-modal-component';
 import { get } from 'lodash';
+import { SectionService } from '@/services/sections.service';
 
 const isUserValid = (value: any): value is User => {
   return (
@@ -40,9 +41,7 @@ const sectionSchema = Yup.object().shape({
   sectionName: Yup.string().required('Section Name is required'),
   sectionDescription: Yup.string().required('Section Description is required'),
   files: Yup.array().required('Files is required'),
-  fileNameOnExport: Yup.string()
-    .required('File Name on Export is required')
-    .nullable(),
+  fileNameOnExport: Yup.string().required('File Name on Export is required').nullable(),
   assignedUser: Yup.mixed<User>()
     .nullable()
     .test('is-valid-user', 'Assigned User is not valid', (value) => {
@@ -61,38 +60,20 @@ interface SectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (section: Section, move: 'Right' | 'Left' | null | undefined) => void;
-  productOrderId: string;
-  productOrder?: string;
-  tracerStreamId?: string;
-  initialSection: Section;
   mode: 'edit' | 'sectionCreation' | 'sectionCreationOnExistingTracer';
-  totalSections?: number;
 }
 
 const validationSchema = Yup.object().shape({
   section: sectionSchema,
 });
 
-const SectionModal: React.FC<SectionModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  productOrder,
-  productOrderId,
-  tracerStreamId,
-  initialSection,
-  mode,
-  totalSections,
-}) => {
+const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mode }) => {
   const {
     control,
     formState: { errors, isValid },
     setValue,
     watch,
   } = useForm({
-    defaultValues: {
-      section: initialSection,
-    },
     resolver: yupResolver(validationSchema),
     mode: 'onChange',
   });
@@ -100,82 +81,39 @@ const SectionModal: React.FC<SectionModalProps> = ({
   const form = watch();
 
   // #region States
-
-  const [canRightClick, setCanRightClick] = useState(false);
-  const [canLeftClick, setCanLeftClick] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [prefix, setPrefix] = useState('');
   const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<S3ObjectDto | null>(null);
   const hasPageBeenRendered = useRef({ teamLabelsLoaded: false });
-
+  const sectionService = useRef<SectionService | null>(null);
   const organization = userAuthenticationService.getOrganization();
-  const user: User = userAuthenticationService.getUser() as User;
-  const bucketName = userAuthenticationService.getOrganization()?.s3BucketName;
-
+  const [moved, setMoved] = useState(false);
   // #endregion
 
   // #region Use Effects
+  useEffect(() => {
+    // Initialize SectionService singleton
+    sectionService.current = SectionService.getInstance();
+
+    // Populate form with editingSection data from SectionService
+    if (sectionService.current?.editingSection) {
+      setValue('section', sectionService.current.editingSection);
+    }
+  }, []);
 
   useEffect(() => {
-    if (isOpen && initialSection) {
-      setValue('section', initialSection);
-      const defaultPrefix = `${productOrderId}/${tracerStreamId}/${initialSection.sectionId}`;
-      const oldPrefix = `${productOrder}/${tracerStreamId}/${initialSection.sectionId}`;
-      setPrefix(
-        `${productOrderId}/${tracerStreamId}/${initialSection.sectionId}`,
-      );
-      const fetchFiles = async () => {
-        if (bucketName) {
-          setLoading(true);
-          try {
-            await getAllFiles(defaultPrefix, oldPrefix);
-          } catch (error) {
-            console.error('Error fetching files:', error);
-          } finally {
-            setLoading(false);
-          }
-        }
-      };
-      fetchFiles();
+    if (sectionService.current?.editingSection) {
+      setValue('section', sectionService.current.editingSection);
     }
-  }, [isOpen, initialSection]);
-  useEffect(() => {
-    if (!totalSections) return;
+  }, [moved]);
 
-    if (initialSection) {
-      const position = initialSection.position;
-      setCanRightClick(position + 1 <= totalSections);
-      setCanLeftClick(position - 1 >= 1);
-    }
-  }, [totalSections, initialSection]);
-
-  useEffect(() => {
-    if (mode === 'edit' && bucketName && prefix !== '') {
-      console.log('Fetching files');
-      // const fetchFiles = async () => {
-      //   if (bucketName) {
-      //     setLoading(true);
-      //     try {
-      //       await getAllFiles();
-      //     } catch (error) {
-      //       console.error('Error fetching files:', error);
-      //     } finally {
-      //       setLoading(false);
-      //     }
-      //   }
-      // };
-      // fetchFiles();
-    }
-  }, [bucketName, prefix, mode]);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const fetchTeamLabels = async () => {
       if (!organization?.name) return;
-      const teamLabels = await teamLabelProxy.getTeamLabelsByOrganizationName(
-        organization?.name,
-      );
+      const teamLabels = await teamLabelProxy.getTeamLabelsByOrganizationName(organization?.name);
 
       setTeamLabels(teamLabels);
     };
@@ -187,47 +125,6 @@ const SectionModal: React.FC<SectionModalProps> = ({
   // #endregion
 
   // #region file handling
-  const uploadFile = async (file: File) => {
-    if (!bucketName) {
-      console.error('Bucket name not found');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await fileManagementApiProxy.UploadFile(
-        bucketName,
-        productOrderId!,
-        tracerStreamId!,
-        initialSection.sectionId,
-        file,
-      );
-      try {
-        await getAllFiles();
-        insertLogs(file.name, form.section.sectionName);
-        console.log(response);
-      } catch (error) {
-        console.error('Error fetching files:', error);
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFileDelete = async (s3Object: S3ObjectDto) => {
-    if (fileToDelete) {
-      await fileManagementApiProxy.DeleteFile(bucketName!, s3Object.name!);
-      try {
-        await getAllFiles();
-      } catch (error) {
-        console.error('Error fetching files:', error);
-      }
-      setFileToDelete(null);
-      setIsAlertModalOpen(false);
-    }
-  };
 
   const handleRedirect = (url: string) => {
     window.open(url, '_blank');
@@ -236,39 +133,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
   const handleDrop = async (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    uploadFile(file);
-  };
-
-  const getAllFiles = async (defaultPrefix?: string, oldDefPrefix?: string) => {
-    if (bucketName) {
-      setLoading(true);
-
-      // Define the two prefixes
-      const oldPrefix = oldDefPrefix
-        ? oldDefPrefix
-        : `${productOrder}/${tracerStreamId}/${initialSection.sectionId}`;
-      const newPrefix = defaultPrefix ? defaultPrefix : prefix;
-
-      try {
-        // Use forkJoin to fetch both file lists concurrently and merge the results
-        forkJoin({
-          oldFiles:
-            productOrder !== ''
-              ? from(fileManagementApiProxy.getAllFiles(bucketName, oldPrefix))
-              : of([]),
-          newFiles: from(
-            fileManagementApiProxy.getAllFiles(bucketName, newPrefix),
-          ),
-        }).subscribe(({ oldFiles, newFiles }) => {
-          const allFiles = [...oldFiles, ...newFiles]; // Merge the results
-          setValue('section.files', allFiles); // Set merged result
-        });
-      } catch (error) {
-        console.error('Error fetching files:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+    // uploadFile(file);
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,7 +142,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
     const file = event.target.files?.[0];
 
     if (file) {
-      uploadFile(file);
+      // uploadFile(file);
       console.log('File selected', file);
 
       fileInput.value = '';
@@ -287,47 +152,22 @@ const SectionModal: React.FC<SectionModalProps> = ({
 
   // #region helper functions
   const handleTagSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedTag = teamLabels.find(
-      (label) => label.id === event.target.value,
-    );
-    if (
-      selectedTag &&
-      !form.section?.teamLabels?.some((label) => label.id === selectedTag.id)
-    ) {
-      setValue(
-        'section.teamLabels',
-        form.section?.teamLabels?.concat(selectedTag),
-      );
+    const selectedTag = teamLabels.find((label) => label.id === event.target.value);
+    if (selectedTag && !form.section?.teamLabels?.some((label) => label.id === selectedTag.id)) {
+      setValue('section.teamLabels', form.section?.teamLabels?.concat(selectedTag));
     }
   };
 
   const handleDeleteTag = (tagId: string) => {
     setValue(
       'section.teamLabels',
-      form.section?.teamLabels?.filter(
-        (label: TeamLabel) => label.id !== tagId,
-      ),
+      form.section?.teamLabels?.filter((label: TeamLabel) => label.id !== tagId),
     );
   };
 
   const getOnlyFileName = (name: string) => {
     const parts = name.split('/');
     return parts[parts.length - 1];
-  };
-
-  const insertLogs = (fileName: string, section: string) => {
-    const activityLog: ActivityLog = {
-      productOrderReference: productOrderId,
-      activityType: ActivityType.FileUpload,
-      fileName,
-      section,
-      productOrderNumber: productOrder || '',
-      userFirstName: user?.firstName || '',
-      userLastName: user?.lastname || '',
-      timeStamp: new Date(),
-      traceabilityStream: tracerStreamId || '',
-    };
-    activityLogProxy.insertActivityLog(activityLog);
   };
 
   // #endregion
@@ -344,32 +184,31 @@ const SectionModal: React.FC<SectionModalProps> = ({
       {isOpen && form.section && (
         <div className="modal-body">
           <div className="flex items-center">
-            {canLeftClick && (
+            {sectionService.current?.canMoveToPreviousSection(form.section.position) && (
               <button
                 className="arrow-button"
-                onClick={() => onSave(form.section, 'Left')}
+                onClick={() => {
+                  sectionService.current!.moveToPreviousSection();
+                  setMoved(!moved);
+                }}
               >
                 <FaChevronLeft size={24} />
               </button>
             )}
 
             <form
-              className={`flex-1 overflow-y-auto ${!canLeftClick || !canRightClick ? 'px-8' : ''}`}
+              className={`flex-1 overflow-y-auto ${!sectionService.current?.canMoveToPreviousSection(form.section.position) || !sectionService.current?.canMoveToNextSection(form.section.position) ? 'px-8' : ''}`}
             >
               <label className="mb-4 flex items-center">
                 <input
                   type="checkbox"
                   className="peer hidden"
                   checked={form.section.isRequired}
-                  onChange={(e) =>
-                    setValue('section.isRequired', e.target.checked)
-                  }
+                  onChange={(e) => setValue('section.isRequired', e.target.checked)}
                 />
                 <span
                   className={`h-5 w-5 rounded border-2 border-gray-400 ${
-                    form.section.isRequired
-                      ? 'bg-[var(--primary-button-hover)]'
-                      : 'bg-white'
+                    form.section.isRequired ? 'bg-[var(--primary-button-hover)]' : 'bg-white'
                   } flex items-center justify-center peer-checked:bg-[var(--primary-button-hover)]`}
                 >
                   {form.section.isRequired && (
@@ -380,12 +219,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      ></path>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                   )}
                 </span>
@@ -406,11 +240,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
                     />
                   )}
                 ></Controller>
-                {errors.section?.sectionName && (
-                  <p className="error">
-                    {errors.section?.sectionName?.message}
-                  </p>
-                )}
+                {errors.section?.sectionName && <p className="error">{errors.section?.sectionName?.message}</p>}
               </div>
               <div className="mb-4">
                 <label htmlFor="description">Description</label>
@@ -418,18 +248,11 @@ const SectionModal: React.FC<SectionModalProps> = ({
                   name={'section.sectionDescription'}
                   control={control}
                   render={({ field }) => (
-                    <textarea
-                      {...field}
-                      id="sectionName"
-                      placeholder="Section Name"
-                      className="input-custom"
-                    />
+                    <textarea {...field} id="sectionName" placeholder="Section Name" className="input-custom" />
                   )}
                 ></Controller>
                 {errors.section?.sectionDescription && (
-                  <p className="error">
-                    {errors.section?.sectionDescription?.message}
-                  </p>
+                  <p className="error">{errors.section?.sectionDescription?.message}</p>
                 )}
               </div>
               <div className="mb-6">
@@ -476,63 +299,56 @@ const SectionModal: React.FC<SectionModalProps> = ({
                     </div>
                   ))}
                 </div>
-                {errors.section?.teamLabels && (
-                  <p className="error">{errors.section?.teamLabels?.message}</p>
-                )}
+                {errors.section?.teamLabels && <p className="error">{errors.section?.teamLabels?.message}</p>}
               </div>
               {mode !== 'sectionCreation' && (
                 <>
                   <h3 className="mb-2">Files:</h3>
                   <div className="mb-4 overflow-hidden">
                     <ul>
-                      {form.section.files?.map(
-                        (s3Object: S3ObjectDto, index: number) => (
-                          <div
-                            key={index}
-                            className="file-item mb-2 flex items-center justify-between"
+                      {form.section.files?.map((s3Object: S3ObjectDto, index: number) => (
+                        <div key={index} className="file-item mb-2 flex items-center justify-between">
+                          <span
+                            className="truncate"
+                            style={{
+                              maxWidth: '60%', // Adjust the max-width as needed
+                            }}
                           >
-                            <span
-                              className="truncate"
-                              style={{
-                                maxWidth: '60%', // Adjust the max-width as needed
+                            {getOnlyFileName(s3Object.name || '')}
+                          </span>
+                          <div>
+                            <TracerButton
+                              name="View"
+                              onClick={() => {
+                                handleRedirect(s3Object.presignedUrl || '');
                               }}
+                            />
+                            <button
+                              className="cancel-button ml-3"
+                              onClick={() => {
+                                setFileToDelete(s3Object);
+                                setIsAlertModalOpen(true);
+                              }}
+                              type="button"
                             >
-                              {getOnlyFileName(s3Object.name || '')}
-                            </span>
-                            <div>
-                              <TracerButton
-                                name="View"
-                                onClick={() => {
-                                  handleRedirect(s3Object.presignedUrl || '');
-                                }}
-                              />
-                              <button
-                                className="cancel-button ml-3"
-                                onClick={() => {
-                                  setFileToDelete(s3Object);
-                                  setIsAlertModalOpen(true);
-                                }}
-                                type="button"
-                              >
-                                Delete
-                              </button>
-                            </div>
+                              Delete
+                            </button>
                           </div>
-                        ),
-                      )}
+                        </div>
+                      ))}
                     </ul>
                   </div>
 
-                  <DragAndDropArea
-                    onDrop={handleDrop}
-                    onFileSelect={handleFileSelect}
-                  />
+                  <DragAndDropArea onDrop={handleDrop} onFileSelect={handleFileSelect} />
                 </>
               )}
             </form>
-            {canRightClick && (
+            {sectionService.current?.canMoveToNextSection(form.section.position) && (
               <button
-                onClick={() => onSave(form.section, 'Right')}
+                onClick={() => {
+                  sectionService.current?.moveToNextSection();
+                  setMoved(!moved);
+                }}
                 className="arrow-button flex-shrink-0"
               >
                 <FaChevronRight size={24} />
@@ -551,7 +367,7 @@ const SectionModal: React.FC<SectionModalProps> = ({
           setIsAlertModalOpen(false);
           setFileToDelete(null);
         }}
-        onConfirm={() => handleFileDelete(fileToDelete!)}
+        onConfirm={() => {}}
       />
     </BaseModal>
   );

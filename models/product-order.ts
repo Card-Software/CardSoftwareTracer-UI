@@ -18,7 +18,9 @@ export interface ProductOrder {
   externalProductOrderNumber?: string;
   product: string;
   quantity?: number;
-  tiers: Tier[];
+  childrenTracerStreams: TracerStreamExtended[];
+  childrenPosReferences: string[];
+  // tiers: Tier[];
   siteRef?: string;
   lot?: string;
   referenceNumber?: string;
