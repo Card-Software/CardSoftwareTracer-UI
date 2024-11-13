@@ -249,34 +249,32 @@ const Details = () => {
     <Layout>
       <LoadingOverlay show={isLoading} />
       <div className="content">
-        <div className="flow">
-          <div>
-            <div className="navigation">
-              <Link href="/traceability-stream" className="map">
-                Traceability Stream
-              </Link>
-              <span className="text-sm text-gray-500"> &gt; Details</span>
-            </div>
-            <div aria-label="Toolbar">
-              <div className="tool-bar-content">
-                <h1>
-                  {isEditing
-                    ? 'Edit Traceability Stream'
-                    : 'Add Traceability Stream'}
-                </h1>
-                <div>
-                  {IsAdmin && (
-                    <TracerButton
-                      name="Section"
-                      icon={<HiPlus />}
-                      onClick={handleAddSection}
-                    />
-                  )}
-                </div>
-              </div>
+        <div className="navigation">
+          <Link href="/traceability-stream" className="map">
+            Traceability Stream
+          </Link>
+          <span className="text-sm text-gray-500"> &gt; Details</span>
+        </div>
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>
+              {isEditing
+                ? 'Edit Traceability Stream'
+                : 'Add Traceability Stream'}
+            </h1>
+            <div>
+              {IsAdmin && (
+                <TracerButton
+                  name="Section"
+                  icon={<HiPlus />}
+                  onClick={handleAddSection}
+                />
+              )}
             </div>
           </div>
+        </div>
 
+        <div className="flow">
           <div className="space">
             <div>
               <label htmlFor="name">Name</label>
@@ -300,16 +298,13 @@ const Details = () => {
                 className="w-full"
               />
             </div>
-
-            <div>
-              <p>
-                Traceability stream starts from top to bottom. E.g., Position 1
-                is the first stage, and position n is the last stage.
-              </p>
-            </div>
           </div>
 
           <div>
+            <p>
+              Traceability stream starts from top to bottom. E.g., Position 1 is
+              the first stage, and position n is the last stage.
+            </p>
             <DragDropContext onDragEnd={handleOnDragEnd}>
               <Droppable droppableId="sections">
                 {(provided) => (
@@ -385,7 +380,7 @@ const Details = () => {
                             </div>
 
                             {/* Edit/Delete buttons */}
-                            <div className="flex items-center space-x-2">
+                            <div className="ml-auto flex items-center space-x-2">
                               <button
                                 onClick={() =>
                                   openModal('Edit Section', section)

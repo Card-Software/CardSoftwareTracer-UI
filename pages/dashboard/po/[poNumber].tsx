@@ -604,7 +604,7 @@ const PurchaseOrderPage: React.FC = () => {
             initialProductOrderDetails={productOrder}
             onChange={handleProductOrderChange}
           />
-          <div className="row">
+          <div className="row mt-6">
             <Notes
               notes={productOrder.notes}
               currentUser={currentUser}
