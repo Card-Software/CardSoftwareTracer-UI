@@ -63,7 +63,12 @@ const Sidebar: React.FC = () => {
   }, [fullPath]);
 
   const toggleCollapse = () => {
-    setIsCollapsed((prevState) => !prevState);
+    setIsCollapsed((prevState) => {
+      if(!prevState){
+        setExpandedItems({});
+      }
+      return !prevState;
+    });
   };
 
   const toggleExpand = (id: number) => {

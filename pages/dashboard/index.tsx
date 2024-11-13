@@ -437,7 +437,7 @@ const Dashboard: React.FC = () => {
               <button
                 onClick={clearFilters}
                 style={{ borderRadius: '10px 10px 10px 10px' }}
-                className="rounded-md border-2 border-blue-500 bg-white px-5 py-2 font-semibold text-blue-500 shadow-none hover:bg-blue-100"
+                className="clearAll"
               >
                 Clear All
               </button>
