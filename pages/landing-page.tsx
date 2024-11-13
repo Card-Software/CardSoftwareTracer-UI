@@ -18,7 +18,6 @@ const About = () => {
 
         <Navbar />
 
-
         {/* General info Section */}
         <section className="relative flex-grow content-center py-12 text-center">
           <div>
@@ -58,7 +57,6 @@ const About = () => {
         </section>
       </div>
 
-
       {/* About CS Trace Section */}
       <section className="flex-grow content-center py-12 pt-24 text-center">
         <h1 className="mb-6 text-5xl font-bold">What is CS Tracer?</h1>
@@ -86,9 +84,8 @@ const About = () => {
         </div>
       </section>
 
-
       {/* Tier-Based Traceability for Every Level Section */}
-      <section className="flex-grow content-center py-12 pt-24 text-center">
+      {/* <section className="flex-grow content-center py-12 pt-24 text-center">
         <h1 className="mb-6 text-5xl font-bold">
           Tier-Based Traceability for Every Level{' '}
         </h1>
@@ -98,11 +95,78 @@ const About = () => {
           </p>
           <p className="mb-4 text-center text-xl leading-relaxed">
             CS Tracer introduces a new way to manage traceability and connect
-            suppliers across every tier of production. Our system <strong>supports</strong> the
-            full hierarchy of textile production, helping you track documents
-            and data from: <strong>Tier 4 (Raw Materials)</strong> all the way to <strong>Tier 0
-            (Retail)</strong>.
+            suppliers across every tier of production. Our system{' '}
+            <strong>supports</strong> the full hierarchy of textile production,
+            helping you track documents and data from:{' '}
+            <strong>Tier 4 (Raw Materials)</strong> all the way to{' '}
+            <strong>Tier 0 (Retail)</strong>.
           </p>
+        </div>
+
+        Aqui van los tiers en esta seccion
+        <div className="mx-auto max-w-6xl"></div>
+      </section> */}
+
+      {/* Tier-Based Traceability for Every Level Section */}
+      <section className="flex-grow content-center py-12 pt-24 text-center">
+        <h1 className="mb-6 text-5xl font-bold">
+          Tier-Based Traceability for Every Level
+        </h1>
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-4 text-center text-xl leading-relaxed">
+            In today’s interconnected supply chains, visibility is key.
+          </p>
+          <p className="mb-4 text-center text-xl leading-relaxed">
+            CS Tracer introduces a new way to manage traceability and connect
+            suppliers across every tier of production. Our system{' '}
+            <strong>supports</strong> the full hierarchy of textile production,
+            helping you track documents and data from:{' '}
+            <strong>Tier 4 (Raw Materials)</strong> all the way to{' '}
+            <strong>Tier 0 (Retail)</strong>.
+          </p>
+        </div>
+
+        {/* Tiers Section */}
+        <div className="mx-auto flex max-w-6xl items-center justify-between space-x-4 rounded-lg p-4 first-letter:relative">
+          {/* Tier 4 */}
+          <div
+            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <span className="text-lg font-semibold italic">Tier 4</span>
+          </div>
+
+          {/* Tier 3 */}
+          <div
+            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <span className="text-lg font-semibold italic">Tier 3</span>
+          </div>
+
+          {/* Tier 2 */}
+          <div
+            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <span className="text-lg font-semibold italic">Tier 2</span>
+          </div>
+
+          {/* Tier 1 */}
+          <div
+            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <span className="text-lg font-semibold italic">Tier 1</span>
+          </div>
+
+          {/* Tier 0 */}
+          <div
+            className="flex-grow items-center justify-center rounded-full text-white px-6 py-8"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          >
+            <span className="text-lg font-semibold italic">Tier 0</span>
+          </div>
         </div>
       </section>
 
