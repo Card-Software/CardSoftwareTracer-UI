@@ -20,7 +20,7 @@ import DragAndDropArea from '../_base/drag-and-drop-area';
 import { forkJoin, of } from 'rxjs';
 import { from } from 'rxjs';
 import AlertModal from './alert-modal-component';
-import { get } from 'lodash';
+import { get, set } from 'lodash';
 import { SectionService } from '@/services/sections.service';
 
 const isUserValid = (value: any): value is User => {
@@ -44,6 +44,7 @@ const sectionSchema = Yup.object().shape({
   fileNameOnExport: Yup.string().required('File Name on Export is required').nullable(),
   assignedUser: Yup.mixed<User>()
     .nullable()
+    .optional()
     .test('is-valid-user', 'Assigned User is not valid', (value) => {
       if (value === null) {
         return true;
@@ -70,7 +71,8 @@ const validationSchema = Yup.object().shape({
 const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mode }) => {
   const {
     control,
-    formState: { errors, isValid },
+    reset,
+    formState: { errors, isValid, isDirty, dirtyFields },
     setValue,
     watch,
   } = useForm({
@@ -80,6 +82,13 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
 
   const form = watch();
 
+  useEffect(() => {
+    console.log('Form errors:', errors);
+    console.log('Is form valid?', isValid);
+    console.log('Is form dirty?', isDirty);
+    console.log('Dirty Fields:', dirtyFields);
+  }, [errors, isValid, isDirty, dirtyFields]);
+
   // #region States
   const [loading, setLoading] = useState(false);
   const [teamLabels, setTeamLabels] = useState<TeamLabel[]>([]);
@@ -88,27 +97,27 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
   const hasPageBeenRendered = useRef({ teamLabelsLoaded: false });
   const sectionService = useRef<SectionService | null>(null);
   const organization = userAuthenticationService.getOrganization();
-  const [moved, setMoved] = useState(false);
+  const [moved, setMoved] = useState(0);
   // #endregion
 
   // #region Use Effects
   useEffect(() => {
-    // Initialize SectionService singleton
     sectionService.current = SectionService.getInstance();
 
-    // Populate form with editingSection data from SectionService
     if (sectionService.current?.editingSection) {
-      setValue('section', sectionService.current.editingSection);
+      reset({ section: sectionService.current.editingSection });
+      setValue('section.fileNameOnExport', 'default');
+      setValue('section.assignedUser', null);
     }
   }, []);
 
   useEffect(() => {
-    if (sectionService.current?.editingSection) {
-      setValue('section', sectionService.current.editingSection);
+    if (sectionService.current?.editingSection && moved > 0) {
+      reset({ section: sectionService.current.editingSection });
+      setValue('section.fileNameOnExport', 'default');
+      setValue('section.assignedUser', null);
     }
   }, [moved]);
-
-  useEffect(() => {}, []);
 
   useEffect(() => {
     const fetchTeamLabels = async () => {
@@ -170,6 +179,10 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
     return parts[parts.length - 1];
   };
 
+  const test = () => {
+    console.log('test');
+  };
+
   // #endregion
 
   return (
@@ -189,12 +202,15 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
                 className="arrow-button"
                 onClick={() => {
                   sectionService.current!.moveToPreviousSection();
-                  setMoved(!moved);
+                  setMoved(moved + 1);
                 }}
               >
                 <FaChevronLeft size={24} />
               </button>
             )}
+            <button className="mainAction" onClick={test}>
+              Testing
+            </button>
 
             <form
               className={`flex-1 overflow-y-auto ${!sectionService.current?.canMoveToPreviousSection(form.section.position) || !sectionService.current?.canMoveToNextSection(form.section.position) ? 'px-8' : ''}`}
@@ -217,7 +233,7 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns="http://www.w3.org/ 2000/svg"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
@@ -347,7 +363,7 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
               <button
                 onClick={() => {
                   sectionService.current?.moveToNextSection();
-                  setMoved(!moved);
+                  setMoved(moved + 1);
                 }}
                 className="arrow-button flex-shrink-0"
               >
