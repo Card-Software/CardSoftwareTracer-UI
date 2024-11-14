@@ -396,7 +396,7 @@ const Details = () => {
                                 }}
                                 className="square text-red-500 hover:text-red-700"
                               >
-                                <FaTrash className="h-5 w-5 fill-black hover:fill-red-600" />
+                                <FaTrash className="h-5 w-5 trashButton" />
                               </button>
                             </div>
                           </div>

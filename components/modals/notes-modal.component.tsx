@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaTrashAlt, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 import dynamic from 'next/dynamic';
 import BaseModal from '../_base/base-modal.component';
 import { Note } from '@/models/note';
@@ -120,7 +120,7 @@ const NotesModal: React.FC<NotesModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleEditNote(index)}
-                    className="p-2 text-gray-500 hover:text-yellow-500 focus:outline-none"
+                    className="p-2  hover:text-yellow-500 focus:outline-none"
                     style={{ border: 'none', boxShadow: 'none' }}
                   >
                     <FaEdit />
@@ -128,10 +128,10 @@ const NotesModal: React.FC<NotesModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleDeleteNote(index)}
-                    className="p-2 text-gray-500 hover:text-red-500 focus:outline-none"
+                    className="p-2 "
                     style={{ border: 'none', boxShadow: 'none' }}
                   >
-                    <FaTrashAlt />
+                    <FaTrash className='trashButton' />
                   </button>
                 </div>
               ) : null}

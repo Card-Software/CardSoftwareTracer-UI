@@ -240,7 +240,7 @@ const TeamStatusModal: React.FC<TeamStatusModalProps> = ({
                 onClick={() => handleDeletePossibleValue(value)}
                 className="square"
               >
-                <FaTrash className="h-4 w-4 text-red-500" />
+                <FaTrash className="trashButton" />
               </button>
             </li>
           ))}

@@ -29,9 +29,7 @@ const Groups = () => {
       try {
         setIsLoading(true);
         if (organization) {
-          const data = await userAuthorizationProxy.getAllGroups(
-            organization.id,
-          );
+          const data = await userAuthorizationProxy.getAllGroups(organization.id);
           setGroups(data);
           setFilteredGroups(data);
         } else {
@@ -75,74 +73,60 @@ const Groups = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="tool-bar">
-        <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            Groups
-          </h1>
-        </div>
-        <div className="tool-bar-buttons">
-          <TracerButton
-            name="Add Group"
-            icon={<HiPlus />}
-            onClick={handleAddGroup}
-          />
-        </div>
-      </div>
-
-      <div
-        className="my-4 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredGroups.map((group) => (
-          <div
-            key={group.id}
-            className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
-            onClick={() => group.id && handleGroupClick(group.id)}
-          >
-            <div>
-              <h2 className="text-lg font-bold text-gray-700">{group.name}</h2>
-              <p className="text-sm text-gray-500">
-                Description: {group.description}
-              </p>
+      <div className="content">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Groups</h1>
+            <div className="row">
+              <TracerButton name="Add Group" icon={<HiPlus />} onClick={handleAddGroup} />
             </div>
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                setGroupToDelete(group);
-                setIsAlertModalOpen(true);
-              }}
-            >
-              <FaTrash
-                color="#ef4444"
-                className="h-5 w-5 transition-transform duration-200 hover:scale-125"
-              />
-            </div>
-            <Toaster />
           </div>
-        ))}
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredGroups.map((group) => (
+            <div
+              key={group.id}
+              className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
+              onClick={() => group.id && handleGroupClick(group.id)}
+            >
+              <div>
+                <h2 className="text-lg font-bold text-gray-700">{group.name}</h2>
+                <p className="text-sm text-gray-500">Description: {group.description}</p>
+              </div>
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setGroupToDelete(group);
+                  setIsAlertModalOpen(true);
+                }}
+              >
+                <FaTrash className="trashButton h-5 w-5" />
+              </div>
+              <Toaster />
+            </div>
+          ))}
+        </div>
+        {isAlertModalOpen && (
+          <AlertModal
+            isOpen={isAlertModalOpen}
+            type="delete"
+            title="Delete Team Label"
+            message="Are you sure you want to delete this Team Label"
+            icon={<FaTrash className="h-6 w-6 text-red-500" />}
+            onClose={() => {
+              setIsAlertModalOpen(false);
+              setGroupToDelete(null);
+            }}
+            onConfirm={() => {
+              if (groupToDelete?.id) {
+                handleDeleteGroup(groupToDelete.id);
+              } else {
+                console.error('Team label id is null');
+              }
+            }}
+          />
+        )}
       </div>
-      {isAlertModalOpen && (
-        <AlertModal
-          isOpen={isAlertModalOpen}
-          type="delete"
-          title="Delete Team Label"
-          message="Are you sure you want to delete this Team Label"
-          icon={<FaTrash className="h-6 w-6 text-red-500" />}
-          onClose={() => {
-            setIsAlertModalOpen(false);
-            setGroupToDelete(null);
-          }}
-          onConfirm={() => {
-            if (groupToDelete?.id) {
-              handleDeleteGroup(groupToDelete.id);
-            } else {
-              console.error('Team label id is null');
-            }
-          }}
-        />
-      )}
     </Layout>
   );
 };

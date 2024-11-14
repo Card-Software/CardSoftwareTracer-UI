@@ -21,8 +21,7 @@ const TeamLabels = () => {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [tlToDelete, setTlToDelete] = useState<TeamLabel | null>(null);
 
-  const successDeleteToast = () =>
-    toast.success('Team label deleted successfully');
+  const successDeleteToast = () => toast.success('Team label deleted successfully');
   const errorToast = () => toast.error('Error deleting team label');
 
   useEffect(() => {
@@ -31,9 +30,7 @@ const TeamLabels = () => {
       try {
         setIsLoading(true);
         if (organization) {
-          const data = await teamLabelProxy.getTeamLabelsByOrganizationName(
-            organization.name,
-          );
+          const data = await teamLabelProxy.getTeamLabelsByOrganizationName(organization.name);
           setTeamLabels(data);
           setFilteredTeamLabels(data);
         } else {
@@ -65,9 +62,7 @@ const TeamLabels = () => {
   const handleDeleteLabel = async (id: string) => {
     try {
       await teamLabelProxy.deleteTeamLabel(id);
-      const updatedTeamLabels = teamLabels.filter(
-        (teamLabel) => teamLabel.id !== id,
-      );
+      const updatedTeamLabels = teamLabels.filter((teamLabel) => teamLabel.id !== id);
       setTeamLabels(updatedTeamLabels);
       setFilteredTeamLabels(updatedTeamLabels);
       successDeleteToast();
@@ -81,25 +76,17 @@ const TeamLabels = () => {
 
   const updateTeamLabels = (updatedLabel: TeamLabel) => {
     setTeamLabels((prevLabels) => {
-      const labelExists = prevLabels.find(
-        (label) => label.id === updatedLabel.id,
-      );
+      const labelExists = prevLabels.find((label) => label.id === updatedLabel.id);
       if (labelExists) {
-        return prevLabels.map((label) =>
-          label.id === updatedLabel.id ? updatedLabel : label,
-        );
+        return prevLabels.map((label) => (label.id === updatedLabel.id ? updatedLabel : label));
       } else {
         return [...prevLabels, updatedLabel];
       }
     });
     setFilteredTeamLabels((prevLabels) => {
-      const labelExists = prevLabels.find(
-        (label) => label.id === updatedLabel.id,
-      );
+      const labelExists = prevLabels.find((label) => label.id === updatedLabel.id);
       if (labelExists) {
-        return prevLabels.map((label) =>
-          label.id === updatedLabel.id ? updatedLabel : label,
-        );
+        return prevLabels.map((label) => (label.id === updatedLabel.id ? updatedLabel : label));
       } else {
         return [...prevLabels, updatedLabel];
       }
@@ -111,23 +98,14 @@ const TeamLabels = () => {
       <LoadingOverlay show={isLoading} />
       <div className="tool-bar">
         <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            Team Labels
-          </h1>
+          <h1 className="text-3xl font-bold text-[var(--primary-color)]">Team Labels</h1>
         </div>
         <div className="tool-bar-buttons">
-          <TracerButton
-            name="Add Label"
-            icon={<HiPlus />}
-            onClick={handleAddLabel}
-          />
+          <TracerButton name="Add Label" icon={<HiPlus />} onClick={handleAddLabel} />
         </div>
       </div>
 
-      <div
-        className="my-4 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
+      <div className="my-4 w-full border-b-4" style={{ borderColor: 'var(--primary-color)' }}></div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filteredTeamLabels.map((teamLabel) => (
           <div
@@ -136,9 +114,7 @@ const TeamLabels = () => {
             onClick={() => handleLabelClick(teamLabel?.id || '')}
           >
             <div>
-              <h2 className="text-lg font-bold text-gray-700">
-                {teamLabel.labelName}
-              </h2>
+              <h2 className="text-lg font-bold text-gray-700">{teamLabel.labelName}</h2>
             </div>
             <div
               onClick={(e) => {
@@ -147,10 +123,7 @@ const TeamLabels = () => {
                 e.stopPropagation();
               }}
             >
-              <FaTrash
-                color="#ef4444"
-                className="h-5 w-5 transition-transform duration-200 hover:scale-125"
-              />
+              <FaTrash className="trashButton h-5 w-5" />
             </div>
             <Toaster />
           </div>

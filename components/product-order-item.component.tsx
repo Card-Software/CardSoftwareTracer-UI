@@ -61,7 +61,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
 
             {isAdmin && (
               <button className="square" onClick={handleDeleteClick}>
-                <FaTrash />
+                <FaTrash className='trashButton'/>
               </button>
             )}
           </div>

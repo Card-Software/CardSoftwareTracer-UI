@@ -104,8 +104,7 @@ const Statuses = () => {
               }}
             >
               <FaTrash
-                color="#ef4444"
-                className="h-5 w-5 transition-transform duration-200 hover:scale-125"
+                className='trashButton h-5 w-5'
               />
             </div>
             <Toaster />
