@@ -1,9 +1,67 @@
-// pages/about.tsx
+import { useEffect, useState } from 'react';
 import Navbar from '../components/landing-page-navbar';
 import '../app/globals.css';
 import Link from 'next/link';
 
+type Feature = {
+  title: string;
+  description: string;
+  image: string;
+};
+
+const features: Feature[] = [
+  {
+    title: 'Inventory Management',
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nisi diam, posuere non congue non, ultrices nec mi. Nulla facilisi. Curabitur pellentesque gravida congue. Quisque accumsan venenatis lacus et luctus. Cras vitae augue arcu. Proin pharetra turpis ex. Mauris tellus lacus, dictum vitae mi sed, pretium dictum augue.',
+    image: '/img-1.jpg',
+  },
+  {
+    title: 'Purchase Management',
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nisi diam, posuere non congue non, ultrices nec mi. Nulla facilisi. Curabitur pellentesque gravida congue. Quisque accumsan venenatis lacus et luctus. Cras vitae augue arcu. Proin pharetra turpis ex. Mauris tellus lacus, dictum vitae mi sed, pretium dictum augue.',
+    image: '/landing-background.jpg',
+  },
+  {
+    title: 'Sales Order Management',
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nisi diam, posuere non congue non, ultrices nec mi. Nulla facilisi. Curabitur pellentesque gravida congue. Quisque accumsan venenatis lacus et luctus. Cras vitae augue arcu. Proin pharetra turpis ex. Mauris tellus lacus, dictum vitae mi sed, pretium dictum augue.',
+    image: '/img-1.jpg',
+  },
+  {
+    title: 'Planning and Forecasting',
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nisi diam, posuere non congue non, ultrices nec mi. Nulla facilisi. Curabitur pellentesque gravida congue. Quisque accumsan venenatis lacus et luctus. Cras vitae augue arcu. Proin pharetra turpis ex. Mauris tellus lacus, dictum vitae mi sed, pretium dictum augue.',
+    image: '/landing-background.jpg',
+  },
+  {
+    title: 'Production Management',
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nisi diam, posuere non congue non, ultrices nec mi. Nulla facilisi. Curabitur pellentesque gravida congue. Quisque accumsan venenatis lacus et luctus. Cras vitae augue arcu. Proin pharetra turpis ex. Mauris tellus lacus, dictum vitae mi sed, pretium dictum augue.',
+    image: '/img-1.jpg',
+  },
+  {
+    title: 'Cloud Accounting',
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nisi diam, posuere non congue non, ultrices nec mi. Nulla facilisi. Curabitur pellentesque gravida congue. Quisque accumsan venenatis lacus et luctus. Cras vitae augue arcu. Proin pharetra turpis ex. Mauris tellus lacus, dictum vitae mi sed, pretium dictum augue.',
+    image: '/landing-background.jpg',
+  },
+];
+
 const About = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [startAnimation, setStartAnimation] = useState(false);
+
+  useEffect(() => {
+    setStartAnimation(true);
+
+    const interval = setInterval(() => {
+      setActiveIndex((prevIndex) => (prevIndex + 1) % features.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col">
       <div
@@ -305,39 +363,83 @@ const About = () => {
         </div>
       </section>
 
-      <section id="features" className="flex-grow content-center">
-        <section id="features" className="flex-grow content-center py-8">
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-3">
-            <div className="feature-item">
-              <h3>Inventory Management</h3>
-              <p>Real-time insights and support for multiple locations.</p>
+      {/* Features Section */}
+      <section
+        id="tier-system"
+        className="flex-grow content-center py-12 pt-24 text-center"
+      >
+        <h1 className="mb-6 text-5xl font-bold">Lorem Ipsum</h1>
+        <div className="mx-auto max-w-6xl pt-3">
+          <p className="mb-4 text-center text-sm leading-relaxed">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nisi
+            diam, posuere non congue non, ultrices nec mi. Nulla facilisi.
+            Curabitur pellentesque gravida congue. Quisque accumsan venenatis
+            lacus et luctus. Cras vitae augue arcu. Proin pharetra turpis ex.
+            Mauris tellus lacus, dictum vitae mi sed, pretium dictum augue.
+            Aliquam dictum ipsum mauris, non interdum sapien facilisis nec.
+            Morbi et risus vitae turpis porta malesuada nec a nunc. Duis
+            condimentum mattis fermentum. Sed in molestie lacus, a ultricies
+            sem. Integer commodo non lorem eu aliquet. Mauris nec ultricies
+            eros, nec cursus nunc.
+          </p>
+        </div>
+
+        <div
+          className="mx-auto mt-10 max-w-6xl justify-center rounded-3xl p-12"
+          style={{ backgroundColor: 'var(--primary-color)' }}
+        >
+          <div className="flex space-x-4">
+            {features.map((feature, index) => (
+              <div
+                key={index}
+                className={`relative overflow-hidden rounded-lg p-4 text-white ${
+                  activeIndex === index ? 'bg-red-400' : ''
+                }`}
+              >
+                <div
+                  className="absolute left-0 top-0 h-full bg-purple-500"
+                  style={{
+                    backgroundColor: '#D51E3E',
+                    transition:
+                      startAnimation && activeIndex === index
+                        ? 'width 5s linear'
+                        : 'none',
+                    width: activeIndex === index ? '100%' : '0',
+                  }}
+                ></div>
+
+                  {/* Icon svg */}
+
+
+                <h3 className="relative z-10 text-sm text-left font-semibold">
+                  {feature.title}
+                </h3>
+              </div>
+            ))}
+          </div>
+
+          {/* Image and Text */}
+          <div className="mx-auto flex max-w-6xl space-x-10 pt-8">
+            {/* Image */}
+            <div className="flex h-96 w-1/2 items-center justify-center overflow-hidden rounded-2xl">
+              <img
+                src={features[activeIndex].image}
+                alt={features[activeIndex].title}
+                style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+              />
             </div>
-            <div className="feature-item">
-              <h3>Purchase Management</h3>
-              <p>Manage purchase orders and reorder points efficiently.</p>
-            </div>
-            <div className="feature-item">
-              <h3>Sales Order Management</h3>
-              <p>Track and manage sales orders with ease.</p>
-            </div>
-            <div className="feature-item">
-              <h3>Planning and Forecasting</h3>
-              <p>Automate planning using historical data.</p>
-            </div>
-            <div className="feature-item">
-              <h3>Production Management</h3>
-              <p>Automatically allocate resources and manage production.</p>
-            </div>
-            <div className="feature-item">
-              <h3>Cloud Accounting</h3>
-              <p>Seamlessly sync inventory and accounting data.</p>
-            </div>
-            <div className="feature-item">
-              <h3>Warehouse Management</h3>
-              <p>Optimize workflows and warehouse operations.</p>
+
+            {/* Text */}
+            <div className="flex h-full w-1/2 flex-col text-left">
+              <h2 className="text-3xl font-semibold text-white">
+                {features[activeIndex].title}
+              </h2>
+              <p className="text-md mt-10 leading-relaxed text-white">
+                {features[activeIndex].description}
+              </p>
             </div>
           </div>
-        </section>
+        </div>
       </section>
 
       {/* <footer
