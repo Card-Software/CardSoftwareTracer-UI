@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { FaCheckCircle, FaExclamationCircle, FaTrash } from 'react-icons/fa';
 import SectionModal from '@/components/modals/section-modal.component'; // Import the section modal
 import { Section as SectionModel } from '@/models/section';
@@ -21,9 +21,8 @@ const SectionComponent: React.FC<SectionComponentProps> = ({ serviceLoaded, sect
     sectionService.current?.setEditingSection(section.sectionId);
   };
 
-  const handleSaveSection = (updatedSection: SectionModel) => {
+  const handleSaveSection = () => {
     setIsSectionModalOpen(false);
-    onSectionSave(updatedSection);
   };
 
   useEffect(() => {

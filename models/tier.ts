@@ -12,6 +12,7 @@ export interface TierDto {
 export interface Tier {
   id: string;
   tierInfo: TierInfo;
+  canBeDeleted: boolean;
   stream: TracerStreamExtended;
   externalRequestRef?: string;
 }

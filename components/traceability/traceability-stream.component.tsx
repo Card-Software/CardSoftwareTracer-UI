@@ -1,10 +1,11 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { FaCheckCircle, FaExclamationCircle, FaFileExport, FaHistory, FaPencilAlt, FaTrash } from 'react-icons/fa';
 import { TracerStreamExtended } from '@/models/tracer-stream';
 import SectionComponent from './section.component'; // Import the single section component
 import '../../styles/components/traceability/traceability-stream.css'; // Styling for this component
 import { Section } from '@/models/section';
 import { SectionService } from '@/services/sections.service';
+import { Subscription } from 'rxjs';
 
 interface TraceabilityStreamProps {
   stream: TracerStreamExtended;
@@ -28,13 +29,20 @@ const TraceabilityStreamComponent: React.FC<TraceabilityStreamProps> = ({
   onSectionDelete,
 }) => {
   const [sectionServiceLoaded, setSectionServiceLoaded] = useState(false);
+  const [sections, setSections] = useState<Section[]>([]);
+  const sectionService = useRef<SectionService | null>(null);
   useEffect(() => {
     // Initialize the singleton instance with the current stream data
-    const sectionService = SectionService.getInstance(stream.sections, '1223', stream.id as string, '22255');
-    console.log('Initialized Sections:', sectionService.getSections());
+    setSections(stream.sections);
+    sectionService.current = SectionService.getInstance(stream.sections, '1223', stream.id as string, '22255');
+    const subscription: Subscription = sectionService.current.sectionsUpdated$.subscribe((updatedSections) => {
+      if (updatedSections) {
+        stream.sections = updatedSections;
+        setSections(updatedSections);
+      }
+    });
 
     setSectionServiceLoaded(true);
-    // Cleanup on unmount: reset the singleton instance
     return () => {
       SectionService.resetInstance();
       console.log('SectionService instance has been reset');
@@ -87,7 +95,7 @@ const TraceabilityStreamComponent: React.FC<TraceabilityStreamProps> = ({
         </div>
 
         <div className="section-container">
-          {stream.sections.map((section, secIndex) => (
+          {sections.map((section, secIndex) => (
             <React.Fragment key={section.sectionId}>
               <div className="section-wrapper">
                 <SectionComponent

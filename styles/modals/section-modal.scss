@@ -9,6 +9,7 @@
 }
 
 .arrow-button {
+  padding: 0;
   color: #bebebe;
   box-shadow: none !important;
   margin: 0 !important;
@@ -18,10 +19,14 @@
   justify-content: center;
   transition: background 0.3s;
   z-index: 1001;
-}
 
-.arrow-button.right {
-  margin-left: 1rem;
+  &.previous {
+    padding-right: 1rem !important;
+  }
+
+  &.next {
+    padding-left: 1rem !important;
+  }
 }
 
 .file-item {

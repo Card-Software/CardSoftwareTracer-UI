@@ -9,6 +9,7 @@ export class SectionService {
 
   private loading = false;
   public loading$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public sectionsUpdated$: BehaviorSubject<Section[] | null> = new BehaviorSubject<Section[] | null>(null);
 
   private sections: Section[];
   private readonly productOrderId: string;
@@ -110,14 +111,14 @@ export class SectionService {
 
   // #region Actions
 
-  moveToNextSection(): void {
+  moveToNextSection(section: Section): void {
     if (this.editingSection === null) {
       throw new Error('No section to move');
     }
 
-    const currentPosition = this.editingSection.position;
+    const currentPosition = section.position;
 
-    this.saveSection();
+    this.saveSection(section);
 
     const nextSectionIndex = this.sections.findIndex((section) => section.position === currentPosition + 1);
 
@@ -128,14 +129,14 @@ export class SectionService {
     this.editingSection = this.sections[nextSectionIndex];
   }
 
-  moveToPreviousSection(): void {
+  moveToPreviousSection(section: Section): void {
     if (this.editingSection === null) {
       throw new Error('No section to move');
     }
 
-    const currentPosition = this.editingSection.position;
+    const currentPosition = section.position;
 
-    this.saveSection();
+    this.saveSection(section);
 
     const previousSectionIndex = this.sections.findIndex((section) => section.position === currentPosition - 1);
 
@@ -162,10 +163,11 @@ export class SectionService {
     };
   }
 
-  saveSection(): void {
+  saveSection(section: Section): void {
     if (this.editingSection === null) {
       throw new Error('No section to arrange');
     }
+    this.editingSection = section;
 
     this.sections = this.sections.filter((section) => section.sectionId !== this.editingSection!.sectionId);
 
@@ -179,6 +181,7 @@ export class SectionService {
       }
     }
     this.editingSection = null;
+    this.sectionsUpdated$.next(this.sections);
   }
 
   uploadFile(file: File): void {

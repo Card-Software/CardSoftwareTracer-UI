@@ -1,26 +1,19 @@
 import React, { useState, useRef, useEffect, use } from 'react';
 import { FaChevronRight, FaChevronLeft, FaTrash } from 'react-icons/fa';
-import BaseModal from '@/components/_base/base-modal.component'; // Import the BaseModal component
+import BaseModal from '@/components/_base/base-modal.component';
 import { Section } from '@/models/section';
-import { fileManagementApiProxy } from '@/proxies/file-management.proxy';
 import { S3ObjectDto } from '@/models/s3-object-dto';
 import { userAuthenticationService } from '@/services/user-authentication.service';
 import { teamLabelProxy } from '@/proxies/team-label.proxy';
 import { TeamLabel } from '@/models/team-label';
-import { ActivityLog } from '@/models/activity-log';
-import { ActivityType } from '@/models/enum/activity-type';
 import { User } from '@/models/user';
-import { activityLogProxy } from '@/proxies/activity-log.proxy';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import '@/styles/modals/section-modal.css';
+import '@/styles/modals/section-modal.scss';
 import { Controller, useForm } from 'react-hook-form';
 import TracerButton from '../tracer-button.component';
 import DragAndDropArea from '../_base/drag-and-drop-area';
-import { forkJoin, of } from 'rxjs';
-import { from } from 'rxjs';
 import AlertModal from './alert-modal-component';
-import { get, set } from 'lodash';
 import { SectionService } from '@/services/sections.service';
 
 const isUserValid = (value: any): value is User => {
@@ -60,7 +53,7 @@ const sectionSchema = Yup.object().shape({
 interface SectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (section: Section, move: 'Right' | 'Left' | null | undefined) => void;
+  onSave: () => void;
   mode: 'edit' | 'sectionCreation' | 'sectionCreationOnExistingTracer';
 }
 
@@ -81,13 +74,6 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
   });
 
   const form = watch();
-
-  useEffect(() => {
-    console.log('Form errors:', errors);
-    console.log('Is form valid?', isValid);
-    console.log('Is form dirty?', isDirty);
-    console.log('Dirty Fields:', dirtyFields);
-  }, [errors, isValid, isDirty, dirtyFields]);
 
   // #region States
   const [loading, setLoading] = useState(false);
@@ -179,8 +165,9 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
     return parts[parts.length - 1];
   };
 
-  const test = () => {
-    console.log('test');
+  const saveSection = () => {
+    sectionService.current?.saveSection(form.section);
+    onSave();
   };
 
   // #endregion
@@ -191,186 +178,170 @@ const SectionModal: React.FC<SectionModalProps> = ({ isOpen, onClose, onSave, mo
       loading={loading}
       onClose={onClose}
       canSave={isValid}
-      onSave={() => onSave(form.section, null)}
+      onSave={() => saveSection()}
       title="Section Management"
     >
       {isOpen && form.section && (
-        <div className="modal-body">
-          <div className="flex items-center">
-            {sectionService.current?.canMoveToPreviousSection(form.section.position) && (
-              <button
-                className="arrow-button"
-                onClick={() => {
-                  sectionService.current!.moveToPreviousSection();
-                  setMoved(moved + 1);
-                }}
-              >
-                <FaChevronLeft size={24} />
-              </button>
-            )}
-            <button className="mainAction" onClick={test}>
-              Testing
-            </button>
-
-            <form
-              className={`flex-1 overflow-y-auto ${!sectionService.current?.canMoveToPreviousSection(form.section.position) || !sectionService.current?.canMoveToNextSection(form.section.position) ? 'px-8' : ''}`}
+        <div className="flex items-center">
+          {sectionService.current?.canMoveToPreviousSection(form.section.position) && (
+            <button
+              className="arrow-button previous"
+              onClick={() => {
+                sectionService.current!.moveToPreviousSection(form.section);
+                setMoved(moved + 1);
+              }}
             >
-              <label className="mb-4 flex items-center">
-                <input
-                  type="checkbox"
-                  className="peer hidden"
-                  checked={form.section.isRequired}
-                  onChange={(e) => setValue('section.isRequired', e.target.checked)}
-                />
-                <span
-                  className={`h-5 w-5 rounded border-2 border-gray-400 ${
-                    form.section.isRequired ? 'bg-[var(--primary-button-hover)]' : 'bg-white'
-                  } flex items-center justify-center peer-checked:bg-[var(--primary-button-hover)]`}
-                >
-                  {form.section.isRequired && (
-                    <svg
-                      className="h-3 w-3 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/ 2000/svg"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                  )}
-                </span>
-                <span className="ms-2">Is Required</span>
-              </label>
-              <div className="mb-4">
-                <label htmlFor="sectionName">Section Name</label>
-                <Controller
-                  name={'section.sectionName'}
-                  control={control}
-                  render={({ field }) => (
-                    <input
-                      {...field}
-                      type="text"
-                      id="sectionName"
-                      placeholder="Section Name"
-                      className="input-custom"
-                    />
-                  )}
-                ></Controller>
-                {errors.section?.sectionName && <p className="error">{errors.section?.sectionName?.message}</p>}
-              </div>
-              <div className="mb-4">
-                <label htmlFor="description">Description</label>
-                <Controller
-                  name={'section.sectionDescription'}
-                  control={control}
-                  render={({ field }) => (
-                    <textarea {...field} id="sectionName" placeholder="Section Name" className="input-custom" />
-                  )}
-                ></Controller>
-                {errors.section?.sectionDescription && (
-                  <p className="error">{errors.section?.sectionDescription?.message}</p>
-                )}
-              </div>
-              <div className="mb-6">
-                <label htmlFor="tags" className="mb-2 block">
-                  Tags
-                </label>
-                <Controller
-                  name={'section.teamLabels'}
-                  control={control}
-                  render={({ field }) => (
-                    <div className="inline-block">
-                      <select
-                        onChange={(e) => {
-                          handleTagSelect(e);
-                        }}
-                        className="block w-auto max-w-fit rounded-md border border-gray-300 px-4 py-2 pr-8 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      >
-                        <option value="">Select a tag</option>
-                        {teamLabels.map((teamLabel) => (
-                          <option key={teamLabel.id} value={teamLabel.id}>
-                            {teamLabel.labelName}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                />
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {form.section.teamLabels.map((label) => (
-                    <div
-                      key={label.id}
-                      className="flex items-center space-x-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700"
-                    >
-                      <span>{label.labelName}</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleDeleteTag(label.id);
-                        }}
-                        className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-700 text-white hover:bg-blue-800"
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                {errors.section?.teamLabels && <p className="error">{errors.section?.teamLabels?.message}</p>}
-              </div>
-              {mode !== 'sectionCreation' && (
-                <>
-                  <h3 className="mb-2">Files:</h3>
-                  <div className="mb-4 overflow-hidden">
-                    <ul>
-                      {form.section.files?.map((s3Object: S3ObjectDto, index: number) => (
-                        <div key={index} className="file-item mb-2 flex items-center justify-between">
-                          <span
-                            className="truncate"
-                            style={{
-                              maxWidth: '60%', // Adjust the max-width as needed
-                            }}
-                          >
-                            {getOnlyFileName(s3Object.name || '')}
-                          </span>
-                          <div>
-                            <TracerButton
-                              name="View"
-                              onClick={() => {
-                                handleRedirect(s3Object.presignedUrl || '');
-                              }}
-                            />
-                            <button
-                              className="cancel-button ml-3"
-                              onClick={() => {
-                                setFileToDelete(s3Object);
-                                setIsAlertModalOpen(true);
-                              }}
-                              type="button"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </ul>
-                  </div>
+              <FaChevronLeft size={24} />
+            </button>
+          )}
 
-                  <DragAndDropArea onDrop={handleDrop} onFileSelect={handleFileSelect} />
-                </>
-              )}
-            </form>
-            {sectionService.current?.canMoveToNextSection(form.section.position) && (
-              <button
-                onClick={() => {
-                  sectionService.current?.moveToNextSection();
-                  setMoved(moved + 1);
-                }}
-                className="arrow-button flex-shrink-0"
+          <form
+            className={`${!sectionService.current?.canMoveToPreviousSection(form.section.position) || !sectionService.current?.canMoveToNextSection(form.section.position) ? 'px-8' : ''}`}
+          >
+            <label className=" flex items-center">
+              <input
+                type="checkbox"
+                className="peer hidden"
+                checked={form.section.isRequired}
+                onChange={(e) => setValue('section.isRequired', e.target.checked)}
+              />
+              <span
+                className={`h-5 w-5 rounded border-2 border-gray-400 ${
+                  form.section.isRequired ? 'bg-[var(--primary-button-hover)]' : 'bg-white'
+                } flex items-center justify-center peer-checked:bg-[var(--primary-button-hover)]`}
               >
-                <FaChevronRight size={24} />
-              </button>
+                {form.section.isRequired && (
+                  <svg
+                    className="h-3 w-3 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/ 2000/svg"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                )}
+              </span>
+              <span className="ms-2">Is Required</span>
+            </label>
+            <div className="form-box">
+              <label htmlFor="sectionName">Section Name</label>
+              <Controller
+                name={'section.sectionName'}
+                control={control}
+                render={({ field }) => <input {...field} type="text" id="sectionName" placeholder="Section Name" />}
+              ></Controller>
+              {errors.section?.sectionName && <p className="error">{errors.section?.sectionName?.message}</p>}
+            </div>
+            <div className="form-box">
+              <label htmlFor="description">Description</label>
+              <Controller
+                name={'section.sectionDescription'}
+                control={control}
+                render={({ field }) => <textarea {...field} id="sectionName" placeholder="Section Name" />}
+              ></Controller>
+              {errors.section?.sectionDescription && (
+                <p className="error">{errors.section?.sectionDescription?.message}</p>
+              )}
+            </div>
+            <div className="form-box">
+              <label htmlFor="tags" className="mb-2 block">
+                Tags
+              </label>
+              <Controller
+                name={'section.teamLabels'}
+                control={control}
+                render={({ field }) => (
+                  <div className="inline-block">
+                    <select
+                      onChange={(e) => {
+                        handleTagSelect(e);
+                      }}
+                    >
+                      <option value="null">Select a tag</option>
+                      {teamLabels.map((teamLabel) => (
+                        <option key={teamLabel.id} value={teamLabel.id}>
+                          {teamLabel.labelName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              />
+              <div className="mt-2 flex flex-wrap gap-2">
+                {form.section.teamLabels.map((label) => (
+                  <div
+                    key={label.id}
+                    className="flex items-center space-x-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700"
+                  >
+                    <span>{label.labelName}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleDeleteTag(label.id);
+                      }}
+                      className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-700 text-white hover:bg-blue-800"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+              {errors.section?.teamLabels && <p className="error">{errors.section?.teamLabels?.message}</p>}
+            </div>
+            {mode !== 'sectionCreation' && (
+              <>
+                <h3 className="mb-2">Files:</h3>
+                <div className="mb-4 overflow-hidden">
+                  <ul>
+                    {form.section.files?.map((s3Object: S3ObjectDto, index: number) => (
+                      <div key={index} className="file-item mb-2 flex items-center justify-between">
+                        <span
+                          className="truncate"
+                          style={{
+                            maxWidth: '60%', // Adjust the max-width as needed
+                          }}
+                        >
+                          {getOnlyFileName(s3Object.name || '')}
+                        </span>
+                        <div>
+                          <TracerButton
+                            name="View"
+                            onClick={() => {
+                              handleRedirect(s3Object.presignedUrl || '');
+                            }}
+                          />
+                          <button
+                            className="cancel-button ml-3"
+                            onClick={() => {
+                              setFileToDelete(s3Object);
+                              setIsAlertModalOpen(true);
+                            }}
+                            type="button"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </ul>
+                </div>
+
+                <DragAndDropArea onDrop={handleDrop} onFileSelect={handleFileSelect} />
+              </>
             )}
-          </div>
+          </form>
+          {sectionService.current?.canMoveToNextSection(form.section.position) && (
+            <button
+              onClick={() => {
+                sectionService.current?.moveToNextSection(form.section);
+                setMoved(moved + 1);
+              }}
+              className="arrow-button next flex-shrink-0"
+            >
+              <FaChevronRight size={24} />
+            </button>
+          )}
         </div>
       )}
       <AlertModal
