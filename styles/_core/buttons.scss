@@ -115,3 +115,14 @@ button.clearAll {
     background-color: #dbeafe; // Tailwind bg-blue-100
   }
 }
+
+.adminCard{
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0.5rem; // Tailwind rounded-lg
+  border: 1.25px solid #d1d5db; // Tailwind border-gray-300
+  padding: 1rem; // Tailwind p-4
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.05); // Tailwind shadow-md
+}

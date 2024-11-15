@@ -110,7 +110,7 @@ const TeamLabels = () => {
           {filteredTeamLabels.map((teamLabel) => (
             <div
               key={teamLabel.id}
-              className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
+              className="adminCard"
               onClick={() => handleLabelClick(teamLabel?.id || '')}
             >
               <div>

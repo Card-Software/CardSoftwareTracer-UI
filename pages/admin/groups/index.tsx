@@ -86,7 +86,7 @@ const Groups = () => {
           {filteredGroups.map((group) => (
             <div
               key={group.id}
-              className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
+              className="adminCard"
               onClick={() => group.id && handleGroupClick(group.id)}
             >
               <div>
