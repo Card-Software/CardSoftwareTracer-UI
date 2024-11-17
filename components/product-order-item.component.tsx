@@ -51,7 +51,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
 
   return (
     <>
-      <Link href={`/dashboard/po/${productOrder.id as string}`}>
+      <Link href={`/dashboard/po/${productOrder.id as string}`} className='flex justify-center'>
         <div
           className="flex flex-col justify-between rounded-md border border-gray-400 p-4"
           style={{ height: '260px', width: '300px' }}
@@ -61,7 +61,7 @@ const ProductOrderItem: React.FC<ProductOrderItemProps> = ({
 
             {isAdmin && (
               <button className="square" onClick={handleDeleteClick}>
-                <FaTrash />
+                <FaTrash className='trashButton'/>
               </button>
             )}
           </div>

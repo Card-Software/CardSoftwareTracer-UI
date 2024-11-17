@@ -148,7 +148,7 @@ const ProductOrderDetails: React.FC<ProductOrderDetailsProps> = ({
 
   return (
     <div className="grid grid-cols-4 grid-rows-4 gap-x-4">
-      <div className="form-box">
+      <div className='form-box'>
         <label>Product Order Number</label>
         <Controller
           name={'productOrderDetails.productOrderNumber'}

@@ -89,7 +89,7 @@ const TraceabilityStreamComponent: React.FC<TraceabilityStreamProps> = ({
               className="ml-2 rounded bg-red-600 px-4 py-2 font-bold text-white hover:bg-red-500"
               onClick={() => onDeleteStream(stream)}
             >
-              <FaTrash />
+              <FaTrash className='trashButton'/>
             </button>
           </div>
         </div>

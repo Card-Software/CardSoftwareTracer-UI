@@ -16,11 +16,9 @@ const Statuses = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [id, setId] = useState<string | null>(null);
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [teamStatusToDelete, setTeamStatusToDelete] =
-    useState<TeamStatus | null>(null);
+  const [teamStatusToDelete, setTeamStatusToDelete] = useState<TeamStatus | null>(null);
 
-  const successDeleteToast = () =>
-    toast.success('Team status deleted successfully');
+  const successDeleteToast = () => toast.success('Team status deleted successfully');
   const errorToast = () => toast.error('Error deleting team status');
 
   useEffect(() => {
@@ -65,87 +63,73 @@ const Statuses = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="tool-bar">
-        <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            Team Statuses
-          </h1>
-        </div>
-        <div className="tool-bar-buttons">
-          <TracerButton
-            name="Add Status"
-            icon={<HiPlus />}
-            onClick={handleAddStatus}
-          />
-        </div>
-      </div>
-
-      <div
-        className="my-4 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {teamStatuses.map((teamStatus) => (
-          <div
-            key={teamStatus.id}
-            className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
-            onClick={() => handleStatusClick(teamStatus.id as string)}
-          >
+      <div className="content">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Team Statuses</h1>
             <div>
-              <h2 className="text-lg font-bold text-gray-700">
-                {teamStatus.name}
-              </h2>
+              <TracerButton name="Add Status" icon={<HiPlus />} onClick={handleAddStatus} />
             </div>
-            <div
-              onClick={(e) => {
-                setIsAlertModalOpen(true);
-                setTeamStatusToDelete(teamStatus);
-                e.stopPropagation();
-              }}
-            >
-              <FaTrash
-                color="#ef4444"
-                className="h-5 w-5 transition-transform duration-200 hover:scale-125"
-              />
-            </div>
-            <Toaster />
           </div>
-        ))}
-      </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {teamStatuses.map((teamStatus) => (
+            <div
+              key={teamStatus.id}
+              className="adminCard"
+              onClick={() => handleStatusClick(teamStatus.id as string)}
+            >
+              <div>
+                <h2 className="text-lg font-bold text-gray-700">{teamStatus.name}</h2>
+              </div>
+              <div
+                onClick={(e) => {
+                  setIsAlertModalOpen(true);
+                  setTeamStatusToDelete(teamStatus);
+                  e.stopPropagation();
+                }}
+              >
+                <FaTrash className="trashButton h-5 w-5" />
+              </div>
+              <Toaster />
+            </div>
+          ))}
+        </div>
 
-      {isAlertModalOpen && (
-        <AlertModal
-          isOpen={isAlertModalOpen}
-          type="delete"
-          title="Delete Team Status"
-          message="Are you sure you want to delete this Team Status"
-          icon={<FaTrash className="h-6 w-6 text-red-500" />}
+        {isAlertModalOpen && (
+          <AlertModal
+            isOpen={isAlertModalOpen}
+            type="delete"
+            title="Delete Team Status"
+            message="Are you sure you want to delete this Team Status"
+            icon={<FaTrash className="h-6 w-6 text-red-500" />}
+            onClose={() => {
+              setIsAlertModalOpen(false);
+              setTeamStatusToDelete(null);
+            }}
+            onConfirm={() => {
+              if (teamStatusToDelete?.id) {
+                handleDeleteStatus(teamStatusToDelete.id);
+              } else {
+                console.error('Team status id is null' + teamStatusToDelete);
+              }
+            }}
+          />
+        )}
+
+        <TeamStatusModal
+          isOpen={isModalOpen}
+          teamStatusId={id}
           onClose={() => {
-            setIsAlertModalOpen(false);
-            setTeamStatusToDelete(null);
+            setIsModalOpen(false);
+            setId(null);
           }}
-          onConfirm={() => {
-            if (teamStatusToDelete?.id) {
-              handleDeleteStatus(teamStatusToDelete.id);
-            } else {
-              console.error('Team status id is null' + teamStatusToDelete);
-            }
+          onSave={() => {
+            fetchData();
+            setId(null);
           }}
         />
-      )}
-
-      <TeamStatusModal
-        isOpen={isModalOpen}
-        teamStatusId={id}
-        onClose={() => {
-          setIsModalOpen(false);
-          setId(null);
-        }}
-        onSave={() => {
-          fetchData();
-          setId(null);
-        }}
-      />
+      </div>
     </Layout>
   );
 };

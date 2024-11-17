@@ -21,8 +21,7 @@ const TeamLabels = () => {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [tlToDelete, setTlToDelete] = useState<TeamLabel | null>(null);
 
-  const successDeleteToast = () =>
-    toast.success('Team label deleted successfully');
+  const successDeleteToast = () => toast.success('Team label deleted successfully');
   const errorToast = () => toast.error('Error deleting team label');
 
   useEffect(() => {
@@ -31,9 +30,7 @@ const TeamLabels = () => {
       try {
         setIsLoading(true);
         if (organization) {
-          const data = await teamLabelProxy.getTeamLabelsByOrganizationName(
-            organization.name,
-          );
+          const data = await teamLabelProxy.getTeamLabelsByOrganizationName(organization.name);
           setTeamLabels(data);
           setFilteredTeamLabels(data);
         } else {
@@ -65,9 +62,7 @@ const TeamLabels = () => {
   const handleDeleteLabel = async (id: string) => {
     try {
       await teamLabelProxy.deleteTeamLabel(id);
-      const updatedTeamLabels = teamLabels.filter(
-        (teamLabel) => teamLabel.id !== id,
-      );
+      const updatedTeamLabels = teamLabels.filter((teamLabel) => teamLabel.id !== id);
       setTeamLabels(updatedTeamLabels);
       setFilteredTeamLabels(updatedTeamLabels);
       successDeleteToast();
@@ -81,25 +76,17 @@ const TeamLabels = () => {
 
   const updateTeamLabels = (updatedLabel: TeamLabel) => {
     setTeamLabels((prevLabels) => {
-      const labelExists = prevLabels.find(
-        (label) => label.id === updatedLabel.id,
-      );
+      const labelExists = prevLabels.find((label) => label.id === updatedLabel.id);
       if (labelExists) {
-        return prevLabels.map((label) =>
-          label.id === updatedLabel.id ? updatedLabel : label,
-        );
+        return prevLabels.map((label) => (label.id === updatedLabel.id ? updatedLabel : label));
       } else {
         return [...prevLabels, updatedLabel];
       }
     });
     setFilteredTeamLabels((prevLabels) => {
-      const labelExists = prevLabels.find(
-        (label) => label.id === updatedLabel.id,
-      );
+      const labelExists = prevLabels.find((label) => label.id === updatedLabel.id);
       if (labelExists) {
-        return prevLabels.map((label) =>
-          label.id === updatedLabel.id ? updatedLabel : label,
-        );
+        return prevLabels.map((label) => (label.id === updatedLabel.id ? updatedLabel : label));
       } else {
         return [...prevLabels, updatedLabel];
       }
@@ -109,81 +96,67 @@ const TeamLabels = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="tool-bar">
-        <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            Team Labels
-          </h1>
-        </div>
-        <div className="tool-bar-buttons">
-          <TracerButton
-            name="Add Label"
-            icon={<HiPlus />}
-            onClick={handleAddLabel}
-          />
-        </div>
-      </div>
-
-      <div
-        className="my-4 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredTeamLabels.map((teamLabel) => (
-          <div
-            key={teamLabel.id}
-            className="flex cursor-pointer items-center justify-between rounded-lg border border-gray-300 p-4 shadow-md"
-            onClick={() => handleLabelClick(teamLabel?.id || '')}
-          >
+      <div className="content">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>Team Labels</h1>
             <div>
-              <h2 className="text-lg font-bold text-gray-700">
-                {teamLabel.labelName}
-              </h2>
+              <TracerButton name="Add Label" icon={<HiPlus />} onClick={handleAddLabel} />
             </div>
-            <div
-              onClick={(e) => {
-                setIsAlertModalOpen(true);
-                setTlToDelete(teamLabel);
-                e.stopPropagation();
-              }}
-            >
-              <FaTrash
-                color="#ef4444"
-                className="h-5 w-5 transition-transform duration-200 hover:scale-125"
-              />
-            </div>
-            <Toaster />
           </div>
-        ))}
-      </div>
+        </div>
 
-      <TeamLabelModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        teamLabelId={id}
-        onSave={updateTeamLabels}
-      />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredTeamLabels.map((teamLabel) => (
+            <div
+              key={teamLabel.id}
+              className="adminCard"
+              onClick={() => handleLabelClick(teamLabel?.id || '')}
+            >
+              <div>
+                <h2 className="text-lg font-bold text-gray-700">{teamLabel.labelName}</h2>
+              </div>
+              <div
+                onClick={(e) => {
+                  setIsAlertModalOpen(true);
+                  setTlToDelete(teamLabel);
+                  e.stopPropagation();
+                }}
+              >
+                <FaTrash className="trashButton h-5 w-5" />
+              </div>
+              <Toaster />
+            </div>
+          ))}
+        </div>
 
-      {isAlertModalOpen && (
-        <AlertModal
-          isOpen={isAlertModalOpen}
-          type="delete"
-          title="Delete Team Label"
-          message="Are you sure you want to delete this Team Label"
-          icon={<FaTrash className="h-6 w-6 text-red-500" />}
-          onClose={() => {
-            setIsAlertModalOpen(false);
-            setTlToDelete(null);
-          }}
-          onConfirm={() => {
-            if (tlToDelete?.id) {
-              handleDeleteLabel(tlToDelete.id);
-            } else {
-              console.error('Team label id is null' + tlToDelete);
-            }
-          }}
+        <TeamLabelModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          teamLabelId={id}
+          onSave={updateTeamLabels}
         />
-      )}
+        {isAlertModalOpen && (
+          <AlertModal
+            isOpen={isAlertModalOpen}
+            type="delete"
+            title="Delete Team Label"
+            message="Are you sure you want to delete this Team Label"
+            icon={<FaTrash className="h-6 w-6 text-red-500" />}
+            onClose={() => {
+              setIsAlertModalOpen(false);
+              setTlToDelete(null);
+            }}
+            onConfirm={() => {
+              if (tlToDelete?.id) {
+                handleDeleteLabel(tlToDelete.id);
+              } else {
+                console.error('Team label id is null' + tlToDelete);
+              }
+            }}
+          />
+        )}
+      </div>
     </Layout>
   );
 };

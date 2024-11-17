@@ -29,9 +29,7 @@ const GroupDetails = () => {
   const [organization, setOrganization] = useState<Organization>();
   const [selectedOrganization, setSelectedOrganization] = useState('');
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<
-    { label: string; value: string }[]
-  >([]);
+  const [selectedUsers, setSelectedUsers] = useState<{ label: string; value: string }[]>([]);
 
   const successToast = () => toast.success('Group saved successfully');
   const successEditToast = () => toast.success('Group updated successfully');
@@ -70,9 +68,7 @@ const GroupDetails = () => {
       if (isEditMode && id) {
         setIsLoading(true);
         try {
-          const groupToEdit = await userAuthorizationProxy.getGroupById(
-            id as string,
-          );
+          const groupToEdit = await userAuthorizationProxy.getGroupById(id as string);
           if (groupToEdit) {
             setGroup(groupToEdit);
             setSelectedUsers(
@@ -94,9 +90,7 @@ const GroupDetails = () => {
 
   const handleEmailChange = (selectedOptions: any) => {
     setSelectedUsers(selectedOptions);
-    const emails = selectedOptions.map(
-      (option: { value: string }) => option.value,
-    );
+    const emails = selectedOptions.map((option: { value: string }) => option.value);
     setGroup((prev) => ({
       ...prev,
       membersEmail: emails,
@@ -123,11 +117,7 @@ const GroupDetails = () => {
     }
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >,
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setGroup((prev) => ({
       ...prev,
@@ -138,95 +128,50 @@ const GroupDetails = () => {
   return (
     <Layout>
       <LoadingOverlay show={isLoading} />
-      <div className="tool-bar">
-        <div className="tool-bar-title">
-          <h1 className="text-3xl font-bold text-[var(--primary-color)]">
-            {isEditMode ? 'Edit Group' : 'Create New Group'}
-          </h1>
+      <div className="content">
+        <div aria-label="Toolbar">
+          <div className="tool-bar-content">
+            <h1>{isEditMode ? 'Edit Group' : 'Create New Group'}</h1>
+          </div>
         </div>
-      </div>
-      <div
-        className="my-2 w-full border-b-4"
-        style={{ borderColor: 'var(--primary-color)' }}
-      ></div>
-      <div className="my-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Group Name
-        </label>
-        <input
-          type="text"
-          name="name"
-          value={group.name || ''}
-          onChange={handleInputChange}
-          className="input-custom"
-        />
-      </div>
-
-      <div className="my-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Description
-        </label>
-        <textarea
-          name="description"
-          value={group.description || ''}
-          onChange={handleInputChange}
-          className="input-custom"
-        />
-      </div>
-
-      <div className="my-4">
-        <label className="block text-sm font-medium text-gray-700">
-          Members (Emails)
-        </label>
-        <Select
-          isMulti
-          name="membersEmail"
-          value={selectedUsers}
-          options={users.map((user) => ({
-            label: user.email || '',
-            value: user.email || '',
-          }))}
-          onChange={handleEmailChange}
-          className="react-select"
-        />
-      </div>
-
-      <footer
-        className="stream-footer flex justify-between bg-gray-200 p-4"
-        style={{ backgroundColor: 'var(--primary-color)' }}
-      >
         <div>
-          <TracerButton
-            name={isEditMode ? 'Update Group' : 'Create Group'}
-            onClick={handleSubmit}
-          />
-          <button
-            className="ml-5 rounded-md border border-white bg-none px-4 py-2 text-white hover:bg-gray-600"
-            onClick={() => router.back()}
-          >
-            Cancel
-          </button>
-
-          <Toaster />
+          <label className="row text-sm font-medium text-gray-700">Group Name</label>
+          <input type="text" name="name" value={group.name || ''} onChange={handleInputChange} className="w-full" />
         </div>
-      </footer>
 
-      {/* <div className="flex">
         <div className="my-4">
-          <TracerButton
-            name={isEditMode ? 'Update Group' : 'Create Group'}
-            onClick={handleSubmit}
+          <label className="row text-sm font-medium text-gray-700">Description</label>
+          <textarea
+            name="description"
+            value={group.description || ''}
+            onChange={handleInputChange}
+            className="w-full"
           />
         </div>
-        <div className="my-4 ml-5">
-          <button
-            className="rounded-md bg-red-500 px-4 py-2 text-white"
-            onClick={() => router.push('/admin/groups')}
-          >
-            Cancel
-          </button>
+
+        <div className="my-4">
+          <label className="block text-sm font-medium text-gray-700">Members (Emails)</label>
+          <Select
+            isMulti
+            name="membersEmail"
+            value={selectedUsers}
+            options={users.map((user) => ({
+              label: user.email || '',
+              value: user.email || '',
+            }))}
+            onChange={handleEmailChange}
+            className="react-select"
+          />
         </div>
-      </div> */}
+      </div>
+
+      <footer>
+        <TracerButton name={isEditMode ? 'Update Group' : 'Create Group'} onClick={handleSubmit} />
+        <button className="cancel" onClick={() => router.back()}>
+          Cancel
+        </button>
+        <Toaster />
+      </footer>
       <Toaster />
     </Layout>
   );
